@@ -6,6 +6,10 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
+Version 3.0.28, 2008-XXX
+
+- FIX: Single <br> between two blocks now creates a new line
+
 Version 3.0.27, 2008-10-04
 
 - INF: License changed from Qt to GPLv2

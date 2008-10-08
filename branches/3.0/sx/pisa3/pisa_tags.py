@@ -227,6 +227,7 @@ class pisaTagBR(pisaTag):
         c.addFrag()
         c.fragStrip = True
         del c.frag.lineBreak 
+        c.force = True
         
 import base64
 import re
