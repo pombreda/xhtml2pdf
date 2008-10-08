@@ -671,12 +671,21 @@ class pisaContext:
                 para.outlineLevel = first.outlineLevel
                 para.outlineOpen = first.outlineOpen
                 para.keepWithNext = first.keepWithNext
+                para.autoLeading = "max"
+
+                if self.image:
+                    para = PmlParagraphAndImage(para, self.image, side=self.imageData.get("align", "left"))
                 
                 self.addStory(para)
             
             self.fragAnchor = []
             first.bulletText = None
             
+        # Reset data
+
+        self.image = None
+        self.imageData = {}
+
         self.clearFrag()
 
     # METHODS FOR FRAG
@@ -732,6 +741,8 @@ class pisaContext:
         # XXX Doesn't work with Reportlab > 2.1
         # NBSP = '\xc2\xa0' # u"_"
         NBSP = u"\u00a0"
+        if REPORTLAB22:
+            NBSP = u" "
         
         # Replace &shy; with empty and normalize NBSP
         text = (text
