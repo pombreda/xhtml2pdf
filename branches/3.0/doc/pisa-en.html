@@ -341,6 +341,22 @@ pdftoc.pdftoclevel2 {
     margin-left: 2em;
     font-style: italic;
 } </pre>
+<h1>Tables</h1>
+<p>Tables are supported but may behave a little different to the way you might expect them to do. These restriction are due to the underlying table mechanism of ReportLab. </p>
+<ul>
+  <li><strong>The main restriction is that table cells that are longer than one page lead to an fatal error! </strong></li>
+  <li>Tables can not float left or right and can not be inlined </li>
+</ul>
+<h2>Cell widths </h2>
+<p>The table renderer is not able  to adjust the width of the table automatically. Therefore you should explicitly set the width of the table and to the table rows or cells.</p>
+<h2>Headers</h2>
+<p>It is possible to repeat table rows if a page break occurs within a table. The number of repeated rows is passed in the attribute <code>repeat</code>. Example: </p>
+<pre>&lt;table repeat=&quot;1&quot;&gt;
+  &lt;tr&gt;&lt;th&gt;Column 1&lt;/th&gt;&lt;th&gt;...&lt;/th&gt;&lt;/tr&gt;
+  ...
+&lt;/table&gt;</pre>
+<h2>Borders</h2>
+<p>Borders are supported. Use corresponding CSS styles. </p>
 <h1>Images</h1>
 <h2>Size </h2>
 <p>By default JPG images are supported. If the Python Imaging Library (PIL) is installed the file types supported by it are available too. As mapping pixels to points is not trivial the images may appear bigger in the PDF as in the browser. To adjust this you may want to use the <code>zoom</code> style. Here is a small example:</p>
