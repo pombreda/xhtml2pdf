@@ -216,7 +216,7 @@ TAGS = {
         "bgcolor":              COLOR,
         "cellpadding":          (SIZE, "0"),
         "cellspacing":          (SIZE, "0"),
-        "repeat":               (INT, "1"),  # XXX Remove this! Set to 0 
+        "repeat":               (INT, "0"),  # XXX Remove this! Set to 0 
         "width":                STRING,
         "keepmaxwidth":         SIZE,
         "keepmaxheight":        SIZE,

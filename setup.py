@@ -28,7 +28,7 @@ setup(
     download_url   = "http://www.htmltopdf.org/download.html",
     keywords       = "HTML, CSS, PDF",
 
-    requires       = ["html5lib", "reportlab"],
+    requires       = ["html5lib"], #, "reportlab"],
 
     include_package_data = False,
 

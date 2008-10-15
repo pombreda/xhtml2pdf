@@ -623,12 +623,17 @@ class pisaContext:
             # For Python 2.3 compatibility
             rfragList = copy.copy(self.fragList)
             rfragList.reverse()
-            
+        
         for frag in rfragList:           
             frag.text = frag.text.rstrip()            
             if frag.text:        
                 break
-            
+
+        # Find maximum lead
+        leading = 0
+        for frag in self.fragList:
+            leading = max(leading, frag.fontSize, frag.leading)      
+                        
         if force or (self.text.strip() and self.fragList):
                     
             # Strip trailing whitespaces
@@ -641,6 +646,7 @@ class pisaContext:
             # Update paragraph style by style of first fragment
             first = self.fragBlock          
             style = self.toParagraphStyle(first)
+            style.leading = leading
                 
             # borderRadius: None,
         
