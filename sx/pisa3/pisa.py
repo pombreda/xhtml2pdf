@@ -190,6 +190,7 @@ def command():
             "xml",
             "html",
             "encoding=",
+            "system",
             ])
     except getopt.GetoptError:
         usage()
@@ -251,6 +252,24 @@ def command():
             print COPYRIGHT
             sys.exit(0)
 
+        if o in ("--system",):
+            print COPYRIGHT           
+            print
+            print "SYSTEM INFORMATIONS"
+            print "--------------------------------------------"            
+            print "OS:                ", sys.platform
+            print "Python:            ", sys.version             
+            import html5lib
+            print "html5lib:          ", "?"
+            import reportlab
+            print "Reportlab:         ", reportlab.Version
+            #try:
+            #    import pyPdf
+            #    print "pyPdf:             ", pyPdf.__version__
+            #except:
+            #    print "pyPdf:             ","-"
+            sys.exit(0)
+            
 #        if o in ("--tempdir",):
 #            # Tempdir
 #            tempdir = a

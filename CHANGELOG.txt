@@ -8,14 +8,17 @@ CHANGELOG
 
 Version 3.0.28, 2008-XXX
 
+- NEW: Option "--system" for command line tool to dump system version infos
 - FIX: Single <br> between two blocks now creates a new line
-- FIX: Set table attribute "repeat" to 0
+- FIX: Set table attribute "repeat" to "0"
+- UPD: Paragraphs now use the maximum leading to avoid overlapping text
+- UPD: Removed "Keep with next" from H1 to H6 
 
 Version 3.0.27, 2008-10-04
 
 - INF: License changed from Qt to GPLv2
 - INF: Not yet completely combatible with Reportlab 2.2 (&nbsp; errors and borders)
-- NEW: Command line tool called "xhtml" ("pisa" still available but will 
+- NEW: Command line tool called "xhtml" ("pisa" still available but will
        be deprecatedwith pisa 3.1)
 - NEW: EGG for Python 2.6
 - NEW: Basic support for Data URI
