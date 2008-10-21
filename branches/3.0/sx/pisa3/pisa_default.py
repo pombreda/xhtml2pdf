@@ -423,10 +423,8 @@ h4,
 h5,
 h6 {
     font-weight:bold;
-    -pdf-keep-with-next: true;
     -pdf-outline: true;    
     -pdf-outline-open: false;
-    -keep-with-next: true;
 }
 
 h1 {
