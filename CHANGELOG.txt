@@ -9,6 +9,7 @@ CHANGELOG
 Version 3.0.28, 2008-XXX
 
 - NEW: Option "--system" for command line tool to dump system version infos
+- NEW: CSS attribute -pdf-line-spacing for fix space between lines
 - FIX: Single <br> between two blocks now creates a new line
 - FIX: Set table attribute "repeat" to "0"
 - UPD: Paragraphs now use the maximum leading to avoid overlapping text
