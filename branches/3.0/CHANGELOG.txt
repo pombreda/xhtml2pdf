@@ -8,6 +8,7 @@ CHANGELOG
 
 Version 3.0.28, 2008-XXX
 
+- NEW: Background colors for inline elements like <span>
 - NEW: Possibility to handle table cells that are to large via CSS options
        -pdf-keep-in-frame-max-width
        -pdf-keep-in-frame-max-height
@@ -16,6 +17,8 @@ Version 3.0.28, 2008-XXX
 - NEW: CSS attribute -pdf-line-spacing for fix space between lines
 - FIX: Single <br> between two blocks now creates a new line
 - FIX: Set table attribute "repeat" to "0"
+- FIX: Some <font> attributes did not work as expected
+- FIX: Little fix in CSS parsing 
 - UPD: Paragraphs now use the maximum leading to avoid overlapping text
 - UPD: Removed "Keep with next" from H1 to H6 
 
