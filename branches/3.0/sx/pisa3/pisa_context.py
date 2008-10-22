@@ -70,6 +70,7 @@ def getParaFrag(style):
     # Extras
     frag.leading = 0
     frag.leadingSource = "150%"
+    frag.leadingSpace = 0
     frag.backColor = white
     frag.spaceBefore = 0
     frag.spaceAfter = 0
@@ -523,7 +524,7 @@ class pisaContext:
         style = ParagraphStyle('default%d' % self.UID(), keepWithNext=first.keepWithNext)
         style.fontName = first.fontName
         style.fontSize = first.fontSize
-        style.leading = max(first.leading, first.fontSize * 1.25)
+        style.leading = max(first.leading + first.leadingSpace, first.fontSize * 1.25)
         style.backColor = first.backColor
         style.spaceBefore = first.spaceBefore
         style.spaceAfter = first.spaceAfter
@@ -646,7 +647,7 @@ class pisaContext:
             # Update paragraph style by style of first fragment
             first = self.fragBlock          
             style = self.toParagraphStyle(first)
-            style.leading = leading
+            style.leading = leading + first.leadingSpace
                 
             # borderRadius: None,
         

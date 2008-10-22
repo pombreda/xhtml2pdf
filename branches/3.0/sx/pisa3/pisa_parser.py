@@ -169,6 +169,7 @@ attrNames = '''
     -pdf-outline
     -pdf-outline-level
     -pdf-outline-open
+    -pdf-line-spacing
     '''.strip().split()
  
 def getCSSAttr(self, cssCascade, attrName, default=NotImplemented):
@@ -235,6 +236,9 @@ def CSS2Frag(c, kw, isBlock):
         c.frag.leadingSource = leading
     else:
         c.frag.leading = getSize(c.frag.leadingSource, c.frag.fontSize)
+    if c.cssAttr.has_key("-pdf-line-spacing"):         
+        c.frag.leadingSpace = getSize("".join(c.cssAttr["-pdf-line-spacing"]))    
+        # print "line-spacing", c.cssAttr["-pdf-line-spacing"], c.frag.leading                            
     if c.cssAttr.has_key("font-weight"):
         value = c.cssAttr["font-weight"].lower()
         if value in ("bold", "bolder", "500", "600", "700", "800", "900"):
