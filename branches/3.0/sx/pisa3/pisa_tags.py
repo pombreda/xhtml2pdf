@@ -15,8 +15,9 @@ from pisa_util import *
 from reportlab.graphics.barcode.code39 import Standard39
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus.flowables import *
-from reportlab.platypus.paragraph import cleanBlockQuotedText
-from reportlab.platypus.paraparser import ParaParser, ParaFrag, ps2tt, tt2ps, ABag
+from reportlab.platypus.paraparser import tt2ps, ABag
+
+from reportlab_paragraph import cleanBlockQuotedText
 
 import reportlab.lib.utils
 

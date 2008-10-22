@@ -13,10 +13,11 @@ from pisa_default import TAGS, STRING
 
 from reportlab.platypus.doctemplate import BaseDocTemplate, PageTemplate, FrameBreak, NextPageTemplate
 from reportlab.platypus.tables import Table, TableStyle
-from reportlab.platypus.flowables import Flowable, Image, CondPageBreak, KeepInFrame, ParagraphAndImage
-from reportlab.platypus.paragraph import Paragraph
+from reportlab.platypus.flowables import Flowable, Image, CondPageBreak, KeepInFrame #, ParagraphAndImage
 from reportlab.platypus.frames import Frame
 from reportlab.platypus.tableofcontents import TableOfContents
+
+from reportlab_paragraph import Paragraph
 
 import copy
 import cgi
@@ -118,8 +119,8 @@ class PmlPageTemplate(PageTemplate):
         finally:
             canvas.restoreState()
 
-class PmlParagraphAndImage(ParagraphAndImage):
-    pass
+#class PmlParagraphAndImage(ParagraphAndImage):
+#    pass
 
 class PmlImage(Image):
 

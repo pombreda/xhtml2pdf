@@ -71,7 +71,7 @@ def getParaFrag(style):
     frag.leading = 0
     frag.leadingSource = "150%"
     frag.leadingSpace = 0
-    frag.backColor = white
+    frag.backColor = None
     frag.spaceBefore = 0
     frag.spaceAfter = 0
     frag.leftIndent = 0 
@@ -638,6 +638,7 @@ class pisaContext:
         leading = 0
         for frag in self.fragList:
             leading = max(leading, frag.fontSize, frag.leading)      
+            # print frag.text, frag.backColor
                         
         if force or (self.text.strip() and self.fragList):
                     
