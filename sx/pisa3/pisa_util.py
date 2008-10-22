@@ -28,20 +28,20 @@ import os.path
 import pprint
 import sys
 import logging
-import string 
+import string
 import re
 
 rgb_re = re.compile("^.*?rgb[(]([0-9]+).*?([0-9]+).*?([0-9]+)[)].*?[ ]*$")
 
 if not(reportlab.Version[0] == "2" and reportlab.Version[2]>="1"):
     raise ImportError("Reportlab Version 2.1+ is needed!")
-    
+
 REPORTLAB22 = (reportlab.Version[0] == "2" and reportlab.Version[2] >= "2")
 # print "***", reportlab.Version, REPORTLAB22, reportlab.__file__
 
 log = logging.getLogger("ho.pisa")
 
-try: 
+try:
     import cStringIO as StringIO
 except:
     import StringIO
@@ -50,7 +50,7 @@ try:
     import pyPdf
 except:
     pyPdf = None
-    
+
 try:
     from reportlab.graphics import renderPM
 except:
@@ -124,14 +124,14 @@ def _toColor(arg, default=None):
         if default is None:
             raise ValueError('Invalid color value %r' % arg)
         return default
-    
+
 def getColor(value, default=None):
     " Convert to color value "
     try:
         original = value
         if isinstance(value, Color):
             return value
-        value = str(value).lower()       
+        value = str(value).lower()
         if value=="transparent" or value=="none":
             return default
         if value.startswith("#") and len(value)==4:
@@ -143,10 +143,10 @@ def getColor(value, default=None):
         else:
             # Shrug
             pass
-            
-        # XXX Throws illegal in 2.1 e.g. toColor('none'), 
-        # therefore we have a workaround here 
-        return _toColor(value) 
+
+        # XXX Throws illegal in 2.1 e.g. toColor('none'),
+        # therefore we have a workaround here
+        return _toColor(value)
     except ValueError, e:
         log.warn("Unknown color %r", original)
     return default
@@ -175,7 +175,7 @@ _absSizeTable = {
 
 def getSize(value, relative=0):
     """
-    Converts strings to standard sizes   
+    Converts strings to standard sizes
     """
     try:
         original = value
@@ -187,21 +187,21 @@ def getSize(value, relative=0):
             return float(value)
         elif type(value)==types.TupleType:
             value = "".join(value)
-            
-        value = str(value).strip().lower().replace(",", ".")    
-        if value[-2:]=='cm': 
+
+        value = str(value).strip().lower().replace(",", ".")
+        if value[-2:]=='cm':
             return float(value[:-2].strip()) * cm
-        elif value[-2:]=='mm': 
+        elif value[-2:]=='mm':
             return (float(value[:-2].strip()) * mm) # 1mm = 0.1cm
-        elif value[-2:]=='in': 
+        elif value[-2:]=='in':
             return float(value[:-2].strip()) * inch # 1pt == 1/72inch
-        elif value[-2:]=='inch': 
+        elif value[-2:]=='inch':
             return float(value[:-4].strip()) * inch # 1pt == 1/72inch
-        elif value[-2:]=='pt': 
+        elif value[-2:]=='pt':
             return float(value[:-2].strip())
-        elif value[-2:]=='pc': 
-            return float(value[:-2].strip()) * 12.0 # 1pt == 12pt
-        elif value[-2:]=='px': 
+        elif value[-2:]=='pc':
+            return float(value[:-2].strip()) * 12.0 # 1pc == 12pt
+        elif value[-2:]=='px':
             return float(value[:-2].strip()) * dpi96 # XXX W3C says, use 96pdi http://www.w3.org/TR/CSS21/syndata.html#length-units
         elif value[-1:]=='i':  # 1pt == 1/72inch
             return float(value[:-1].strip()) * inch
@@ -209,7 +209,7 @@ def getSize(value, relative=0):
             return (float(value[:-2].strip()) * relative) # 1em = 1 * fontSize
         elif value[-2:]=='ex': # XXX
             return (float(value[:-2].strip()) * 2.0) # 1ex = 1/2 fontSize
-        elif value[-1:]=='%': 
+        elif value[-1:]=='%':
             # print "%", value, relative, (relative * float(value[:-1].strip())) / 100.0
             return (relative * float(value[:-1].strip())) / 100.0 # 1% = (fontSize * 1) / 100
         elif value in ("normal", "inherit"):
@@ -217,13 +217,13 @@ def getSize(value, relative=0):
         elif value in ("none", "0", "auto"):
             return 0.0
         elif _absSizeTable.has_key(value):
-            return relative * _absSizeTable[value] 
+            return relative * _absSizeTable[value]
         return float(value)
     except Exception:
         log.warn("getSize %r %r", original, relative, exc_info=1)
-        # print "ERROR getSize", repr(value), repr(value), e        
+        # print "ERROR getSize", repr(value), repr(value), e
         return 0.0
-    
+
 def getCoords(x, y, w, h, pagesize):
     """
     As a stupid programmer I like to use the upper left
@@ -246,7 +246,7 @@ def getCoords(x, y, w, h, pagesize):
 
 def getBox(box, pagesize):
     """
-    Parse sizes by corners in the form: 
+    Parse sizes by corners in the form:
     <X-Left> <Y-Upper> <Width> <Height>
     The last to values with negative values are interpreted as offsets form
     the right and lower border.
