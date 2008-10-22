@@ -170,6 +170,9 @@ attrNames = '''
     -pdf-outline-level
     -pdf-outline-open
     -pdf-line-spacing
+    -pdf-keep-in-frame-max-width
+    -pdf-keep-in-frame-max-height
+    -pdf-keep-in-frame-mode    
     '''.strip().split()
  
 def getCSSAttr(self, cssCascade, attrName, default=NotImplemented):
@@ -487,8 +490,17 @@ def pisaLoop(node, c, path=[], **kw):
         if c.cssAttr.has_key("-pdf-outline-level"):
             c.frag.outlineLevel = int(c.cssAttr["-pdf-outline-level"])
         if c.cssAttr.has_key("-pdf-outline-open"):
-            c.frag.outlineOpen = getBool(c.cssAttr["-pdf-outline-open"])            
-                          
+            c.frag.outlineOpen = getBool(c.cssAttr["-pdf-outline-open"])
+        if c.cssAttr.has_key("-pdf-keep-in-frame-max-width"):
+            c.frag.keepInFrameMaxWidth = getSize("".join(c.cssAttr["-pdf-keep-in-frame-max-width"]))
+        if c.cssAttr.has_key("-pdf-keep-in-frame-max-height"):
+            c.frag.keepInFrameMaxHeight = getSize("".join(c.cssAttr["-pdf-keep-in-frame-max-height"]))
+        if c.cssAttr.has_key("-pdf-keep-in-frame-mode"):
+            value = str(c.cssAttr["-pdf-keep-in-frame-mode"]).strip().lower()
+            if value not in ("shrink","error", "overflow", "shrink", "truncate"):
+                value = None
+            c.frag.keepInFrameMode = value
+                
         # BEGIN tag
         klass = globals().get("pisaTag%s" % node.tagName.replace(":", "").upper(), None)
         obj = None      

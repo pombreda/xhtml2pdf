@@ -218,10 +218,10 @@ TAGS = {
         "cellspacing":          (SIZE, "0"),
         "repeat":               (INT, "0"),  # XXX Remove this! Set to 0 
         "width":                STRING,
-        "keepmaxwidth":         SIZE,
-        "keepmaxheight":        SIZE,
-        "keepmergespace":       (INT, 1),
-        "keepmode":             (["error", "overflow", "shrink", "truncate"], "shrink"),
+        #"keepmaxwidth":         SIZE,
+        #"keepmaxheight":        SIZE,
+        #"keepmergespace":       (INT, 1),
+        #"keepmode":             (["error", "overflow", "shrink", "truncate"], "shrink"),
         }),
 
     "tr": (1, {

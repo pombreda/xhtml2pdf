@@ -120,6 +120,10 @@ def getParaFrag(style):
     frag.outlineLevel = 0
     frag.outlineOpen = False
     
+    frag.keepInFrameMode = "shrink"
+    frag.keepInFrameMaxWidth = None
+    frag.keepInFrameMaxHeight = None
+    
     return frag     
 
 def getDirName(path):

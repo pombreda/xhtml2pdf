@@ -344,9 +344,12 @@ pdftoc.pdftoclevel2 {
 <h1>Tables</h1>
 <p>Tables are supported but may behave a little different to the way you might expect them to do. These restriction are due to the underlying table mechanism of ReportLab. </p>
 <ul>
-  <li><strong>The main restriction is that table cells that are longer than one page lead to an fatal error! </strong></li>
+  <li>The main restriction is that table cells that are longer than one page lead to an error</li>
   <li>Tables can not float left or right and can not be inlined </li>
 </ul>
+<h2>Long cells</h2>
+<p>Pisa is not able to split table cells that are larger than the available space. To work around it you may define what should happen in this case. With the following options you define the maximum space available for one cell - that should be smaller than the page dimensions. The <code>-pdf-keep-in-frame-mode</code> can be one of: &quot;error&quot;, &quot;overflow&quot;, &quot;shrink&quot;, &quot;truncate&quot;, where &quot;shrink&quot; is the default value. </p>
+<pre>table {<br />    -pdf-keep-in-frame-max-width: 10cm;<br />    -pdf-keep-in-frame-max-height: 20cm;<br />    -pdf-keep-in-frame-mode: shrink;<br />}</pre>
 <h2>Cell widths </h2>
 <p>The table renderer is not able  to adjust the width of the table automatically. Therefore you should explicitly set the width of the table and to the table rows or cells.</p>
 <h2>Headers</h2>
