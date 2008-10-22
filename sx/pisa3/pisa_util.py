@@ -172,7 +172,7 @@ _absSizeTable = {
     "larger": 1.25,
     "smaller": 0.75,
     }
-
+ 
 def getSize(value, relative=0):
     """
     Converts strings to standard sizes
@@ -215,7 +215,7 @@ def getSize(value, relative=0):
         elif value in ("normal", "inherit"):
             return relative
         elif value in ("none", "0", "auto"):
-            return 0.0
+            return 0.0        
         elif _absSizeTable.has_key(value):
             return relative * _absSizeTable[value]
         return float(value)

@@ -56,18 +56,18 @@ _weightTable = {
     #wx.BOLD: 700,
     }
 
-_absSizeTable = {
-    "xx-small" : 3./5.,
-    "x-small": 3./4.,
-    "small": 8./9.,
-    "medium": 1./1.,
-    "large": 6./5.,
-    "x-large": 3./2.,
-    "xx-large": 2./1.,
-    "xxx-large": 3./1.,
-    "larger": 1.25,      # XXX Not totaly CSS conform:
-    "smaller": 0.75,     # http://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
-    }
+#_absSizeTable = {
+#    "xx-small" : 3./5.,
+#    "x-small": 3./4.,
+#    "small": 8./9.,
+#    "medium": 1./1.,
+#    "large": 6./5.,
+#    "x-large": 3./2.,
+#    "xx-large": 2./1.,
+#    "xxx-large": 3./1.,
+#    "larger": 1.25,      # XXX Not totaly CSS conform:
+#    "smaller": 0.75,     # http://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
+#    }
 
 _borderStyleTable = {
     "none": 0,

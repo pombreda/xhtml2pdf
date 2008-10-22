@@ -96,6 +96,7 @@ class pisaTagA(pisaTag):
 
 class pisaTagFONT(pisaTag):
 
+    # Source: http://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
     _sizes = {
         "+4": 200,
         "+3": 175,
@@ -104,22 +105,34 @@ class pisaTagFONT(pisaTag):
         "-1": 75,
         "-2": 50,
         "-3": 25,
-        "1": 50,
+        "1": 50,  
+        #"xx-small": 50,
+        #"x-small": 50,  
         "2": 75,
+        #"small": 75, 
         "3": 100,
+        #"medium": 100,
         "4": 125,
+        #"large": 125,
         "5": 150,
+        #"x-large": 150,
         "6": 175,
-        "7": 200,
+        #"xx-large": 175,
+        "7": 200,        
         }
 
     def start(self, c):
         if self.attr["color"] is not None:
-            c.frag.textColor = self.attr["color"]
+            c.frag.textColor = c.getColor(self.attr["color"])
         if self.attr["face"] is not None:
-            c.frag.fontName = self.attr["face"]
+            c.frag.fontName = c.getFontName(self.attr["face"])
         if self.attr["size"] is not None:
-            c.frag.fontSize = c.frag.fontSize * (self._sizes.get(self.attr["size"], 100) / 100.0)
+            size = self._sizes.get(self.attr["size"], 0)
+            if size:
+                size = c.frag.fontSize * (size / 100)
+            else:
+                size = getSize(self.attr["size"], c.frag.fontSize)
+            c.frag.fontSize = c.frag.fontSize * size
 
     def end(self, c):
         pass
