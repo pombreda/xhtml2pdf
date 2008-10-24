@@ -123,7 +123,7 @@ class pisaTagFONT(pisaTag):
 
     def start(self, c):
         if self.attr["color"] is not None:
-            c.frag.textColor = c.getColor(self.attr["color"])
+            c.frag.textColor = getColor(self.attr["color"])
         if self.attr["face"] is not None:
             c.frag.fontName = c.getFontName(self.attr["face"])
         if self.attr["size"] is not None:
