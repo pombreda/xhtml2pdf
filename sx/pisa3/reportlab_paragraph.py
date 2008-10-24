@@ -137,12 +137,13 @@ def _putFragLine(tx,words):
             
             # Background colors (done like underline)            
             # print "#", repr(f.text), f.fontSize, f.backColor, f.underline
-            if xtraState.backgroundColor!=f.backColor or xtraState.backgroundFontSize!=f.fontSize:
-                if xtraState.backgroundColor is not None:
-                    xtraState.backgrounds.append( (xtraState.background_x, cur_x_s, xtraState.backgroundColor, xtraState.backgroundFontSize) )                
-                xtraState.background_x = cur_x_s
-                xtraState.backgroundColor = f.backColor
-                xtraState.backgroundFontSize = f.fontSize
+            if hasattr(f, "backColor"):            
+                if xtraState.backgroundColor!=f.backColor or xtraState.backgroundFontSize!=f.fontSize:
+                    if xtraState.backgroundColor is not None:
+                        xtraState.backgrounds.append( (xtraState.background_x, cur_x_s, xtraState.backgroundColor, xtraState.backgroundFontSize) )                
+                    xtraState.background_x = cur_x_s
+                    xtraState.backgroundColor = f.backColor
+                    xtraState.backgroundFontSize = f.fontSize
            
             # Underline     
             if not xtraState.underline and f.underline:
@@ -183,8 +184,9 @@ def _putFragLine(tx,words):
     cur_x_s = cur_x+(nSpaces-1)*ws
     if xtraState.underline:
         xtraState.underlines.append( (xtraState.underline_x, cur_x_s, xtraState.underlineColor) )
-    if xtraState.backgroundColor is not None:
-        xtraState.backgrounds.append( (xtraState.background_x, cur_x_s, xtraState.backgroundColor, xtraState.backgroundFontSize) )
+    if hasattr(f, "backColor"):  
+        if xtraState.backgroundColor is not None:
+            xtraState.backgrounds.append( (xtraState.background_x, cur_x_s, xtraState.backgroundColor, xtraState.backgroundFontSize) )
     if xtraState.strike:
         xtraState.strikes.append( (xtraState.strike_x, cur_x_s, xtraState.strikeColor) )
     if xtraState.link:
@@ -231,7 +233,7 @@ def _sameFrag(f,g):
     if (hasattr(f,'cbDefn') or hasattr(g,'cbDefn')
             or hasattr(f,'lineBreak') or hasattr(g,'lineBreak')): return 0
     for a in ('fontName', 'fontSize', 'textColor', 'backColor', 'rise', 'underline', 'strike', 'link'):
-        if getattr(f,a)!=getattr(g,a): return 0
+        if getattr(f,a,None)!=getattr(g,a,None): return 0
     return 1
 
 def _getFragWords(frags):
@@ -965,7 +967,7 @@ class Paragraph(Flowable):
                 tx.setFont(f.fontName, f.fontSize, style.leading)
                 ws = lines[0][0]
                 t_off = dpl( tx, offset, ws, lines[0][1], noJustifyLast and nLines==1)
-                if f.backColor or f.underline or f.link or f.strike:
+                if f.underline or f.link or f.strike:
                     # print "ever"
                     xs = tx.XtraState = ABag()
                     xs.cur_y = cur_y
