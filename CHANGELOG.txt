@@ -6,7 +6,7 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
-Version 3.0.28, 2008-XXX
+Version 3.0.28, 2008-10-26
 
 - NEW: Background colors for inline elements like <span>
 - NEW: Possibility to handle table cells that are to large via CSS options
@@ -15,12 +15,17 @@ Version 3.0.28, 2008-XXX
        -pdf-keep-in-frame-mode    
 - NEW: Option "--system" for command line tool to dump system version infos
 - NEW: CSS attribute -pdf-line-spacing for fix space between lines
+- UPD: Paragraphs now use the maximum leading to avoid overlapping text
+- UPD: Removed "Keep with next" from H1 to H6 
+- FIX: Compatible with Reportlab 2.2 now
+- FIX: Problem regarding the order of border style definitions
 - FIX: Single <br> between two blocks now creates a new line
 - FIX: Set table attribute "repeat" to "0"
 - FIX: Some <font> attributes did not work as expected
+- FIX: Font sizes reworked to behave like browser implmentations
+- FIX: Like in most HTML browser table cells now have "valign=middle" and
+       table headers have font weight bold 
 - FIX: Little fix in CSS parsing 
-- UPD: Paragraphs now use the maximum leading to avoid overlapping text
-- UPD: Removed "Keep with next" from H1 to H6 
 
 Version 3.0.27, 2008-10-04
 

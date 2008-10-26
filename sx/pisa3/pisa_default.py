@@ -509,8 +509,14 @@ pdftoc {
 tr,
 th,
 td {
-    vertical-align: top;
+
+    vertical-align: middle;
     width: auto;
+}
+
+th {
+    text-align: center;
+    font-weight: bold;
 }
 
 center {

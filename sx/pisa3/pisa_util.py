@@ -160,20 +160,47 @@ def getBorderStyle(value):
 mm = cm / 10.0
 dpi96 = (1.0 / 96.0 * inch)
 
-_absSizeTable = {
-    "xx-small" : 3./5.,
-    "x-small": 3./4.,
-    "small": 8./9.,
-    "medium": 1./1.,
-    "large": 6./5.,
-    "x-large": 3./2.,
-    "xx-large": 2./1.,
-    "xxx-large": 3./1.,
+_absoluteSizeTable = {
+    "1": 50.0/100.0,  
+    "xx-small": 50.0/100.0,
+    "x-small": 50.0/100.0,  
+    "2": 75.0/100.0,
+    "small": 75.0/100.0, 
+    "3": 100.0/100.0,
+    "medium": 100.0/100.0,
+    "4": 125.0/100.0,
+    "large": 125.0/100.0,
+    "5": 150.0/100.0,
+    "x-large": 150.0/100.0,
+    "6": 175.0/100.0,
+    "xx-large": 175.0/100.0,
+    "7": 200.0/100.0,        
+    "xxx-large": 200.0/100.0,    
+    #"xx-small" : 3./5.,
+    #"x-small": 3./4.,
+    #"small": 8./9.,
+    #"medium": 1./1.,
+    #"large": 6./5.,
+    #"x-large": 3./2.,
+    #"xx-large": 2./1.,
+    #"xxx-large": 3./1.,
+}
+
+_relativeSizeTable = {    
     "larger": 1.25,
     "smaller": 0.75,
-    }
+    "+4": 200.0/100.0,
+    "+3": 175.0/100.0,
+    "+2": 150.0/100.0,
+    "+1": 125.0/100.0,
+    "-1": 75.0/100.0,
+    "-2": 50.0/100.0,
+    "-3": 25.0/100.0,
+    }      
+     
+MIN_FONT_SIZE = 1.0
  
-def getSize(value, relative=0):
+def getSize(value, relative=0, base=None):
     """
     Converts strings to standard sizes
     """
@@ -205,20 +232,27 @@ def getSize(value, relative=0):
             return float(value[:-2].strip()) * dpi96 # XXX W3C says, use 96pdi http://www.w3.org/TR/CSS21/syndata.html#length-units
         elif value[-1:]=='i':  # 1pt == 1/72inch
             return float(value[:-1].strip()) * inch
-        elif value[-2:]=='em': # XXX
-            return (float(value[:-2].strip()) * relative) # 1em = 1 * fontSize
-        elif value[-2:]=='ex': # XXX
-            return (float(value[:-2].strip()) * 2.0) # 1ex = 1/2 fontSize
-        elif value[-1:]=='%':
-            # print "%", value, relative, (relative * float(value[:-1].strip())) / 100.0
-            return (relative * float(value[:-1].strip())) / 100.0 # 1% = (fontSize * 1) / 100
-        elif value in ("normal", "inherit"):
-            return relative
         elif value in ("none", "0", "auto"):
-            return 0.0        
-        elif _absSizeTable.has_key(value):
-            return relative * _absSizeTable[value]
-        return float(value)
+            return 0.0       
+        elif relative:
+            if value[-2:]=='em': # XXX
+                return (float(value[:-2].strip()) * relative) # 1em = 1 * fontSize
+            elif value[-2:]=='ex': # XXX
+                return (float(value[:-2].strip()) * (relative/2.0)) # 1ex = 1/2 fontSize
+            elif value[-1:]=='%':
+                # print "%", value, relative, (relative * float(value[:-1].strip())) / 100.0
+                return (relative * float(value[:-1].strip())) / 100.0 # 1% = (fontSize * 1) / 100
+            elif value in ("normal", "inherit"):
+                return relative            
+            elif _relativeSizeTable.has_key(value):     
+                if base:
+                    return max(MIN_FONT_SIZE, base * _relativeSizeTable[value])       
+                return max(MIN_FONT_SIZE, relative * _relativeSizeTable[value]) 
+            elif _absoluteSizeTable.has_key(value):
+                if base:
+                    return max(MIN_FONT_SIZE, base * _absoluteSizeTable[value])
+                return max(MIN_FONT_SIZE, relative * _absoluteSizeTable[value])
+        return max(MIN_FONT_SIZE, float(value))
     except Exception:
         log.warn("getSize %r %r", original, relative, exc_info=1)
         # print "ERROR getSize", repr(value), repr(value), e

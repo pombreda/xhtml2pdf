@@ -413,6 +413,8 @@ class pisaContext:
         self.frameStaticList = []
         self.pisaBackgroundList = []
         
+        self.baseFontSize = getSize("12pt")
+        
         self.anchorFrag = []
         self.anchorName = []
         

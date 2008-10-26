@@ -46,6 +46,18 @@ class pisaTag:
     def end(self, c):
         pass    
 
+class pisaTagBODY(pisaTag):
+    
+    """
+    We can also asume that there is a BODY tag because html5lib 
+    adds it for us. Here we take the base font size for later calculations
+    in the FONT tag.
+    """
+    
+    def start(self, c):
+        c.baseFontSize = c.frag.fontSize
+        # print "base font size", c.baseFontSize
+        
 class pisaTagTITLE(pisaTag):
     def end(self, c):
         c.meta["title"] = c.text
@@ -97,42 +109,15 @@ class pisaTagA(pisaTag):
 class pisaTagFONT(pisaTag):
 
     # Source: http://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
-    _sizes = {
-        "+4": 200,
-        "+3": 175,
-        "+2": 150,
-        "+1": 125,
-        "-1": 75,
-        "-2": 50,
-        "-3": 25,
-        "1": 50,  
-        #"xx-small": 50,
-        #"x-small": 50,  
-        "2": 75,
-        #"small": 75, 
-        "3": 100,
-        #"medium": 100,
-        "4": 125,
-        #"large": 125,
-        "5": 150,
-        #"x-large": 150,
-        "6": 175,
-        #"xx-large": 175,
-        "7": 200,        
-        }
-
+   
     def start(self, c):
         if self.attr["color"] is not None:
             c.frag.textColor = getColor(self.attr["color"])
         if self.attr["face"] is not None:
             c.frag.fontName = c.getFontName(self.attr["face"])
         if self.attr["size"] is not None:
-            size = self._sizes.get(self.attr["size"], 0)
-            if size:
-                size = c.frag.fontSize * (size / 100)
-            else:
-                size = getSize(self.attr["size"], c.frag.fontSize)
-            c.frag.fontSize = c.frag.fontSize * size
+            size = getSize(self.attr["size"], c.frag.fontSize, c.baseFontSize)
+            c.frag.fontSize = size
 
     def end(self, c):
         pass

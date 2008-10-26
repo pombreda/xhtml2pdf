@@ -130,27 +130,34 @@ def isSize(value):
     return value and ((type(value) is types.TupleType) or value=="0")
         
 def splitBorder(parts):
+    """
+    The order of the elements seems to be of no importance:
+    
+    http://www.w3.org/TR/CSS21/box.html#border-shorthand-properties
+    """
+    
     width = style = color = None
     copy_parts = parts[:]
     part = getNextPart(parts)
 
-    # Width        
-    if isSize(part):
-        width = part
-        part = getNextPart(parts)
+    if len(parts)>3:
+        log.warn("To many elements for border style %r", parts)
+
+    for part in parts:
+        # Width        
+        if isSize(part):
+            width = part
+            # part = getNextPart(parts)
+        
+        # Style
+        elif _borderStyleTable.has_key(part.lower()):
+            style = part
+            # part = getNextPart(parts)
     
-    # Style
-    if part and _borderStyleTable.has_key(part.lower()):
-        style = part
-        part = getNextPart(parts)
-
-    # Color
-    if part:
-        color = part
-
-    if len(parts)>1:
-        log.warn("Border not split up correctly, rest: %r", parts)
-
+        # Color
+        else:
+            color = part
+    
     # log.debug("Border styles: %r -> %r ", copy_parts, (width, style, color))
 
     return (width, style, color)
