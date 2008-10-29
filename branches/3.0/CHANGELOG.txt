@@ -9,9 +9,7 @@ CHANGELOG
 Version 3.0.28, 2008-10-26
 
 - NEW: Background colors for inline elements like <span>
-- NEW: Possibility to handle table cells that are to large via CSS options
-       -pdf-keep-in-frame-max-width
-       -pdf-keep-in-frame-max-height
+- NEW: Possibility to handle table cells that are to large via CSS option      
        -pdf-keep-in-frame-mode    
 - NEW: Option "--system" for command line tool to dump system version infos
 - NEW: CSS attribute -pdf-line-spacing for fix space between lines

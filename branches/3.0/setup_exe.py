@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: ISO-8859-1 -*-
 #############################################
 ## (C)opyright by Dirk Holtwick, 2002-2008 ##
@@ -8,16 +7,55 @@
 __version__ = "$Revision: 247 $"
 __author__  = "$Author: holtwick $"
 __date__    = "$Date: 2008-08-15 13:37:57 +0200 (Fr, 15 Aug 2008) $"
-__svnid__   = "$Id: setup.py 247 2008-08-15 11:37:57Z holtwick $"
+__svnid__   = "$Id: setup_exe.py 247 2008-08-15 11:37:57Z holtwick $"
 
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-    from setuptools import setup, find_packages
+"""
+Optimiert für den Einsatz mit py2exe Version 0.5.4
+"""
+
+import zipfile
+from distutils.core import setup
+import py2exe
+
+VERSION = "VERSION{3.0.28}VERSION"[8:-8]
+
+class Target:
+    def __init__(self, **kw):
+        self.__dict__.update(kw)
+        self.version = VERSION
+        self.company_name = "Dirk Holtwick"
+        self.copyright = "(c) Dirk Holtwick, 2008"
+        self.name = "xhtml2pdf"
+        self.description = "xhtml2pdf"
 
 setup(
+
+    console = [{
+        'script': "pisa.py",
+        }],
+
+    options = {
+        "py2exe": {
+            # "optimize" : 2,
+            "excludes" : ["Tkinter","Tix"],
+            "includes": [
+                "encodings",
+                "encodings.*",
+                'ho',
+                'ho.pisa',
+                "sx",
+                "sx.pisa3",
+                "sx.w3c",
+                "html5lib",
+                "html5lib.treebuilders.*",
+                "html5lib.treewalkers.*",
+                "reportlab",
+                ],
+            "dist_dir" : "exe",
+            "bundle_files": 1,
+            }
+        },
+
     name           = "pisa",
     version        = "VERSION{3.0.28}VERSION"[8:-8],
     description    = "PDF generator using HTML and CSS",
@@ -30,24 +68,13 @@ setup(
 
     requires       = ["html5lib"], #, "reportlab"],
 
-    include_package_data = False,
-
-    packages = [
+    packages       = [
         'ho',
         'ho.pisa',
         'sx',
         'sx.pisa3',
         'sx.w3c',
         ],
-
-    test_suite = "sx",
-
-    entry_points = {
-        'console_scripts': [
-            'pisa = sx.pisa3:command',
-            'xhtml2pdf = sx.pisa3:command',
-            ]
-        },
 
     long_description = """
 pisa is a html2pdf converter using the ReportLab Toolkit,
@@ -117,4 +144,18 @@ KID Templating, TurboGears, Django, Zope, Plone, Google AppEngine (GAE) etc.
         Topic :: Utilities
         """.strip().splitlines()],
 
-    )
+)
+
+
+import os, os.path, shutil
+
+SDIST = "pisa-" + VERSION + "\\"
+DIR = "pisa-" + VERSION + "-windows"
+# os.makedirs(DIR)
+os.rename("exe", DIR)
+shutil.copy(r"LICENSE.txt", DIR)
+shutil.copy(r"LICENSE.pdf", DIR)
+shutil.copy(r"README-WINDOWS.TXT", DIR + "\\README.txt")
+shutil.copytree(SDIST + "doc", DIR + "\\doc")
+shutil.copytree(SDIST + "test", DIR + "\\test")
+os.system(r"zip -r dist\xhtml2pdf-windows.zip pisa-" + VERSION + "-windows")

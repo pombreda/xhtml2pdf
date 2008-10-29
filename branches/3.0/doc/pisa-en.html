@@ -16,12 +16,12 @@
   <pdf:pagenumber />
 </div>
 <p class="title"><em>pisa</em>
-  <!--VERSION-->3.0.27<!--VERSION-->
+  <!--VERSION-->3.0.28<!--VERSION-->
 </p>
 <p class="subtitle">XHTML/HTML/CSS to PDF converter </p>
 <p class="copyright">(C)opyright by Dirk Holtwick, Germany <br />
   <a href="mailto:dirk.holtwick@gmail.com">dirk.holtwick@gmail.com</a><br />
-  <a href="http://www.htmltopdf.org">http://www.htmltopdf.org</a></p>
+  <a href="http://www.xhtml2pdf.com">http://www.xhtml2pdf.com</a></p>
 <pdf:nexttemplate name="regular"/>
 <h1 style="-pdf-outline: false;" class="pdf">Table of Contents</h1>
 <div class="pdf">
@@ -53,71 +53,26 @@
     The Python Imaging Library (PIL) is requred by ReportLab for handling of different image formats like GIF and PNG. </li>
 </ul>
 <h2>Windows precompiled version</h2>
-<p>For Windows a precompiled version exists that includes Python and all needed libraries. The package contains the file <code>pisa.exe</code>. Please add the directory where <code>pisa.exe</code> is placed to the Windows <code>PATH</code> variable.</p>
-<p>The Windows version is distributed via the Website &lt;<a href="http://www.htmltopdf.org">http://www.htmltopdf.org</a>&gt; in the &quot;Download&quot; section.</p>
+<p>For Windows a precompiled version exists that includes Python and all needed libraries. The package contains the file <code>xhtml2pdf.exe</code>. Please add the directory where <code>xhtml2pdf.exe</code> is placed to the Windows <code>PATH</code> variable.</p>
+<p>The Windows version is distributed via the Website &lt;<a href="http://www.xhtml2pdf.com">http://www.xhtml2pdf.com</a>&gt; in the &quot;Download&quot; section.</p>
 <h1>Command line</h1>
-<p>If you do not want to integrate <em>pisa</em> in your own application, you may use the command line tool that gives you a simple interface to the features of <em>pisa</em>. Just call <code>pisa -h</code> to get the following help informations:</p>
-<!--HELP--><pre>pisa 3.0.27 (Build 2008-10-04)
-(C) 2002-2008 Dirk Holtwick &lt;dirk.holtwick@gmail.com&gt;, Germany
-Website http://www.htmltopdf.org
-
-USAGE: pisa [options] SRC [DEST]
-
-SRC
-  Name of a HTML file or a file pattern using * placeholder.
-  If you want to read from stdin use &quot;-&quot; as file name.
-  You may also load an URL over HTTP. Take care of putting
-  the &lt;src&gt; in quotes if it contains characters like &quot;?&quot;. 
-
-DEST
-  Name of the generated PDF file or &quot;-&quot; if you like
-  to send the result to stdout. Take care that the
-  destination file is not alread opened by an other
-  application like the Adobe Reader. If the destination is
-  not writeable a similar name will be calculated automatically.
-
-[options]
-  --css, -c:
-    Path to default CSS file
-  --css-dump:
-    Dumps the default CSS definitions to STDOUT
-  --debug, -d:
-    Show debugging informations
-  --encoding:
-    the character encoding of SRC. If left empty (default) this 
-    information will be extracted from the HTML header data         
-  --help, -h:
-    Show this help text
-  --quiet, -q:
-    Show no messages
-  --start-viewer, -s:
-    Start PDF default viewer on Windows and MacOSX
-    (e.g. AcrobatReader)
-  --version:
-    Show version information 
-  --warn, -w:
-    Show warnings
-  --xml, --xhtml, -x:
-    Force parsing in XML Mode 
-    (automatically used if file ends with &quot;.xml&quot;)
-  --html:
-    Force parsing in HTML Mode (default)
-</pre><!--HELP-->
+<p>If you do not want to integrate <em>pisa</em> in your own application, you may use the command line tool that gives you a simple interface to the features of <em>pisa</em>. Just call <code>xhtml2pdf --help</code> to get the following help informations:</p>
+<!--HELP--><pre></pre><!--HELP-->
 <h2>Converting HTML data </h2>
 <p>To generate a PDF from an HTML file called <code>test.html</code> call:</p>
-<pre>$ pisa -s test.html</pre>
+<pre>$ xhtml2pdf -s test.html</pre>
 <p>The resulting PDF will be called <code>test.pdf</code> (if this file is locked e.g. by the Adobe Reader it will be called <code>test-0.pdf</code> and so on). The <code>-s</code> option takes care that the PDF will be opened directly in the Operating Systems default viewer. </p>
 <p>To convert more than one file you may use wildcard patterns like <code>*</code> and <code>?</code>:</p>
-<pre>$ pisa &quot;test/test-*.html&quot;</pre>
+<pre>$ xhtml2pdf &quot;test/test-*.html&quot;</pre>
 <p>You may also directly access pages from the internet:</p>
-<pre>$ pisa -s http://www.htmltopdf.org/</pre>
+<pre>$ xhtml2pdf -s http://www.xhtml2pdf.com/</pre>
 <h2>Using special properties</h2>
 <p>If the conversion doesn't work as expected some more informations may be usefull. You may turn on the output of warnings adding <code>-w</code> or even the debugging output by using <code>-d</code>.</p>
 <p>Another reason could be, that the parsing failed. Consider trying the <code>-xhtml</code> and <code>-html</code> options. <em>pisa</em> uses the HTMLT5lib parser that offers two internal parsing modes: one for HTML and one for XHTML.</p>
 <p>When generating the HTML output <em>pisa</em> uses an internal default CSS definition (otherwise all tags would appear with no diffences). To get an impression of how this one looks like start <em>pisa</em> like this:</p>
-<pre>$ pisa --css-dump &gt; pisa-default.css</pre>
+<pre>$ xhtml2pdf --css-dump &gt; xhtml2pdf-default.css</pre>
 <p>The CSS will be dumped into the file <code>pisa-default.css</code>. You may modify this or even take a totaly self defined one and hand it in by using the <code>-css</code> option, e.g.: </p>
-<pre>$ pisa --css=pisa-default.css test.html  </pre>
+<pre>$ xhtml2pdf --css=xhtml2pdf-default.css test.html  </pre>
 <h1>Python module</h1>
 <p><strong>XXX TO BE COMPLETED </strong></p>
 <p>The integration into a Python program is quite easy. We will start with a simple &quot;Hello World&quot; example:</p>
@@ -348,8 +303,8 @@ pdftoc.pdftoclevel2 {
   <li>Tables can not float left or right and can not be inlined </li>
 </ul>
 <h2>Long cells</h2>
-<p>Pisa is not able to split table cells that are larger than the available space. To work around it you may define what should happen in this case. With the following options you define the maximum space available for one cell - that should be smaller than the page dimensions. The <code>-pdf-keep-in-frame-mode</code> can be one of: &quot;error&quot;, &quot;overflow&quot;, &quot;shrink&quot;, &quot;truncate&quot;, where &quot;shrink&quot; is the default value. </p>
-<pre>table {<br />    -pdf-keep-in-frame-max-width: 10cm;<br />    -pdf-keep-in-frame-max-height: 20cm;<br />    -pdf-keep-in-frame-mode: shrink;<br />}</pre>
+<p>Pisa is not able to split table cells that are larger than the available space. To work around it you may define what should happen in this case.  The <code>-pdf-keep-in-frame-mode</code> can be one of: &quot;error&quot;, &quot;overflow&quot;, &quot;shrink&quot;, &quot;truncate&quot;, where &quot;shrink&quot; is the default value. </p>
+<pre>table {<br />    -pdf-keep-in-frame-mode: shrink;<br />}</pre>
 <h2>Cell widths </h2>
 <p>The table renderer is not able  to adjust the width of the table automatically. Therefore you should explicitly set the width of the table and to the table rows or cells.</p>
 <h2>Headers</h2>
