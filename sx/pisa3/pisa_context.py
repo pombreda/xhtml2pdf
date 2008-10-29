@@ -121,8 +121,8 @@ def getParaFrag(style):
     frag.outlineOpen = False
     
     frag.keepInFrameMode = "shrink"
-    frag.keepInFrameMaxWidth = None
-    frag.keepInFrameMaxHeight = None
+    #frag.keepInFrameMaxWidth = None
+    #frag.keepInFrameMaxHeight = None
     
     return frag     
 

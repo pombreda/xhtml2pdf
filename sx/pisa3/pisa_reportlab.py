@@ -5,14 +5,14 @@
 #############################################
 
 __reversion__ = "$Revision: 20 $"
-__author__    = "$Author: holtwick $"
-__date__      = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
+__author__ = "$Author: holtwick $"
+__date__ = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
 
 from pisa_util import *
 from pisa_default import TAGS, STRING
 
 from reportlab.platypus.doctemplate import BaseDocTemplate, PageTemplate, FrameBreak, NextPageTemplate
-from reportlab.platypus.tables import Table, TableStyle
+from reportlab.platypus.tables import Table, TableStyle, LongTable
 from reportlab.platypus.flowables import Flowable, Image, CondPageBreak, KeepInFrame #, ParagraphAndImage
 from reportlab.platypus.frames import Frame
 from reportlab.platypus.tableofcontents import TableOfContents
@@ -173,7 +173,7 @@ class PmlParagraph(Paragraph):
         if getattr(self, "outline", False):
 
             # Check level and add all levels
-            last = getattr(self.canv, "outlineLast", -1) + 1
+            last = getattr(self.canv, "outlineLast", - 1) + 1
             while last < self.outlineLevel:
                 # print "(OUTLINE",  last, self.text
                 key = getUID()
@@ -210,7 +210,7 @@ class PmlParagraph(Paragraph):
         bp = style.borderPadding
 
         x = leftIndent - bp
-        y = -bp
+        y = - bp
         w = self.width - (leftIndent + style.rightIndent) + 2 * bp
         h = self.height + 2 * bp
         
@@ -232,20 +232,20 @@ class PmlParagraph(Paragraph):
         
         _drawBorderLine(style.borderTopStyle,
                         style.borderTopWidth,
-                        style.borderTopColor,                        
-                        x, y+h, x+w, y+h)
+                        style.borderTopColor,
+                        x, y + h, x + w, y + h)
         _drawBorderLine(style.borderBottomStyle,
                         style.borderBottomWidth,
                         style.borderBottomColor,
-                        x, y, x+w, y)
+                        x, y, x + w, y)
         _drawBorderLine(style.borderLeftStyle,
                         style.borderLeftWidth,
                         style.borderLeftColor,
-                        x, y, x, y+h)
+                        x, y, x, y + h)
         _drawBorderLine(style.borderRightStyle,
                         style.borderRightWidth,
                         style.borderRightColor,
-                        x+w, y, x+w, y+h)
+                        x + w, y, x + w, y + h)
         
         canvas.restoreState()
                     
@@ -254,7 +254,7 @@ class PmlParagraph(Paragraph):
         
         # offset the origin to compensate for the padding
         canvas.saveState()
-        canvas.translate(style.paddingLeft, -style.paddingTop)
+        canvas.translate(style.paddingLeft, - style.paddingTop)
         
         # Call the base class draw method to finish up
         Paragraph.draw(self)
@@ -264,17 +264,26 @@ class PmlParagraph(Paragraph):
         # do when using TOC
         style.backColor = bg
 
-class PmlTable(Table):
+# XXX Dirty!!!
+_availHeightValue = 0
 
+class PmlTable(Table):
+    
     def _normWidth(self, w, maxw):
         " Helper for calculating percentages "
-        if type(w)==type(""):
-            w = ((maxw/100.0) * float(w[:-1]))
-        elif (w is None) or (w=="*"):
+        if type(w) == type(""):
+            w = ((maxw / 100.0) * float(w[: - 1]))
+        elif (w is None) or (w == "*"):
             w = maxw
         return min(w, maxw)
 
-    def wrap(self, availWidth, availHeight):
+    def _listCellGeom(self, V, w, s, W=None, H=None, aH=72000):
+        # print "#", self.availHeightValue
+        if aH==72000:
+            aH = self.availHeightValue
+        return Table._listCellGeom(self, V, w, s, W=W, H=H, aH=aH)
+       
+    def wrap(self, availWidth, availHeight):    
 
         # Strange bug, sometime the totalWidth is not set !?
         try:
@@ -293,7 +302,7 @@ class PmlTable(Table):
         # self._colWidths therefore we have to modify list in place
         for i in range(len(newColWidths)):
             colWidth = newColWidths[i]
-            if (colWidth is not None) or (colWidth=='*'):
+            if (colWidth is not None) or (colWidth == '*'):
                 colWidth = self._normWidth(colWidth, totalWidth)
                 remainingWidth -= colWidth
             else:
@@ -310,7 +319,11 @@ class PmlTable(Table):
         # print "New values:", totalWidth, newColWidths, sum(newColWidths)
 
         # Call original method "wrap()"
-        # self._colWidths = newColWidths
+        # self._colWidths = newColWidths                
+        
+        global _availHeightValue        
+        self.availHeightValue = _availHeightValue = max(availHeight, _availHeightValue)
+        
         return Table.wrap(self, availWidth, availHeight)
     
 class PmlTableOfContents(TableOfContents):
@@ -326,7 +339,7 @@ class PmlTableOfContents(TableOfContents):
         # none, we make some dummy data to keep the table
         # from complaining
         if len(self._lastEntries) == 0:
-            _tempEntries = [(0,'Placeholder for table of contents',0)]
+            _tempEntries = [(0, 'Placeholder for table of contents', 0)]
         else:
             _tempEntries = self._lastEntries
 
@@ -334,18 +347,18 @@ class PmlTableOfContents(TableOfContents):
         lastMargin = 0
         tableData = []
         tableStyle = [
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 0),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-            ('TOPPADDING', (0, 0), (-1, -1), 0),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ('VALIGN', (0, 0), (- 1, - 1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (- 1, - 1), 0),
+            ('RIGHTPADDING', (0, 0), (- 1, - 1), 0),
+            ('TOPPADDING', (0, 0), (- 1, - 1), 0),
+            ('BOTTOMPADDING', (0, 0), (- 1, - 1), 0),
             ]
         for (level, text, pageNum) in _tempEntries:
             leftColStyle = self.levelStyles[level]
             if i: # Not for first element
                 tableStyle.append((
                     'TOPPADDING',
-                    (0,i), (-1, i),
+                    (0, i), (- 1, i),
                     max(lastMargin, leftColStyle.spaceBefore)))
             # print leftColStyle.leftIndent
             lastMargin = leftColStyle.spaceAfter
@@ -364,7 +377,7 @@ class PmlTableOfContents(TableOfContents):
             colWidths=widths,
             style=TableStyle(tableStyle))
 
-        self.width, self.height = self._table.wrapOn(self.canv,availWidth, availHeight)
+        self.width, self.height = self._table.wrapOn(self.canv, availWidth, availHeight)
         return (self.width, self.height)
 
 class PmlRightPageBreak(CondPageBreak):
@@ -373,13 +386,13 @@ class PmlRightPageBreak(CondPageBreak):
         pass
 
     def wrap(self, availWidth, availHeight):
-        if (0==(self.canv.getPageNumber()%2)):
+        if (0 == (self.canv.getPageNumber() % 2)):
             self.width = availWidth
             self.height = availHeight
-            return (availWidth,availHeight)
+            return (availWidth, availHeight)
         self.width = 0
         self.height = 0
-        return (0,0)
+        return (0, 0)
 
 class PmlLeftPageBreak(CondPageBreak):
 
@@ -387,13 +400,13 @@ class PmlLeftPageBreak(CondPageBreak):
         pass
 
     def wrap(self, availWidth, availHeight):
-        if (1==(self.canv.getPageNumber()%2)):
+        if (1 == (self.canv.getPageNumber() % 2)):
             self.width = availWidth
             self.height = availHeight
-            return (availWidth,availHeight)
+            return (availWidth, availHeight)
         self.width = 0
         self.height = 0
-        return (0,0)
+        return (0, 0)
 
 # --- Pdf Form
 
@@ -449,11 +462,11 @@ class PmlInput(Flowable):
 # --- Flowable example
 
 def hand(canvas, debug=1, fill=0):
-    (startx, starty) = (0,0)
+    (startx, starty) = (0, 0)
     curves = [
-        ( 0, 2), ( 0, 4), ( 0, 8), # back of hand
-        ( 5, 8), ( 7,10), ( 7,14),
-        (10,14), (10,13), ( 7.5, 8), # thumb
+        (0, 2), (0, 4), (0, 8), # back of hand
+        (5, 8), (7, 10), (7, 14),
+        (10, 14), (10, 13), (7.5, 8), # thumb
         (13, 8), (14, 8), (17, 8),
         (19, 8), (19, 6), (17, 6),
         (15, 6), (13, 6), (11, 6), # index, pointing
@@ -469,14 +482,14 @@ def hand(canvas, debug=1, fill=0):
         ]
     from reportlab.lib.units import inch
     if debug: canvas.setLineWidth(6)
-    u = inch*0.2
+    u = inch * 0.2
     p = canvas.beginPath()
     p.moveTo(startx, starty)
     ccopy = list(curves)
     while ccopy:
-        [(x1,y1), (x2,y2), (x3,y3)] = ccopy[:3]
+        [(x1, y1), (x2, y2), (x3, y3)] = ccopy[:3]
         del ccopy[:3]
-        p.curveTo(x1*u,y1*u,x2*u,y2*u,x3*u,y3*u)
+        p.curveTo(x1 * u, y1 * u, x2 * u, y2 * u, x3 * u, y3 * u)
     p.close()
     canvas.drawPath(p, fill=fill)
     if debug:
@@ -484,13 +497,13 @@ def hand(canvas, debug=1, fill=0):
         (lastx, lasty) = (startx, starty)
         ccopy = list(curves)
         while ccopy:
-            [(x1,y1), (x2,y2), (x3,y3)] = ccopy[:3]
+            [(x1, y1), (x2, y2), (x3, y3)] = ccopy[:3]
             del ccopy[:3]
             canvas.setStrokeColor(red)
-            canvas.line(lastx*u,lasty*u, x1*u,y1*u)
+            canvas.line(lastx * u, lasty * u, x1 * u, y1 * u)
             canvas.setStrokeColor(green)
-            canvas.line(x2*u,y2*u, x3*u,y3*u)
-            (lastx,lasty) = (x3,y3)    
+            canvas.line(x2 * u, y2 * u, x3 * u, y3 * u)
+            (lastx, lasty) = (x3, y3)    
     
 from reportlab.lib.colors import tan, green
 
@@ -500,12 +513,12 @@ class HandAnnotation(Flowable):
     
     def __init__(self, xoffset=0, size=None, fillcolor=tan, strokecolor=green):
         from reportlab.lib.units import inch
-        if size is None: size=4*inch
+        if size is None: size = 4 * inch
         self.fillcolor, self.strokecolor = fillcolor, strokecolor
         self.xoffset = xoffset
         self.size = size
         # normal size is 4 inches
-        self.scale = size/(4.0*inch)
+        self.scale = size / (4.0 * inch)
     
     def wrap(self, *args):
         return (self.xoffset, self.size)
@@ -515,7 +528,7 @@ class HandAnnotation(Flowable):
         canvas.setLineWidth(6)
         canvas.setFillColor(self.fillcolor)
         canvas.setStrokeColor(self.strokecolor)
-        canvas.translate(self.xoffset+self.size,0)
+        canvas.translate(self.xoffset + self.size, 0)
         canvas.rotate(90)
         canvas.scale(self.scale, self.scale)
         hand(canvas, debug=0, fill=1)        

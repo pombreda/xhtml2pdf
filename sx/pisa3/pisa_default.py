@@ -506,6 +506,10 @@ pdftoc {
     display: block;
 }
 
+table {
+     -pdf-keep-in-frame-mode: shrink;
+}
+
 tr,
 th,
 td {
@@ -553,6 +557,7 @@ ol {
 pre {
     white-space: pre;
 }
+
 """
 
 DEFAULT_FONT = {
