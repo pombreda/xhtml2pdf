@@ -107,7 +107,7 @@ def _putFragLine(tx, words):
     xtraState = tx.XtraState
     ws = getattr(tx, '_wordSpace', 0)
     nSpaces = 0
-    for f in words:        
+    for f in words:               
         if hasattr(f, 'cbDefn'):
             name = f.cbDefn.name
             kind = f.cbDefn.kind
@@ -468,7 +468,7 @@ def _do_post_text(i, t_off, tx):
     
     xs = tx.XtraState
     leading = xs.style.leading
-    fontSize = xs.f.fontSize
+    fontSize = xs.style.fontSize # Modified from xs.f.fontSize
     ff = 0.125 * fontSize
     y0 = xs.cur_y - i * leading
     y = y0 - ff
@@ -477,19 +477,21 @@ def _do_post_text(i, t_off, tx):
     ulc = None
     for x1, x2, c, fs in xs.backgrounds:
         # print "u",x1,x2,c, leading, ff, i, fs
+        inlineFF = fs * 0.125
         if c != ulc:
             tx._canvas.setFillColor(c)     
             ulc = c
-        tx._canvas.rect(t_off + x1, y, x2 - x1, fs, fill=1, stroke=0)
+        gap = inlineFF * 1.5
+        tx._canvas.rect(t_off + x1, y - gap, x2 - x1, fs + gap, fill=1, stroke=0)
     xs.backgrounds = []
     xs.background = 0
     xs.backgroundColor = None   
     xs.backgroundFontSize = None 
     
-    # Underline
-    tx._canvas.setLineWidth(ff * 0.75)
+    # Underline    
     ulc = None
-    yUnderline = y0 - 1.5 * ff
+    yUnderline = y0 - 1.5 * ff   
+    tx._canvas.setLineWidth(ff * 0.75)
     for x1, x2, c in xs.underlines:
         if c != ulc:
             tx._canvas.setStrokeColor(c)            
@@ -501,8 +503,7 @@ def _do_post_text(i, t_off, tx):
 
     # Strike    
     ulc = None
-    for x1, x2, c, fs in xs.strikes:
-        print fs
+    for x1, x2, c, fs in xs.strikes:        
         inlineFF = fs * 0.125
         ys = y0 + 2 * inlineFF
         tx._canvas.setLineWidth(inlineFF * 0.75)
@@ -516,7 +517,7 @@ def _do_post_text(i, t_off, tx):
 
     yl = y + leading
     for x1, x2, link in xs.links:
-        tx._canvas.line(t_off + x1, y, t_off + x2, y)
+        # tx._canvas.line(t_off + x1, y, t_off + x2, y)
         _doLink(tx, link, (t_off + x1, y, t_off + x2, yl))
     xs.links = []
     xs.link = None
