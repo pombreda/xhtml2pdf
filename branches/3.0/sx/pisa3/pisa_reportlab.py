@@ -297,6 +297,9 @@ class PmlTable(Table):
         remainingCols = 0
         newColWidths = self._colWidths
 
+        #print
+        #print "TABLE", newColWidths
+
         # Calculate widths that are fix
         # IMPORTANT!!! We can not substitute the private value
         # self._colWidths therefore we have to modify list in place
@@ -308,19 +311,36 @@ class PmlTable(Table):
             else:
                 remainingCols += 1
                 colWidth = None
-            newColWidths[i] = (colWidth)
+            newColWidths[i] = colWidth
 
         # Distribute remaining space
-        if remainingCols:
+        minCellWidth = totalWidth * 0.01
+        if remainingCols > 0:
             for i in range(len(newColWidths)):
                 if newColWidths[i] is None:
-                    newColWidths[i] = (remainingWidth / remainingCols) - 0.1
+                    # print "*** ", i, newColWidths[i], remainingWidth, remainingCols
+                    newColWidths[i] = max(minCellWidth, remainingWidth / remainingCols) # - 0.1
+
+        # Bigger than totalWidth? Lets reduce the fix entries propotionally
 
         # print "New values:", totalWidth, newColWidths, sum(newColWidths)
 
         # Call original method "wrap()"
         # self._colWidths = newColWidths                
+
+        if sum(newColWidths) > totalWidth:
+            quotient = totalWidth / sum(newColWidths)
+            # print quotient
+            for i in range(len(newColWidths)):
+                newColWidths[i] =  newColWidths[i] * quotient 
         
+        # To avoid rounding errors adjust one col with the difference
+        diff = sum(newColWidths) - totalWidth         
+        if diff > 0:
+            newColWidths[0] -= diff
+                
+        # print "New values:", totalWidth, newColWidths, sum(newColWidths)
+            
         global _availHeightValue        
         self.availHeightValue = _availHeightValue = max(availHeight, _availHeightValue)
         
