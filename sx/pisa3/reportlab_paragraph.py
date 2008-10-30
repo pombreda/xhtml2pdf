@@ -1,7 +1,7 @@
 #Copyright ReportLab Europe Ltd. 2000-2004
 #see license.txt for license details
 #history http://www.reportlab.co.uk/cgi-bin/viewcvs.cgi/public/reportlab/trunk/reportlab/platypus/paragraph.py
-__version__=''' $Id: paragraph.py 3076 2007-05-03 19:43:03Z andy $ '''
+__version__ = ''' $Id: paragraph.py 3076 2007-05-03 19:43:03Z andy $ '''
 from string import join, whitespace, find
 from operator import truth
 from types import StringType, ListType
@@ -49,98 +49,98 @@ class FragLine(ABag):
 
 #our one and only parser
 # XXXXX if the parser has any internal state using only one is probably a BAD idea!
-_parser=ParaParser()
+_parser = ParaParser()
 
 def _lineClean(L):
-    return join(filter(truth,split(strip(L))))
+    return join(filter(truth, split(strip(L))))
 
-def cleanBlockQuotedText(text,joiner=' '):
+def cleanBlockQuotedText(text, joiner=' '):
     """This is an internal utility which takes triple-
     quoted text form within the document and returns
     (hopefully) the paragraph the user intended originally."""
-    L=filter(truth,map(_lineClean, split(text, '\n')))
+    L = filter(truth, map(_lineClean, split(text, '\n')))
     return join(L, joiner)
 
-def setXPos(tx,dx):
-    if dx>1e-6 or dx<-1e-6:
+def setXPos(tx, dx):
+    if dx > 1e-6 or dx <- 1e-6:
         tx.setXPos(dx)
 
-def _leftDrawParaLine( tx, offset, extraspace, words, last=0):
-    setXPos(tx,offset)
-    tx._textOut(join(words),1)
-    setXPos(tx,-offset)
+def _leftDrawParaLine(tx, offset, extraspace, words, last=0):
+    setXPos(tx, offset)
+    tx._textOut(join(words), 1)
+    setXPos(tx, - offset)
     return offset
 
-def _centerDrawParaLine( tx, offset, extraspace, words, last=0):
+def _centerDrawParaLine(tx, offset, extraspace, words, last=0):
     m = offset + 0.5 * extraspace
-    setXPos(tx,m)
-    tx._textOut(join(words),1)
-    setXPos(tx,-m)
+    setXPos(tx, m)
+    tx._textOut(join(words), 1)
+    setXPos(tx, - m)
     return m
 
-def _rightDrawParaLine( tx, offset, extraspace, words, last=0):
+def _rightDrawParaLine(tx, offset, extraspace, words, last=0):
     m = offset + extraspace
-    setXPos(tx,m)
-    tx._textOut(join(words),1)
-    setXPos(tx,-m)
+    setXPos(tx, m)
+    tx._textOut(join(words), 1)
+    setXPos(tx, - m)
     return m
 
-def _justifyDrawParaLine( tx, offset, extraspace, words, last=0):
-    setXPos(tx,offset)
-    text  = join(words)
+def _justifyDrawParaLine(tx, offset, extraspace, words, last=0):
+    setXPos(tx, offset)
+    text = join(words)
     if last:
         #last one, left align
-        tx._textOut(text,1)
+        tx._textOut(text, 1)
     else:
-        nSpaces = len(words)-1
+        nSpaces = len(words) - 1
         if nSpaces:
             tx.setWordSpace(extraspace / float(nSpaces))
-            tx._textOut(text,1)
+            tx._textOut(text, 1)
             tx.setWordSpace(0)
         else:
-            tx._textOut(text,1)
-    setXPos(tx,-offset)
+            tx._textOut(text, 1)
+    setXPos(tx, - offset)
     return offset
 
-def _putFragLine(tx,words):
+def _putFragLine(tx, words):
     cur_x = 0
     xtraState = tx.XtraState
-    ws = getattr(tx,'_wordSpace',0)
+    ws = getattr(tx, '_wordSpace', 0)
     nSpaces = 0
     for f in words:        
-        if hasattr(f,'cbDefn'):
+        if hasattr(f, 'cbDefn'):
             name = f.cbDefn.name
             kind = f.cbDefn.kind
-            if kind=='anchor':
-                tx._canvas.bookmarkHorizontal(name,cur_x,tx._y+tx._leading)
+            if kind == 'anchor':
+                tx._canvas.bookmarkHorizontal(name, cur_x, tx._y + tx._leading)
             else:
-                func = getattr(tx._canvas,name,None)
+                func = getattr(tx._canvas, name, None)
                 if not func:
-                    raise AttributeError, "Missing %s callback attribute '%s'" % (kind,name)
-                func(tx._canvas,kind,f.cbDefn.label)
-            if f is words[-1]:
+                    raise AttributeError, "Missing %s callback attribute '%s'" % (kind, name)
+                func(tx._canvas, kind, f.cbDefn.label)
+            if f is words[ - 1]:
                 if not tx._fontname:
-                    tx.setFont(xtraState.style.fontName,xtraState.style.fontSize)
-                    tx._textOut('',1)
+                    tx.setFont(xtraState.style.fontName, xtraState.style.fontSize)
+                    tx._textOut('', 1)
         else:
-            cur_x_s = cur_x + nSpaces*ws
-            if (tx._fontname,tx._fontsize)!=(f.fontName,f.fontSize):
+            cur_x_s = cur_x + nSpaces * ws
+            if (tx._fontname, tx._fontsize) != (f.fontName, f.fontSize):
                 tx._setFont(f.fontName, f.fontSize)           
-            if xtraState.textColor!=f.textColor:
+            if xtraState.textColor != f.textColor:
                 xtraState.textColor = f.textColor
                 tx.setFillColor(f.textColor)
-            if xtraState.rise!=f.rise:
-                xtraState.rise=f.rise
+            if xtraState.rise != f.rise:
+                xtraState.rise = f.rise
                 tx.setRise(f.rise)
             text = f.text
-            tx._textOut(text,f is words[-1])    # cheap textOut
+            tx._textOut(text, f is words[ - 1])    # cheap textOut
             
             # Background colors (done like underline)            
             # print "#", repr(f.text), f.fontSize, f.backColor, f.underline
             if hasattr(f, "backColor"):            
-                if xtraState.backgroundColor!=f.backColor or xtraState.backgroundFontSize!=f.fontSize:
+                if xtraState.backgroundColor != f.backColor or xtraState.backgroundFontSize != f.fontSize:
                     if xtraState.backgroundColor is not None:
-                        xtraState.backgrounds.append( (xtraState.background_x, cur_x_s, xtraState.backgroundColor, xtraState.backgroundFontSize) )                
+                        xtraState.backgrounds.append((xtraState.background_x, cur_x_s, xtraState.backgroundColor, xtraState.backgroundFontSize))                
                     xtraState.background_x = cur_x_s
                     xtraState.backgroundColor = f.backColor
                     xtraState.backgroundFontSize = f.fontSize
@@ -153,67 +153,80 @@ def _putFragLine(tx,words):
             elif xtraState.underline:
                 if not f.underline:
                     xtraState.underline = 0
-                    xtraState.underlines.append( (xtraState.underline_x, cur_x_s, xtraState.underlineColor) )
+                    xtraState.underlines.append((xtraState.underline_x, cur_x_s, xtraState.underlineColor))
                     xtraState.underlineColor = None
-                elif xtraState.textColor!=xtraState.underlineColor:
-                    xtraState.underlines.append( (xtraState.underline_x, cur_x_s, xtraState.underlineColor) )
+                elif xtraState.textColor != xtraState.underlineColor:
+                    xtraState.underlines.append((xtraState.underline_x, cur_x_s, xtraState.underlineColor))
                     xtraState.underlineColor = xtraState.textColor
                     xtraState.underline_x = cur_x_s
+            
+            # Strike
             if not xtraState.strike and f.strike:
                 xtraState.strike = 1
                 xtraState.strike_x = cur_x_s
                 xtraState.strikeColor = f.textColor
+                xtraState.strikeFontSize = f.fontSize
             elif xtraState.strike:
                 if not f.strike:
                     xtraState.strike = 0
-                    xtraState.strikes.append( (xtraState.strike_x, cur_x_s, xtraState.strikeColor) )
+                    xtraState.strikes.append((xtraState.strike_x, cur_x_s, xtraState.strikeColor, xtraState.strikeFontSize))
                     xtraState.strikeColor = None
-                elif xtraState.textColor!=xtraState.strikeColor:
-                    xtraState.strikes.append( (xtraState.strike_x, cur_x_s, xtraState.strikeColor) )
+                    xtraState.strikeFontSize = None
+                elif xtraState.textColor != xtraState.strikeColor:
+                    xtraState.strikes.append((xtraState.strike_x, cur_x_s, xtraState.strikeColor, xtraState.strikeFontSize))
                     xtraState.strikeColor = xtraState.textColor
+                    xtraState.strikeFontSize = f.fontSize
                     xtraState.strike_x = cur_x_s
             if not xtraState.link and f.link:
                 xtraState.link = f.link
                 xtraState.link_x = cur_x_s
             elif xtraState.link and f.link is not xtraState.link:
-                    xtraState.links.append( (xtraState.link_x, cur_x_s, xtraState.link) )
+                    xtraState.links.append((xtraState.link_x, cur_x_s, xtraState.link))
                     xtraState.link = None
             txtlen = tx._canvas.stringWidth(text, tx._fontname, tx._fontsize)
             cur_x += txtlen
             nSpaces += text.count(' ')
-    cur_x_s = cur_x+(nSpaces-1)*ws
+            
+    cur_x_s = cur_x + (nSpaces - 1) * ws
+    
+    # Underline
     if xtraState.underline:
-        xtraState.underlines.append( (xtraState.underline_x, cur_x_s, xtraState.underlineColor) )
+        xtraState.underlines.append((xtraState.underline_x, cur_x_s, xtraState.underlineColor))
+    
+    # Backcolor
     if hasattr(f, "backColor"):  
         if xtraState.backgroundColor is not None:
-            xtraState.backgrounds.append( (xtraState.background_x, cur_x_s, xtraState.backgroundColor, xtraState.backgroundFontSize) )
+            xtraState.backgrounds.append((xtraState.background_x, cur_x_s, xtraState.backgroundColor, xtraState.backgroundFontSize))
+    
+    # Strike
     if xtraState.strike:
-        xtraState.strikes.append( (xtraState.strike_x, cur_x_s, xtraState.strikeColor) )
+        xtraState.strikes.append((xtraState.strike_x, cur_x_s, xtraState.strikeColor, xtraState.strikeFontSize))
+        
     if xtraState.link:
-        xtraState.links.append( (xtraState.link_x, cur_x_s, xtraState.link) )
+        xtraState.links.append((xtraState.link_x, cur_x_s, xtraState.link))
 
-def _leftDrawParaLineX( tx, offset, line, last=0):
-    setXPos(tx,offset)
+def _leftDrawParaLineX(tx, offset, line, last=0):
+    setXPos(tx, offset)
     _putFragLine(tx, line.words)
-    setXPos(tx,-offset)
+    setXPos(tx, - offset)
     return offset
 
-def _centerDrawParaLineX( tx, offset, line, last=0):
-    m = offset+0.5*line.extraSpace
-    setXPos(tx,m)
+def _centerDrawParaLineX(tx, offset, line, last=0):
+    m = offset + 0.5 * line.extraSpace
+    setXPos(tx, m)
     _putFragLine(tx, line.words)
-    setXPos(tx,-m)
+    setXPos(tx, - m)
     return m
 
-def _rightDrawParaLineX( tx, offset, line, last=0):
-    m = offset+line.extraSpace
-    setXPos(tx,m)
+def _rightDrawParaLineX(tx, offset, line, last=0):
+    m = offset + line.extraSpace
+    setXPos(tx, m)
     _putFragLine(tx, line.words)
-    setXPos(tx,-m)
+    setXPos(tx, - m)
     return m
 
-def _justifyDrawParaLineX( tx, offset, line, last=0):
-    setXPos(tx,offset)
+def _justifyDrawParaLineX(tx, offset, line, last=0):
+    setXPos(tx, offset)
     if last:
         #last one, left align
         _putFragLine(tx, line.words)
@@ -225,15 +238,15 @@ def _justifyDrawParaLineX( tx, offset, line, last=0):
             tx.setWordSpace(0)
         else:
             _putFragLine(tx, line.words)
-    setXPos(tx,-offset)
+    setXPos(tx, - offset)
     return offset
 
-def _sameFrag(f,g):
+def _sameFrag(f, g):
     'returns 1 if two ParaFrags map out the same'
-    if (hasattr(f,'cbDefn') or hasattr(g,'cbDefn')
-            or hasattr(f,'lineBreak') or hasattr(g,'lineBreak')): return 0
+    if (hasattr(f, 'cbDefn') or hasattr(g, 'cbDefn')
+            or hasattr(f, 'lineBreak') or hasattr(g, 'lineBreak')): return 0
     for a in ('fontName', 'fontSize', 'textColor', 'backColor', 'rise', 'underline', 'strike', 'link'):
-        if getattr(f,a,None)!=getattr(g,a,None): return 0
+        if getattr(f, a, None) != getattr(g, a, None): return 0
     return 1
 
 def _getFragWords(frags):
@@ -249,52 +262,52 @@ def _getFragWords(frags):
         text = f.text
         #del f.text # we can't do this until we sort out splitting
                     # of paragraphs
-        if text!='':
+        if text != '':
             S = split(text)
-            if S==[]: S = ['']
-            if W!=[] and text[0] in whitespace:
-                W.insert(0,n)
+            if S == []: S = ['']
+            if W != [] and text[0] in whitespace:
+                W.insert(0, n)
                 R.append(W)
                 W = []
                 n = 0
 
-            for w in S[:-1]:
-                W.append((f,w))
+            for w in S[: - 1]:
+                W.append((f, w))
                 n += stringWidth(w, f.fontName, f.fontSize)
-                W.insert(0,n)
+                W.insert(0, n)
                 R.append(W)
                 W = []
                 n = 0
 
-            w = S[-1]
-            W.append((f,w))
+            w = S[ - 1]
+            W.append((f, w))
             n += stringWidth(w, f.fontName, f.fontSize)
-            if text[-1] in whitespace:
-                W.insert(0,n)
+            if text[ - 1] in whitespace:
+                W.insert(0, n)
                 R.append(W)
                 W = []
                 n = 0
-        elif hasattr(f,'cbDefn'):
-            W.append((f,''))
+        elif hasattr(f, 'cbDefn'):
+            W.append((f, ''))
         elif hasattr(f, 'lineBreak'):
             #pass the frag through.  The line breaker will scan for it.
-            if W!=[]:
-                W.insert(0,n)
+            if W != []:
+                W.insert(0, n)
                 R.append(W)
                 W = []
                 n = 0
-            R.append([0,(f,'')])
+            R.append([0, (f, '')])
 
-    if W!=[]:
-        W.insert(0,n)
+    if W != []:
+        W.insert(0, n)
         R.append(W)
 
     return R
 
-def _split_blParaSimple(blPara,start,stop):
+def _split_blParaSimple(blPara, start, stop):
     f = blPara.clone()
     for a in ('lines', 'kind', 'text'):
-        if hasattr(f,a): delattr(f,a)
+        if hasattr(f, a): delattr(f, a)
 
     f.words = []
     for l in blPara.lines[start:stop]:
@@ -302,25 +315,25 @@ def _split_blParaSimple(blPara,start,stop):
             f.words.append(w)
     return [f]
 
-def _split_blParaHard(blPara,start,stop):
+def _split_blParaHard(blPara, start, stop):
     f = []
     lines = blPara.lines[start:stop]
     for l in lines:
         for w in l.words:
             f.append(w)
-        if l is not lines[-1]:
-            i = len(f)-1
-            while hasattr(f[i],'cbDefn'): i = i-1
+        if l is not lines[ - 1]:
+            i = len(f) - 1
+            while hasattr(f[i], 'cbDefn'): i = i - 1
             g = f[i]
-            if g.text and g.text[-1]!=' ': g.text += ' '
+            if g.text and g.text[ - 1] != ' ': g.text += ' '
     return f
 
 def _drawBullet(canvas, offset, cur_y, bulletText, style):
     '''draw a bullet text could be a simple string or a frag list'''
     tx2 = canvas.beginText(style.bulletIndent, cur_y)
     tx2.setFont(style.bulletFontName, style.bulletFontSize)
-    tx2.setFillColor(hasattr(style,'bulletColor') and style.bulletColor or style.textColor)
-    if isinstance(bulletText,basestring):
+    tx2.setFillColor(hasattr(style, 'bulletColor') and style.bulletColor or style.textColor)
+    if isinstance(bulletText, basestring):
         tx2.textOut(bulletText)
     else:
         for f in bulletText:
@@ -332,27 +345,27 @@ def _drawBullet(canvas, offset, cur_y, bulletText, style):
     #AR making definition lists a bit less ugly
     #bulletEnd = tx2.getX()
     bulletEnd = tx2.getX() + style.bulletFontSize * 0.6
-    offset = max(offset,bulletEnd - style.leftIndent)
+    offset = max(offset, bulletEnd - style.leftIndent)
     return offset
 
-def _handleBulletWidth(bulletText,style,maxWidths):
+def _handleBulletWidth(bulletText, style, maxWidths):
     '''work out bullet width and adjust maxWidths[0] if neccessary
     '''
-    if bulletText!=None:
-        if isinstance(bulletText,basestring):
-            bulletWidth = stringWidth( bulletText, style.bulletFontName, style.bulletFontSize)
+    if bulletText != None:
+        if isinstance(bulletText, basestring):
+            bulletWidth = stringWidth(bulletText, style.bulletFontName, style.bulletFontSize)
         else:
             #it's a list of fragments
             bulletWidth = 0
             for f in bulletText:
                 bulletWidth = bulletWidth + stringWidth(f.text, f.fontName, f.fontSize)
         bulletRight = style.bulletIndent + bulletWidth + 0.6 * style.bulletFontSize
-        indent = style.leftIndent+style.firstLineIndent
+        indent = style.leftIndent + style.firstLineIndent
         if bulletRight > indent:
             #..then it overruns, and we have less space available on line 1
             maxWidths[0] = maxWidths[0] - (bulletRight - indent)
 
-def splitLines0(frags,widths):
+def splitLines0(frags, widths):
     '''
     given a list of ParaFrags we return a list of ParaLines
 
@@ -363,19 +376,19 @@ def splitLines0(frags,widths):
         each text definition is a (ParaFrag, start, limit) triplet
     '''
     #initialise the algorithm
-    lines   = []
+    lines = []
     lineNum = 0
-    maxW    = widths[lineNum]
-    i       = -1
-    l       = len(frags)
-    lim     = start = 0
+    maxW = widths[lineNum]
+    i = - 1
+    l = len(frags)
+    lim = start = 0
     while 1:
         #find a non whitespace character
-        while i<l:
-            while start<lim and text[start]==' ': start += 1
-            if start==lim:
+        while i < l:
+            while start < lim and text[start] == ' ': start += 1
+            if start == lim:
                 i += 1
-                if i==l: break
+                if i == l: break
                 start = 0
                 f = frags[i]
                 text = f.text
@@ -383,111 +396,130 @@ def splitLines0(frags,widths):
             else:
                 break   # we found one
 
-        if start==lim: break    #if we didn't find one we are done
+        if start == lim: break    #if we didn't find one we are done
 
         #start of a line
-        g       = (None,None,None)
-        line    = []
-        cLen    = 0
+        g = (None, None, None)
+        line = []
+        cLen = 0
         nSpaces = 0
-        while cLen<maxW:
-            j = find(text,' ',start)
-            if j<0: j==lim
-            w = stringWidth(text[start:j],f.fontName,f.fontSize)
+        while cLen < maxW:
+            j = find(text, ' ', start)
+            if j < 0: j == lim
+            w = stringWidth(text[start:j], f.fontName, f.fontSize)
             cLen += w
-            if cLen>maxW and line!=[]:
-                cLen = cLen-w
+            if cLen > maxW and line != []:
+                cLen = cLen - w
                 #this is the end of the line
-                while g.text[lim]==' ':
+                while g.text[lim] == ' ':
                     lim = lim - 1
-                    nSpaces = nSpaces-1
+                    nSpaces = nSpaces - 1
                 break
-            if j<0: j = lim
+            if j < 0: j = lim
             if g[0] is f: g[2] = j  #extend
             else:
-                g = (f,start,j)
+                g = (f, start, j)
                 line.append(g)
-            if j==lim:
+            if j == lim:
                 i += 1
 
-def _do_under_line(i, t_off, ws, tx, lm=-0.125):
-    y = tx.XtraState.cur_y - i*tx.XtraState.style.leading + lm*tx.XtraState.f.fontSize
+def _do_under_line(i, t_off, ws, tx, lm= - 0.125):
+    y = tx.XtraState.cur_y - i * tx.XtraState.style.leading + lm * tx.XtraState.f.fontSize
     textlen = tx._canvas.stringWidth(join(tx.XtraState.lines[i][1]), tx._fontname, tx._fontsize)
-    tx._canvas.line(t_off, y, t_off+textlen+ws, y)
+    tx._canvas.line(t_off, y, t_off + textlen + ws, y)
 
 _scheme_re = re.compile('^[a-zA-Z][-+a-zA-Z0-9]+$')
-def _doLink(tx,link,rect):
+def _doLink(tx, link, rect):
     if type(link) is unicode:
         link = unicode.encode('utf8')
-    parts = link.split(':',1)
-    scheme = len(parts)==2 and parts[0].lower() or ''
-    if _scheme_re.match(scheme) and scheme!='document':
-        kind=scheme.lower()=='pdf' and 'GoToR' or 'URI'
-        if kind=='GoToR': link = parts[1]
+    parts = link.split(':', 1)
+    scheme = len(parts) == 2 and parts[0].lower() or ''
+    if _scheme_re.match(scheme) and scheme != 'document':
+        kind = scheme.lower() == 'pdf' and 'GoToR' or 'URI'
+        if kind == 'GoToR': link = parts[1]
         tx._canvas.linkURL(link, rect, relative=1, kind=kind)
     else:
-        if link[0]=='#':
+        if link[0] == '#':
             link = link[1:]
-            scheme=''
-        tx._canvas.linkRect("", scheme!='document' and link or parts[1], rect, relative=1)
+            scheme = ''
+        tx._canvas.linkRect("", scheme != 'document' and link or parts[1], rect, relative=1)
 
 def _do_link_line(i, t_off, ws, tx):
     xs = tx.XtraState
     leading = xs.style.leading
-    y = xs.cur_y - i*leading - xs.f.fontSize/8.0 # 8.0 factor copied from para.py
+    y = xs.cur_y - i * leading - xs.f.fontSize / 8.0 # 8.0 factor copied from para.py
     text = join(xs.lines[i][1])
     textlen = tx._canvas.stringWidth(text, tx._fontname, tx._fontsize)
-    _doLink(tx, xs.link, (t_off, y, t_off+textlen+ws, y+leading))
+    _doLink(tx, xs.link, (t_off, y, t_off + textlen + ws, y + leading))
 
 def _do_post_text(i, t_off, tx):
+    """
+    Try to find out what the variables mean:
+    
+    i          Line number
+    t_off      Paragraph offset
+    tx         A structure containing more informations about paragraph ???
+    
+    leading    Height of lines
+    ff         1/8 of the font size
+    y0         The "baseline" postion ???
+    y          1/8 below the baseline
+    """
+    
     xs = tx.XtraState
     leading = xs.style.leading
     fontSize = xs.f.fontSize
     ff = 0.125 * fontSize
-    y0 = xs.cur_y - i*leading
+    y0 = xs.cur_y - i * leading
     y = y0 - ff
 
     # Background
     ulc = None
-    for x1,x2,c,fs in xs.backgrounds:
+    for x1, x2, c, fs in xs.backgrounds:
         # print "u",x1,x2,c, leading, ff, i, fs
-        if c!=ulc:
+        if c != ulc:
             tx._canvas.setFillColor(c)     
             ulc = c
-        tx._canvas.rect(t_off + x1, y, x2-x1, fs, fill=1, stroke=0)
+        tx._canvas.rect(t_off + x1, y, x2 - x1, fs, fill=1, stroke=0)
     xs.backgrounds = []
     xs.background = 0
     xs.backgroundColor = None   
     xs.backgroundFontSize = None 
     
     # Underline
+    tx._canvas.setLineWidth(ff * 0.75)
     ulc = None
-    for x1,x2,c in xs.underlines:
-        if c!=ulc:
+    yUnderline = y0 - 1.5 * ff
+    for x1, x2, c in xs.underlines:
+        if c != ulc:
             tx._canvas.setStrokeColor(c)            
-            ulc = c
-        tx._canvas.line(t_off+x1, y, t_off+x2, y)
+            ulc = c        
+        tx._canvas.line(t_off + x1, yUnderline, t_off + x2, yUnderline)
     xs.underlines = []
-    xs.underline=0
-    xs.underlineColor=None
+    xs.underline = 0
+    xs.underlineColor = None
 
-    ys = y0 + 2*ff
+    # Strike    
     ulc = None
-    for x1,x2,c in xs.strikes:
-        if c!=ulc:
+    for x1, x2, c, fs in xs.strikes:
+        print fs
+        inlineFF = fs * 0.125
+        ys = y0 + 2 * inlineFF
+        tx._canvas.setLineWidth(inlineFF * 0.75)
+        if c != ulc:
             tx._canvas.setStrokeColor(c)
             ulc = c
-        tx._canvas.line(t_off+x1, ys, t_off+x2, ys)
+        tx._canvas.line(t_off + x1, ys, t_off + x2, ys)
     xs.strikes = []
-    xs.strike=0
-    xs.strikeColor=None
+    xs.strike = 0
+    xs.strikeColor = None
 
     yl = y + leading
-    for x1,x2,link in xs.links:
-        tx._canvas.line(t_off+x1, y, t_off+x2, y)
-        _doLink(tx, link, (t_off+x1, y, t_off+x2, yl))
+    for x1, x2, link in xs.links:
+        tx._canvas.line(t_off + x1, y, t_off + x2, y)
+        _doLink(tx, link, (t_off + x1, y, t_off + x2, yl))
     xs.links = []
-    xs.link=None
+    xs.link = None
 
 class Paragraph(Flowable):
     """ Paragraph(text, style, bulletText=None, caseSensitive=1)
@@ -541,7 +573,7 @@ class Paragraph(Flowable):
 
         It will also be able to handle any MathML specified Greek characters.
     """
-    def __init__(self, text, style, bulletText = None, frags=None, caseSensitive=1, encoding='utf8'):
+    def __init__(self, text, style, bulletText=None, frags=None, caseSensitive=1, encoding='utf8'):
         self.caseSensitive = caseSensitive
         self.encoding = encoding
         self._setup(text, style, bulletText, frags, cleanBlockQuotedText)
@@ -549,27 +581,27 @@ class Paragraph(Flowable):
     def __repr__(self):
         import string
         n = self.__class__.__name__
-        L = [n+"("]
+        L = [n + "("]
         keys = self.__dict__.keys()
         for k in keys:
             v = getattr(self, k)
             rk = repr(k)
             rv = repr(v)
-            rk = "  "+string.replace(rk, "\n", "\n  ")
-            rv = "    "+string.replace(rv, "\n", "\n    ")
+            rk = "  " + string.replace(rk, "\n", "\n  ")
+            rv = "    " + string.replace(rv, "\n", "\n    ")
             L.append(rk)
             L.append(rv)
-        L.append(") #"+n)
+        L.append(") #" + n)
         return string.join(L, "\n")
 
     def _setup(self, text, style, bulletText, frags, cleaner):
         if frags is None:
             text = cleaner(text)
             _parser.caseSensitive = self.caseSensitive
-            style, frags, bulletTextFrags = _parser.parse(text,style)
+            style, frags, bulletTextFrags = _parser.parse(text, style)
             if frags is None:
                 raise "xml parser error (%s) in paragraph beginning\n'%s'"\
-                    % (_parser.errors[0],text[:min(30,len(text))])
+ % (_parser.errors[0], text[:min(30, len(text))])
             if bulletTextFrags: bulletText = bulletTextFrags
 
         #AR hack
@@ -583,7 +615,7 @@ class Paragraph(Flowable):
         # work out widths array for breaking
         self.width = availWidth
         leftIndent = self.style.leftIndent
-        first_line_width = availWidth - (leftIndent+self.style.firstLineIndent) - self.style.rightIndent
+        first_line_width = availWidth - (leftIndent + self.style.firstLineIndent) - self.style.rightIndent
         later_widths = availWidth - leftIndent - self.style.rightIndent
 
         if self.style.wordWrap == 'CJK':
@@ -597,52 +629,52 @@ class Paragraph(Flowable):
     def minWidth(self):
         'Attempt to determine a minimum sensible width'
         frags = self.frags
-        nFrags= len(frags)
+        nFrags = len(frags)
         if not nFrags: return 0
-        if nFrags==1:
+        if nFrags == 1:
             f = frags[0]
             fS = f.fontSize
             fN = f.fontName
-            words = hasattr(f,'text') and split(f.text, ' ') or f.words
-            func = lambda w, fS=fS, fN=fN: stringWidth(w,fN,fS)
+            words = hasattr(f, 'text') and split(f.text, ' ') or f.words
+            func = lambda w, fS = fS, fN = fN: stringWidth(w, fN, fS)
         else:
             words = _getFragWords(frags)
-            func  = lambda x: x[0]
-        return max(map(func,words))
+            func = lambda x: x[0]
+        return max(map(func, words))
 
     def _get_split_blParaFunc(self):
-        return self.blPara.kind==0 and _split_blParaSimple or _split_blParaHard
+        return self.blPara.kind == 0 and _split_blParaSimple or _split_blParaHard
 
-    def split(self,availWidth, availHeight):
-        if len(self.frags)<=0: return []
+    def split(self, availWidth, availHeight):
+        if len(self.frags) <= 0: return []
 
         #the split information is all inside self.blPara
-        if not hasattr(self,'blPara'):
-            self.wrap(availWidth,availHeight)
+        if not hasattr(self, 'blPara'):
+            self.wrap(availWidth, availHeight)
         blPara = self.blPara
         style = self.style
         leading = style.leading
         lines = blPara.lines
         n = len(lines)
-        s = int(availHeight/leading)
-        if s<=1:
+        s = int(availHeight / leading)
+        if s <= 1:
             del self.blPara
             return []
-        if n<=s: return [self]
+        if n <= s: return [self]
         func = self._get_split_blParaFunc()
 
-        P1=self.__class__(None,style,bulletText=self.bulletText,frags=func(blPara,0,s))
+        P1 = self.__class__(None, style, bulletText=self.bulletText, frags=func(blPara, 0, s))
         #this is a major hack
-        P1.blPara = ParaLines(kind=1,lines=blPara.lines[0:s],aH=availHeight,aW=availWidth)
+        P1.blPara = ParaLines(kind=1, lines=blPara.lines[0:s], aH=availHeight, aW=availWidth)
         P1._JustifyLast = 1
         P1._splitpara = 1
-        P1.height = s*leading
+        P1.height = s * leading
         P1.width = availWidth
         if style.firstLineIndent != 0:
             style = deepcopy(style)
             style.firstLineIndent = 0
-        P2=self.__class__(None,style,bulletText=None,frags=func(blPara,s,n))
-        return [P1,P2]
+        P2 = self.__class__(None, style, bulletText=None, frags=func(blPara, s, n))
+        return [P1, P2]
 
     def draw(self):
         #call another method for historical reasons.  Besides, I
@@ -687,18 +719,18 @@ class Paragraph(Flowable):
         fFontSize = float(style.fontSize)
 
         #for bullets, work out width and ensure we wrap the right amount onto line one
-        _handleBulletWidth(self.bulletText,style,maxWidths)
+        _handleBulletWidth(self.bulletText, style, maxWidths)
 
         maxWidth = maxWidths[0]
 
         self.height = 0
         frags = self.frags
-        nFrags= len(frags)
-        if nFrags==1 and not hasattr(frags[0],'cbDefn'):
+        nFrags = len(frags)
+        if nFrags == 1 and not hasattr(frags[0], 'cbDefn'):
             f = frags[0]
             fontSize = f.fontSize
             fontName = f.fontName
-            words = hasattr(f,'text') and split(f.text, ' ') or f.words
+            words = hasattr(f, 'text') and split(f.text, ' ') or f.words
             spaceWidth = stringWidth(' ', fontName, fontSize, self.encoding)
             cLine = []
             currentWidth = - spaceWidth   # hack to get around extra space for word 1
@@ -720,56 +752,56 @@ class Paragraph(Flowable):
                     try:
                         maxWidth = maxWidths[lineno]
                     except IndexError:
-                        maxWidth = maxWidths[-1]  # use the last one
+                        maxWidth = maxWidths[ - 1]  # use the last one
 
             #deal with any leftovers on the final line
-            if cLine!=[]:
-                if currentWidth>self.width: self.width = currentWidth
+            if cLine != []:
+                if currentWidth > self.width: self.width = currentWidth
                 lines.append((maxWidth - currentWidth, cLine))
 
             return f.clone(kind=0, lines=lines)
-        elif nFrags<=0:
+        elif nFrags <= 0:
             return ParaLines(kind=0, fontSize=style.fontSize, fontName=style.fontName,
                             textColor=style.textColor, lines=[])
         else:
-            if hasattr(self,'blPara') and getattr(self,'_splitpara',0):
+            if hasattr(self, 'blPara') and getattr(self, '_splitpara', 0):
                 #NB this is an utter hack that awaits the proper information
                 #preserving splitting algorithm
                 return self.blPara
             n = 0
             words = []
             for w in _getFragWords(frags):                
-                spaceWidth = stringWidth(' ',w[-1][0].fontName, w[-1][0].fontSize)
+                spaceWidth = stringWidth(' ', w[ - 1][0].fontName, w[ - 1][0].fontSize)
 
-                if n==0:
-                    currentWidth = -spaceWidth   # hack to get around extra space for word 1
+                if n == 0:
+                    currentWidth = - spaceWidth   # hack to get around extra space for word 1
                     maxSize = 0
 
                 wordWidth = w[0]
                 f = w[1][0]
-                if wordWidth>0:
+                if wordWidth > 0:
                     newWidth = currentWidth + spaceWidth + wordWidth
                 else:
                     newWidth = currentWidth
 
                 #test to see if this frag is a line break. If it is we will only act on it
                 #if the current width is non-negative or the previous thing was a deliberate lineBreak
-                lineBreak = hasattr(f,'lineBreak')
-                endLine = (newWidth>maxWidth and n>0) or lineBreak
+                lineBreak = hasattr(f, 'lineBreak')
+                endLine = (newWidth > maxWidth and n > 0) or lineBreak
                 if not endLine:
                     if lineBreak: continue      #throw it away
                     nText = w[1][1]
                     if nText: n += 1
-                    maxSize = max(maxSize,f.fontSize)
-                    if words==[]:
+                    maxSize = max(maxSize, f.fontSize)
+                    if words == []:
                         g = f.clone()
                         words = [g]
                         g.text = nText
-                    elif not _sameFrag(g,f):
-                        if currentWidth>0 and ((nText!='' and nText[0]!=' ') or hasattr(f,'cbDefn')):
-                            if hasattr(g,'cbDefn'):
-                                i = len(words)-1
-                                while hasattr(words[i],'cbDefn'): i -= 1
+                    elif not _sameFrag(g, f):
+                        if currentWidth > 0 and ((nText != '' and nText[0] != ' ') or hasattr(f, 'cbDefn')):
+                            if hasattr(g, 'cbDefn'):
+                                i = len(words) - 1
+                                while hasattr(words[i], 'cbDefn'): i -= 1
                                 words[i].text += ' '
                             else:
                                 g.text += ' '
@@ -777,14 +809,14 @@ class Paragraph(Flowable):
                         words.append(g)
                         g.text = nText
                     else:
-                        if nText!='' and nText[0]!=' ':
+                        if nText != '' and nText[0] != ' ':
                             g.text += ' ' + nText
 
                     for i in w[2:]:
                         g = i[0].clone()
-                        g.text=i[1]
+                        g.text = i[1]
                         words.append(g)
-                        maxSize = max(maxSize,g.fontSize)
+                        maxSize = max(maxSize, g.fontSize)
 
                     currentWidth = newWidth
                 else:  #either it won't fit, or it's a lineBreak tag
@@ -793,9 +825,9 @@ class Paragraph(Flowable):
                         #del g.lineBreak
                         words.append(g)
 
-                    if currentWidth>self.width: self.width = currentWidth
+                    if currentWidth > self.width: self.width = currentWidth
                     #end of line
-                    lines.append(FragLine(extraSpace=(maxWidth - currentWidth),wordCount=n,
+                    lines.append(FragLine(extraSpace=(maxWidth - currentWidth), wordCount=n,
                                         words=words, fontSize=maxSize))
 
                     #start new line
@@ -803,7 +835,7 @@ class Paragraph(Flowable):
                     try:
                         maxWidth = maxWidths[lineno]
                     except IndexError:
-                        maxWidth = maxWidths[-1]  # use the last one
+                        maxWidth = maxWidths[ - 1]  # use the last one
 
                     if lineBreak:
                         n = 0
@@ -819,14 +851,14 @@ class Paragraph(Flowable):
 
                     for i in w[2:]:
                         g = i[0].clone()
-                        g.text=i[1]
+                        g.text = i[1]
                         words.append(g)
-                        maxSize = max(maxSize,g.fontSize)
+                        maxSize = max(maxSize, g.fontSize)
 
             #deal with any leftovers on the final line
-            if words!=[]:
-                if currentWidth>self.width: self.width = currentWidth
-                lines.append(ParaLines(extraSpace=(maxWidth - currentWidth),wordCount=n,
+            if words != []:
+                if currentWidth > self.width: self.width = currentWidth
+                lines.append(ParaLines(extraSpace=(maxWidth - currentWidth), wordCount=n,
                                     words=words, fontSize=maxSize))
             return ParaLines(kind=1, lines=lines)
 
@@ -845,11 +877,11 @@ class Paragraph(Flowable):
             return ParaLines(kind=0, fontSize=style.fontSize, fontName=style.fontName,
                             textColor=style.textColor, lines=[])
         f = self.frags[0]
-        if 1 and hasattr(self,'blPara') and getattr(self,'_splitpara',0):
+        if 1 and hasattr(self, 'blPara') and getattr(self, '_splitpara', 0):
             #NB this is an utter hack that awaits the proper information
             #preserving splitting algorithm
             return f.clone(kind=0, lines=self.blPara.lines)
-        if type(width)!=ListType: maxWidths = [width]
+        if type(width) != ListType: maxWidths = [width]
         else: maxWidths = width
         lines = []
         lineno = 0
@@ -865,10 +897,10 @@ class Paragraph(Flowable):
 
         f = self.frags[0]
 
-        if hasattr(f,'text'):
+        if hasattr(f, 'text'):
             text = f.text
         else:
-            text = ''.join(getattr(f,'words',[]))
+            text = ''.join(getattr(f, 'words', []))
 
         from reportlab.lib.textsplit import wordSplit
         lines = wordSplit(text, maxWidths[0], f.fontName, f.fontSize)
@@ -883,7 +915,7 @@ class Paragraph(Flowable):
     def beginText(self, x, y):
         return self.canv.beginText(x, y)
 
-    def drawPara(self,debug=0):
+    def drawPara(self, debug=0):
         """Draws a paragraph according to the given style.
         Returns the final y position at the bottom. Not safe for
         paragraphs without spaces e.g. Japanese; wrapping
@@ -901,50 +933,50 @@ class Paragraph(Flowable):
 
         if debug:
             bw = 0.5
-            bc = Color(1,1,0)
-            bg = Color(0.9,0.9,0.9)
+            bc = Color(1, 1, 0)
+            bg = Color(0.9, 0.9, 0.9)
         else:
-            bw = getattr(style,'borderWidth',None)
-            bc = getattr(style,'borderColor',None)
+            bw = getattr(style, 'borderWidth', None)
+            bc = getattr(style, 'borderColor', None)
             bg = style.backColor
         
         #if has a background or border, draw it
         if bg or (bc and bw):
             canvas.saveState()
             op = canvas.rect
-            kwds = dict(fill=0,stroke=0)
+            kwds = dict(fill=0, stroke=0)
             if bc and bw:
                 canvas.setStrokeColor(bc)
                 canvas.setLineWidth(bw)
                 kwds['stroke'] = 1
-                br = getattr(style,'borderRadius',0)
+                br = getattr(style, 'borderRadius', 0)
                 if br and not debug:
                     op = canvas.roundRect
                     kwds['radius'] = br
             if bg:
                 canvas.setFillColor(bg)
                 kwds['fill'] = 1
-            bp = getattr(style,'borderPadding',0)
-            op(leftIndent-bp,
-                        -bp,
-                        self.width - (leftIndent+style.rightIndent)+2*bp,
-                        self.height+2*bp,
+            bp = getattr(style, 'borderPadding', 0)
+            op(leftIndent - bp,
+ - bp,
+                        self.width - (leftIndent + style.rightIndent) + 2 * bp,
+                        self.height + 2 * bp,
                         **kwds)
             canvas.restoreState()
 
         nLines = len(lines)
         bulletText = self.bulletText
         if nLines > 0:
-            _offsets = getattr(self,'_offsets',[0])
-            _offsets += (nLines-len(_offsets))*[_offsets[-1]]
+            _offsets = getattr(self, '_offsets', [0])
+            _offsets += (nLines - len(_offsets)) * [_offsets[ - 1]]
             canvas.saveState()
             #canvas.addLiteral('%% %s.drawPara' % _className(self))
             alignment = style.alignment
-            offset = style.firstLineIndent+_offsets[0]
-            lim = nLines-1
-            noJustifyLast = not (hasattr(self,'_JustifyLast') and self._JustifyLast)
+            offset = style.firstLineIndent + _offsets[0]
+            lim = nLines - 1
+            noJustifyLast = not (hasattr(self, '_JustifyLast') and self._JustifyLast)
 
-            if blPara.kind==0:
+            if blPara.kind == 0:
                 if alignment == TA_LEFT:
                     dpl = _leftDrawParaLine
                 elif alignment == TA_CENTER:
@@ -956,7 +988,7 @@ class Paragraph(Flowable):
                 f = blPara
                 cur_y = self.height - f.fontSize
                 if bulletText <> None:
-                    offset = _drawBullet(canvas,offset,cur_y,bulletText,style)
+                    offset = _drawBullet(canvas, offset, cur_y, bulletText, style)
 
                 #set up the font etc.
                 canvas.setFillColor(f.textColor)
@@ -966,7 +998,7 @@ class Paragraph(Flowable):
                 #now the font for the rest of the paragraph
                 tx.setFont(f.fontName, f.fontSize, style.leading)
                 ws = lines[0][0]
-                t_off = dpl( tx, offset, ws, lines[0][1], noJustifyLast and nLines==1)
+                t_off = dpl(tx, offset, ws, lines[0][1], noJustifyLast and nLines == 1)
                 if f.underline or f.link or f.strike:
                     # print "ever"
                     xs = tx.XtraState = ABag()
@@ -974,18 +1006,19 @@ class Paragraph(Flowable):
                     xs.f = f
                     xs.style = style
                     xs.lines = lines
-                    xs.underlines=[]
-                    xs.underlineColor=None    
+                    xs.underlines = []
+                    xs.underlineColor = None    
                     xs.backgrounds = []
                     xs.backgroundColor = None
                     xs.backgroundFontSize = None                    
-                    xs.strikes=[]
-                    xs.strikeColor=None
-                    xs.links=[]
-                    xs.link=f.link
+                    xs.strikes = []
+                    xs.strikeColor = None
+                    xs.strikeFontSize = None
+                    xs.links = []
+                    xs.link = f.link
                     canvas.setStrokeColor(f.textColor)                    
-                    dx = t_off+leftIndent
-                    if dpl!=_justifyDrawParaLine: ws = 0
+                    dx = t_off + leftIndent
+                    if dpl != _justifyDrawParaLine: ws = 0
                     if f.underline: _do_under_line(0, dx, ws, tx)                    
                     if f.strike: _do_under_line(0, dx, ws, tx, lm=0.125)
                     if f.link: _do_link_line(0, dx, ws, tx)
@@ -993,21 +1026,21 @@ class Paragraph(Flowable):
                     #now the middle of the paragraph, aligned with the left margin which is our origin.
                     for i in xrange(1, nLines):
                         ws = lines[i][0]
-                        t_off = dpl( tx, _offsets[i], ws, lines[i][1], noJustifyLast and i==lim)
-                        if dpl!=_justifyDrawParaLine: ws = 0
-                        if f.underline: _do_under_line(i, t_off+leftIndent, ws, tx)
-                        if f.strike: _do_under_line(i, t_off+leftIndent, tx, ws, lm=0.125)
-                        if f.link: _do_link_line(i, t_off+leftIndent, ws, tx)
+                        t_off = dpl(tx, _offsets[i], ws, lines[i][1], noJustifyLast and i == lim)
+                        if dpl != _justifyDrawParaLine: ws = 0
+                        if f.underline: _do_under_line(i, t_off + leftIndent, ws, tx)
+                        if f.strike: _do_under_line(i, t_off + leftIndent, tx, ws, lm=0.125)
+                        if f.link: _do_link_line(i, t_off + leftIndent, ws, tx)
                 else:
                     for i in xrange(1, nLines):
-                        dpl( tx, _offsets[i], lines[i][0], lines[i][1], noJustifyLast and i==lim)
+                        dpl(tx, _offsets[i], lines[i][0], lines[i][1], noJustifyLast and i == lim)
             else:
                 f = lines[0]
                 cur_y = self.height - f.fontSize
                 # default?
                 dpl = _leftDrawParaLineX
                 if bulletText <> None:
-                    offset = _drawBullet(canvas,offset,cur_y,bulletText,style)
+                    offset = _drawBullet(canvas, offset, cur_y, bulletText, style)
                 if alignment == TA_LEFT:
                     dpl = _leftDrawParaLineX
                 elif alignment == TA_CENTER:
@@ -1021,44 +1054,45 @@ class Paragraph(Flowable):
 
                 #set up the font etc.
                 tx = self.beginText(cur_x, cur_y)
-                xs = tx.XtraState=ABag()
-                xs.textColor=None
-                xs.backColor=None
-                xs.rise=0
-                xs.underline=0
-                xs.underlines=[]
-                xs.underlineColor=None
+                xs = tx.XtraState = ABag()
+                xs.textColor = None
+                xs.backColor = None
+                xs.rise = 0
+                xs.underline = 0
+                xs.underlines = []
+                xs.underlineColor = None
                 xs.background = 0
                 xs.backgrounds = []
                 xs.backgroundColor = None     
                 xs.backgroundFontSize = None           
-                xs.strike=0
-                xs.strikes=[]
-                xs.strikeColor=None
-                xs.links=[]
-                xs.link=None
+                xs.strike = 0
+                xs.strikes = []
+                xs.strikeColor = None
+                xs.strikeFontSize = None
+                xs.links = []
+                xs.link = None
                 tx.setLeading(style.leading)
                 xs.cur_y = cur_y
                 xs.f = f
                 xs.style = style
 
-                tx._fontname,tx._fontsize = None, None
-                t_off = dpl( tx, offset, lines[0], noJustifyLast and nLines==1)
-                _do_post_text(0, t_off+leftIndent, tx)
+                tx._fontname, tx._fontsize = None, None
+                t_off = dpl(tx, offset, lines[0], noJustifyLast and nLines == 1)
+                _do_post_text(0, t_off + leftIndent, tx)
 
                 #now the middle of the paragraph, aligned with the left margin which is our origin.
                 for i in range(1, nLines):
                     f = lines[i]
-                    t_off = dpl( tx, _offsets[i], f, noJustifyLast and i==lim)
-                    _do_post_text(i, t_off+leftIndent, tx)
+                    t_off = dpl(tx, _offsets[i], f, noJustifyLast and i == lim)
+                    _do_post_text(i, t_off + leftIndent, tx)
 
             canvas.drawText(tx)
             canvas.restoreState()
 
-    def getPlainText(self,identify=None):
+    def getPlainText(self, identify=None):
         """Convenience function for templates which want access
         to the raw text, without XML tags. """
-        frags = getattr(self,'frags',None)
+        frags = getattr(self, 'frags', None)
         if frags:
             plains = []
             for frag in frags:
@@ -1066,7 +1100,7 @@ class Paragraph(Flowable):
                     plains.append(frag.text)
             return join(plains, '')
         elif identify:
-            text = getattr(self,'text',None)
+            text = getattr(self, 'text', None)
             if text is None: text = repr(self)
             return text
         else:
@@ -1079,34 +1113,34 @@ class Paragraph(Flowable):
         useful for seeing if paragraphs will fit in spaces."""
         assert hasattr(self, 'width'), "Cannot call this method before wrap()"
         if self.blPara.kind:
-            func = lambda frag, w=self.width: w - frag.extraSpace
+            func = lambda frag, w = self.width: w - frag.extraSpace
         else:
-            func = lambda frag, w=self.width: w - frag[0]
-        return map(func,self.blPara.lines)
+            func = lambda frag, w = self.width: w - frag[0]
+        return map(func, self.blPara.lines)
 
-if __name__=='__main__':    #NORUNTESTS
+if __name__ == '__main__':    #NORUNTESTS
     def dumpParagraphLines(P):
         print 'dumpParagraphLines(<Paragraph @ %d>)' % id(P)
         lines = P.blPara.lines
-        n =len(lines)
+        n = len(lines)
         for l in range(n):
             line = lines[l]
-            if hasattr(line,'words'):
+            if hasattr(line, 'words'):
                 words = line.words
             else:
                 words = line[1]
             nwords = len(words)
-            print 'line%d: %d(%s)\n  ' % (l,nwords,str(getattr(line,'wordCount','Unknown'))),
+            print 'line%d: %d(%s)\n  ' % (l, nwords, str(getattr(line, 'wordCount', 'Unknown'))),
             for w in range(nwords):
-                print "%d:'%s'"%(w,getattr(words[w],'text',words[w])),
+                print "%d:'%s'" % (w, getattr(words[w], 'text', words[w])),
             print
 
     def dumpParagraphFrags(P):
         print 'dumpParagraphFrags(<Paragraph @ %d>) minWidth() = %.2f' % (id(P), P.minWidth())
         frags = P.frags
-        n =len(frags)
+        n = len(frags)
         for l in range(n):
-            print "frag%d: '%s' %s" % (l, frags[l].text,' '.join(['%s=%s' % (k,getattr(frags[l],k)) for k in frags[l].__dict__ if k!=text]))
+            print "frag%d: '%s' %s" % (l, frags[l].text, ' '.join(['%s=%s' % (k, getattr(frags[l], k)) for k in frags[l].__dict__ if k != text]))
 
         l = 0
         cum = 0
@@ -1122,16 +1156,16 @@ if __name__=='__main__':    #NORUNTESTS
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     import sys
     TESTS = sys.argv[1:]
-    if TESTS==[]: TESTS=['4']
-    def flagged(i,TESTS=TESTS):
+    if TESTS == []: TESTS = ['4']
+    def flagged(i, TESTS=TESTS):
         return 'all' in TESTS or '*' in TESTS or str(i) in TESTS
 
     styleSheet = getSampleStyleSheet()
     B = styleSheet['BodyText']
     style = ParagraphStyle("discussiontext", parent=B)
-    style.fontName= 'Helvetica'
+    style.fontName = 'Helvetica'
     if flagged(1):
-        text='''The <font name=courier color=green>CMYK</font> or subtractive method follows the way a printer
+        text = '''The <font name=courier color=green>CMYK</font> or subtractive method follows the way a printer
 mixes three pigments (cyan, magenta, and yellow) to form colors.
 Because mixing chemicals is more difficult than combining light there
 is a fourth parameter for darkness.  For example a chemical
@@ -1142,21 +1176,21 @@ don't use the <font name=courier color=green>CMY</font> pigments but use a direc
 be the case that &amp;| &amp; | colors specified in <font name=courier color=green>CMYK</font> will provide better fidelity
 and better control when printed.
 '''
-        P=Paragraph(text,style)
+        P = Paragraph(text, style)
         dumpParagraphFrags(P)
         aW, aH = 456.0, 42.8
-        w,h = P.wrap(aW, aH)
+        w, h = P.wrap(aW, aH)
         dumpParagraphLines(P)
-        S = P.split(aW,aH)
+        S = P.split(aW, aH)
         for s in S:
-            s.wrap(aW,aH)
+            s.wrap(aW, aH)
             dumpParagraphLines(s)
             aH = 500
 
     if flagged(2):
-        P=Paragraph("""Price<super><font color="red">*</font></super>""", styleSheet['Normal'])
+        P = Paragraph("""Price<super><font color="red">*</font></super>""", styleSheet['Normal'])
         dumpParagraphFrags(P)
-        w,h = P.wrap(24, 200)
+        w, h = P.wrap(24, 200)
         dumpParagraphLines(P)
 
     if flagged(3):
@@ -1173,31 +1207,31 @@ sich zu sehr in speziellen Regeln oder Details zu verstricken. Dazu behandelt
 dieses Kapitel kurz die wesentlichen Konzepte wie Variablen, Ausdr&#xfc;cke,
 Kontrollfluss, Funktionen sowie Ein- und Ausgabe. Es erhebt nicht den Anspruch,
 umfassend zu sein."""
-        P=Paragraph(text, styleSheet['Code'])
+        P = Paragraph(text, styleSheet['Code'])
         dumpParagraphFrags(P)
-        w,h = P.wrap(6*72, 9.7*72)
+        w, h = P.wrap(6 * 72, 9.7 * 72)
         dumpParagraphLines(P)
 
     if flagged(4):
-        text='''Die eingebaute Funktion <font name=Courier>range(i, j [, stride])</font><onDraw name=myIndex label="eingebaute Funktionen::range()"><onDraw name=myIndex label="range() (Funktion)"><onDraw name=myIndex label="Funktionen::range()"> erzeugt eine Liste von Ganzzahlen und f&#xfc;llt sie mit Werten <font name=Courier>k</font>, f&#xfc;r die gilt: <font name=Courier>i &lt;= k &lt; j</font>. Man kann auch eine optionale Schrittweite angeben. Die eingebaute Funktion <font name=Courier>xrange()</font><onDraw name=myIndex label="eingebaute Funktionen::xrange()"><onDraw name=myIndex label="xrange() (Funktion)"><onDraw name=myIndex label="Funktionen::xrange()"> erf&#xfc;llt einen &#xe4;hnlichen Zweck, gibt aber eine unver&#xe4;nderliche Sequenz vom Typ <font name=Courier>XRangeType</font><onDraw name=myIndex label="XRangeType"> zur&#xfc;ck. Anstatt alle Werte in der Liste abzuspeichern, berechnet diese Liste ihre Werte, wann immer sie angefordert werden. Das ist sehr viel speicherschonender, wenn mit sehr langen Listen von Ganzzahlen gearbeitet wird. <font name=Courier>XRangeType</font> kennt eine einzige Methode, <font name=Courier>s.tolist()</font><onDraw name=myIndex label="XRangeType::tolist() (Methode)"><onDraw name=myIndex label="s.tolist() (Methode)"><onDraw name=myIndex label="Methoden::s.tolist()">, die seine Werte in eine Liste umwandelt.'''
+        text = '''Die eingebaute Funktion <font name=Courier>range(i, j [, stride])</font><onDraw name=myIndex label="eingebaute Funktionen::range()"><onDraw name=myIndex label="range() (Funktion)"><onDraw name=myIndex label="Funktionen::range()"> erzeugt eine Liste von Ganzzahlen und f&#xfc;llt sie mit Werten <font name=Courier>k</font>, f&#xfc;r die gilt: <font name=Courier>i &lt;= k &lt; j</font>. Man kann auch eine optionale Schrittweite angeben. Die eingebaute Funktion <font name=Courier>xrange()</font><onDraw name=myIndex label="eingebaute Funktionen::xrange()"><onDraw name=myIndex label="xrange() (Funktion)"><onDraw name=myIndex label="Funktionen::xrange()"> erf&#xfc;llt einen &#xe4;hnlichen Zweck, gibt aber eine unver&#xe4;nderliche Sequenz vom Typ <font name=Courier>XRangeType</font><onDraw name=myIndex label="XRangeType"> zur&#xfc;ck. Anstatt alle Werte in der Liste abzuspeichern, berechnet diese Liste ihre Werte, wann immer sie angefordert werden. Das ist sehr viel speicherschonender, wenn mit sehr langen Listen von Ganzzahlen gearbeitet wird. <font name=Courier>XRangeType</font> kennt eine einzige Methode, <font name=Courier>s.tolist()</font><onDraw name=myIndex label="XRangeType::tolist() (Methode)"><onDraw name=myIndex label="s.tolist() (Methode)"><onDraw name=myIndex label="Methoden::s.tolist()">, die seine Werte in eine Liste umwandelt.'''
         aW = 420
         aH = 64.4
-        P=Paragraph(text, B)
+        P = Paragraph(text, B)
         dumpParagraphFrags(P)
-        w,h = P.wrap(aW,aH)
-        print 'After initial wrap',w,h
+        w, h = P.wrap(aW, aH)
+        print 'After initial wrap', w, h
         dumpParagraphLines(P)
-        S = P.split(aW,aH)
+        S = P.split(aW, aH)
         dumpParagraphFrags(S[0])
-        w0,h0 = S[0].wrap(aW,aH)
-        print 'After split wrap',w0,h0
+        w0, h0 = S[0].wrap(aW, aH)
+        print 'After split wrap', w0, h0
         dumpParagraphLines(S[0])
 
     if flagged(5):
-        text = '<para> %s <![CDATA[</font></b>& %s < >]]></para>' % (chr(163),chr(163))
-        P=Paragraph(text, styleSheet['Code'])
+        text = '<para> %s <![CDATA[</font></b>& %s < >]]></para>' % (chr(163), chr(163))
+        P = Paragraph(text, styleSheet['Code'])
         dumpParagraphFrags(P)
-        w,h = P.wrap(6*72, 9.7*72)
+        w, h = P.wrap(6 * 72, 9.7 * 72)
         dumpParagraphLines(P)
 
     if flagged(6):
@@ -1205,25 +1239,25 @@ umfassend zu sein."""
                      '''Here comes <font face="Helvetica" size="14pt">Helvetica 14</font> with <Strong>strong</Strong> <em>emphasis</em>.''',
                      '''Here comes <font face="Courier" size="3cm">Courier 3cm</font> and normal again.''',
                      ]:
-            P=Paragraph(text, styleSheet['Normal'], caseSensitive=0)
+            P = Paragraph(text, styleSheet['Normal'], caseSensitive=0)
             dumpParagraphFrags(P)
-            w,h = P.wrap(6*72, 9.7*72)
+            w, h = P.wrap(6 * 72, 9.7 * 72)
             dumpParagraphLines(P)
 
     if flagged(7):
         text = """<para align="CENTER" fontSize="24" leading="30"><b>Generated by:</b>Dilbert</para>"""
-        P=Paragraph(text, styleSheet['Code'])
+        P = Paragraph(text, styleSheet['Code'])
         dumpParagraphFrags(P)
-        w,h = P.wrap(6*72, 9.7*72)
+        w, h = P.wrap(6 * 72, 9.7 * 72)
         dumpParagraphLines(P)
 
     if flagged(8):
-        text ="""- bullet 0<br/>- bullet 1<br/>- bullet 2<br/>- bullet 3<br/>- bullet 4<br/>- bullet 5"""
-        P=Paragraph(text, styleSheet['Normal'])
+        text = """- bullet 0<br/>- bullet 1<br/>- bullet 2<br/>- bullet 3<br/>- bullet 4<br/>- bullet 5"""
+        P = Paragraph(text, styleSheet['Normal'])
         dumpParagraphFrags(P)
-        w,h = P.wrap(6*72, 9.7*72)
+        w, h = P.wrap(6 * 72, 9.7 * 72)
         dumpParagraphLines(P)
-        S = P.split(6*72,h/2.0)
+        S = P.split(6 * 72, h / 2.0)
         print len(S)
         dumpParagraphLines(S[0])
         dumpParagraphLines(S[1])
