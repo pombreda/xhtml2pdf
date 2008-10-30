@@ -618,6 +618,14 @@ class pisaContext:
         self.toc.levelStyles = styles          
         self.addStory(self.toc)
 
+    def dumpPara(self, frags, style):
+        return 
+    
+        print "%s/%s %s *** PARA" % (style.fontSize, style.leading, style.backColor)
+        for frag in frags:
+            print "%s/%s %s %r" % (frag.fontSize, frag.leading, frag.backColor, frag.text)
+        print
+
     def addPara(self, force=False):
         
         force = force or self.force
@@ -638,8 +646,10 @@ class pisaContext:
 
         # Find maximum lead
         leading = 0
+        #fontSize = 0
         for frag in self.fragList:
             leading = max(leading, frag.fontSize, frag.leading)      
+            #fontSize = max(fontSize, frag.fontSize)      
             # print frag.text, frag.backColor
                         
         if force or (self.text.strip() and self.fragList):
@@ -655,6 +665,7 @@ class pisaContext:
             first = self.fragBlock          
             style = self.toParagraphStyle(first)
             style.leading = leading + first.leadingSpace
+            #style.fontSize = fontSize
                 
             # borderRadius: None,
         
@@ -664,9 +675,15 @@ class pisaContext:
         
             bulletText = copy.copy(first.bulletText)
             first.bulletText = None
-        
+                    
             # Add paragraph to story
             if force or len(self.fragAnchor + self.fragList)>0:
+                
+                # We need this empty fragment to work around problems in 
+                # Reportlab paragraphs regarding backGround etc.
+                self.fragList.append(self.fragList[-1].clone(text=''))
+                
+                self.dumpPara(self.fragAnchor + self.fragList, style)
                 para = PmlParagraph(
                     self.text,
                     style,
