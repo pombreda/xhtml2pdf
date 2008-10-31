@@ -341,7 +341,7 @@ def command():
             if src.startswith("http:"):
                 wpath = src
                 fsrc = urllib2.urlopen(src)
-                lc = pisaLinkLoader(src, quiet=quiet).getFileName                
+                # lc = pisaLinkLoader(src, quiet=quiet).getFileName                
                 src = "".join(urlparse.urlsplit(src)[1:3]).replace("/", "-")                                
             else:
                 fsrc = wpath = os.path.abspath(src)
@@ -442,16 +442,18 @@ def showLogging(debug=False):
     except:   
         logging.basicConfig()
 
+# Background informations in data URI here:
+# http://en.wikipedia.org/wiki/Data_URI_scheme
+
 def makeDataURI(data=None, mimetype=None, filename=None):
     import base64
     if not mimetype:
         if filename:
-            import mimetypes
-            # mimetypes.init()
-            mimetype = mimetypes.guess_type(filename)[0]
+            import mimetypes            
+            mimetype = mimetypes.guess_type(filename)[0].split(";")[0]
         else:
             raise Exception("You need to provide a mimetype or a filename for makeDataURI")
-    return "data:" + mimetype + ";base64," + base64.encodestring(data)
+    return "data:" + mimetype + ";base64," + "".join(base64.encodestring(data).split())
 
 def makeDataURIFromFile(filename):
     data = open(filename, "rb").read()

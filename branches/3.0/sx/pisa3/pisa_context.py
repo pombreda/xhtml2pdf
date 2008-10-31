@@ -300,8 +300,8 @@ class pisaCSSBuilder(css.CSSBuilder):
                     frameList.append(frame)        
 
             background = data.get("background-image", None)
-            if background:
-                background = c.getFile(background) 
+            if background:                
+                background = self.c.getFile(background) 
             # print background
             
             # print frameList
@@ -374,12 +374,12 @@ class pisaCSSParser(css.CSSParser):
         if self.rootPath and self.rootPath.startswith("http:"):
             self.rootPath = urlparse.urljoin(self.rootPath, cssResourceName)
         else:
-            self.rootPath = getDirName(cssFile)
+            self.rootPath = getDirName(cssFile.uri)
         # print "###", self.rootPath
-        if not cssFile:
+        if not cssFile.file:
             return None
-        cssFile = file(cssFile, "r")
-        result = self.parseFile(cssFile, True)
+        # cssFile = file(cssFile, "r")        
+        result = self.parseFile(cssFile.file, True)
         self.rootPath = oldRootPath
         return result
 
@@ -868,10 +868,7 @@ class pisaContext:
     
     # UTILS
     
-    def getFile(self, name, relative=None):
-        """
-        Returns a file name or None
-        """        
+    def _getFileDeprecated(self, name, relative):
         try:
             if name.startswith("data:"):
                 return name
@@ -891,6 +888,14 @@ class pisaContext:
         except:
             log.warn(self.warning("getFile %r %r %r", name, relative, path), exc_info=1)
             
+    def getFile(self, name, relative=None):
+        """
+        Returns a file name or None
+        """ 
+        if self.pathCallback is not None:
+            return getFile(self._getFileDeprecated(name, relative))
+        return getFile(name, relative or self.pathDirectory)
+        
     def getFontName(self, names, default="helvetica"):
         """
         Name of a font
@@ -908,18 +913,21 @@ class pisaContext:
         self.fontList[str(fontname).lower()] = str(fontname)
         for a in alias:
             self.fontList[str(a)] = str(fontname)
-            
+   
     def loadFont(self, names, src, encoding="WinAnsiEncoding", bold=0, italic=0):
         
-        if names and src:
+        # XXX Just works for local filenames!        
+        if names and src.local:
+            
+            src = str(src.local)
+            
             if type(names) is types.ListType:
                 fontAlias = names
             else:
                 fontAlias = [x.lower().strip() for x in names.split(",") if x]
             
             # XXX Problems with unicode here 
-            fontAlias = [str(x) for x in fontAlias]
-            src = str(src)
+            fontAlias = [str(x) for x in fontAlias]            
             
             fontName = fontAlias[0]
             parts = src.split(".")                

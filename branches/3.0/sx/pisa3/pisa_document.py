@@ -42,7 +42,7 @@ def pisaStory(
     encoding = None,
     c = None,
     **kw):
-    
+
     # Prepare Context
     if not c:
         c = pisaContext(path, debug=debug)
@@ -51,28 +51,28 @@ def pisaStory(
     # Use a default set of CSS definitions to get an expected output
     if default_css is None:
         default_css = DEFAULT_CSS
-    
-    # Parse and fill the story    
+
+    # Parse and fill the story
     pisaParser(src, c, default_css, xhtml, encoding)
 
     #if 0:
     #    import reportlab.pdfbase.pdfmetrics as pm
     #    pm.dumpFontData()
-    
+
     # Avoid empty documents
     if not c.story:
         c.addPara(force=True)
-    
-    # Remove anchors if they do not exist (because of a bug in Reportlab)    
+
+    # Remove anchors if they do not exist (because of a bug in Reportlab)
     for frag, anchor in c.anchorFrag:
         if anchor not in c.anchorName:
             frag.link = None
-            
+
     return c
 
 def pisaDocument(
     src,
-    dest,
+    dest = None,
     path = None,
     link_callback = None,
     debug = 0,
@@ -94,7 +94,11 @@ def pisaDocument(
         # Prepare simple context
         c = pisaContext(path, debug=debug)
         c.pathCallback = link_callback
-        
+
+        if dest is None:
+            dest = StringIO.StringIO()
+        c.dest = dest
+
         # Build story
         c = pisaStory(src, path, link_callback, debug, default_css, xhtml, encoding, c=c)
 
@@ -156,16 +160,15 @@ def pisaDocument(
                         ctr = 0
                         for bg in c.pisaBackgroundList:
                             page = input1.getPage(ctr)
-                            if bg:
-                                if os.path.exists(bg):
-                                    # print "BACK", bg
-                                    bginput = pyPdf.PdfFileReader(open(bg, "rb"))
-                                    # page.mergePage(bginput.getPage(0))
-                                    pagebg = bginput.getPage(0)
-                                    pagebg.mergePage(page)
-                                    page = pagebg
-                                else:
-                                    log.warn(c.warning("Background PDF %s doesn't exist.", bg))
+                            if bg and bg.file and ("pdf" in bg.mimetype):
+                                # print "BACK", bg
+                                bginput = pyPdf.PdfFileReader(bg.file)
+                                # page.mergePage(bginput.getPage(0))
+                                pagebg = bginput.getPage(0)
+                                pagebg.mergePage(page)
+                                page = pagebg
+                            else:
+                                log.warn(c.warning("Background PDF %s doesn't exist.", bg))
                             output.addPage(page)
                             ctr += 1
                         out = StringIO.StringIO()
@@ -182,16 +185,16 @@ def pisaDocument(
         # Get the resulting PDF and write it to the file object
         # passed from the caller
         data = out.getvalue()
-        dest.write(data)
+        c.dest.write(data)
 
         # In web frameworks for debugging purposes maybe an output of
         # errors in a PDF is preferred
         if show_error_as_pdf and c and c.err:
-            return pisaErrorDocument(dest, c)
+            return pisaErrorDocument(c.dest, c)
 
     except:
         # log.exception(c.error("Document error"))
         log.exception("Document error")
-        c.err += 1 
+        c.err += 1
 
     return c

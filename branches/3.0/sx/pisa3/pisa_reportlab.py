@@ -264,9 +264,6 @@ class PmlParagraph(Paragraph):
         # do when using TOC
         style.backColor = bg
 
-# XXX Dirty!!!
-_availHeightValue = 0
-
 class PmlTable(Table):
     
     def _normWidth(self, w, maxw):
@@ -341,8 +338,10 @@ class PmlTable(Table):
                 
         # print "New values:", totalWidth, newColWidths, sum(newColWidths)
             
-        global _availHeightValue        
-        self.availHeightValue = _availHeightValue = max(availHeight, _availHeightValue)
+        if not hasattr(self.canv, "maxAvailHeightValue"):
+            self.canv.maxAvailHeightValue = 0
+            
+        self.availHeightValue = self.canv.maxAvailHeightValue = max(availHeight, self.canv.maxAvailHeightValue)
         
         return Table.wrap(self, availWidth, availHeight)
     

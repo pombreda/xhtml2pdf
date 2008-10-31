@@ -173,6 +173,7 @@ def parseSpecialRules(declarations, debug=0):
                 log.debug("CSS special  IN: %r", d)
 
             name, parts, last = d
+            oparts = parts
             parts = toList(parts)
 
             # FONT
@@ -206,15 +207,27 @@ def parseSpecialRules(declarations, debug=0):
             # BACKGROUND
             elif name == "background":
                 # [<'background-color'> || <'background-image'> || <'background-repeat'> || <'background-attachment'> || <'background-position'>] | inherit
-                part = getNextPart(parts)
-                # Color
-                if part and (not part.startswith("url")):
-                    dd.append(("background-color", part, last))
-                    part = getNextPart(parts)
-                # Background
+                
+                # XXX We do not receive url() and parts list, so we go for a dirty work arround
+                part = getNextPart(parts) or oparts
                 if part:
-                    dd.append(("background-url", part, last))                   
-                # XXX Incomplete! Error in url()!               
+                    
+                    if "." in part:
+                        dd.append(("background-image", part, last))       
+                    else:
+                        dd.append(("background-color", part, last))
+                        
+                if 0:
+                    part = getNextPart(parts) or oparts
+                    print "~", part, parts, oparts, declarations
+                    # Color
+                    if part and (not part.startswith("url")):
+                        dd.append(("background-color", part, last))
+                        part = getNextPart(parts)
+                    # Background
+                    if part:
+                        dd.append(("background-image", part, last))                   
+                    # XXX Incomplete! Error in url()!               
 
             # MARGIN
             elif name == "margin":

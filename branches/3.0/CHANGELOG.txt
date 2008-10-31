@@ -14,6 +14,7 @@ Version 3.0.28, 2008-XX
 - NEW: Option "--system" for command line tool to dump system version infos
 - NEW: CSS attribute -pdf-line-spacing for fix space between lines
 - NEW: Creation and handling of data URI with base64 encoding (others to come)
+- NEW: New general file loader that is also able to load remote data and data URI
 - UPD: Paragraphs now use the maximum leading to avoid overlapping text
 - UPD: Removed "Keep with next" from H1 to H6 
 - FIX: Compatible with Reportlab 2.2 now
