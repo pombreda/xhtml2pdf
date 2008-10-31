@@ -227,73 +227,44 @@ class pisaTagBR(pisaTag):
         c.fragStrip = True
         del c.frag.lineBreak 
         c.force = True
-        
-import base64
-import re
-_rx_datauri = re.compile("^data:(?P<mime>[a-z]+/[a-z]+);base64,(?P<data>.*)$", re.M|re.DOTALL)
-
-def readDataURI(data):
-    m = _rx_datauri.match(data)
-    mimetype = m.group("mime")
-    data = base64.decodestring(m.group("data"))
-    return mimetype, data
 
 class pisaTagIMG(pisaTag):
            
     def start(self, c):
         c.addPara()
         attr = self.attr        
-        if attr.src:
-            if attr.src.lower().endswith("svg"):
-                # self.next_para()
-                # XXX SVG is missing!
-
-                '''
-                img = PmlSVG(attr.src, attr.width, attr.height)
-                img.hAlign = string.upper(attr.align)
-                img.spaceBefore = c.frag.spaceBefore
-                img.spaceAfter = c.frag.spaceAfter                
-                c.addStory(img)
-                '''
-                pass
-
-            else:
-
-                # Evaluate filename
-                filename = attr.src
-                if filename.startswith("data:"):
-                    mimetype, data = readDataURI(filename)
-                    filename = StringIO.StringIO(data)
-
-                try:
-                    # oldnextstyle = self.nextstyle
-                    # self.next_para(style="img")
-                    _width = attr.width 
-                    _height = attr.height 
-                    _img = PmlImage(filename, _width, _height) #, kind="proportional") #, lazy=2)
-                    # _img.hAlign = attr.align.upper()
-                    _img.hAlign = "LEFT" 
-                    _img.pisaZoom = c.frag.zoom
-                    if (_width is None) and (_height is not None):
-                        factor = float(_height) / _img.imageHeight
-                        _img.drawWidth = _img.imageWidth * factor
-                    elif (_height is None) and (_width is not None):
-                        factor = float(_width) / _img.imageWidth
-                        _img.drawHeight = _img.imageHeight * factor
-                    elif (_width is None) and (_height is None):                        
-                        _img.drawWidth = _img.drawWidth * dpi96
-                        _img.drawHeight = _img.drawHeight * dpi96
+        if attr.src and attr.src.file:
                         
-                    # print 888,                    _img.drawWidth, c.frag.zoom,  _img.drawHeight  
-                    _img.drawWidth *= _img.pisaZoom
-                    _img.drawHeight *= _img.pisaZoom
-                    _img.spaceBefore = c.frag.spaceBefore
-                    _img.spaceAfter = c.frag.spaceAfter
-                  
-                    c.addStory(_img)
+            try:
+                              
+                # oldnextstyle = self.nextstyle
+                # self.next_para(style="img")
+                _width = attr.width 
+                _height = attr.height 
+                _img = PmlImage(attr.src.file, _width, _height) #, kind="proportional") #, lazy=2)
+                # _img.hAlign = attr.align.upper()
+                _img.hAlign = "LEFT" 
+                _img.pisaZoom = c.frag.zoom
+                if (_width is None) and (_height is not None):
+                    factor = float(_height) / _img.imageHeight
+                    _img.drawWidth = _img.imageWidth * factor
+                elif (_height is None) and (_width is not None):
+                    factor = float(_width) / _img.imageWidth
+                    _img.drawHeight = _img.imageHeight * factor
+                elif (_width is None) and (_height is None):                        
+                    _img.drawWidth = _img.drawWidth * dpi96
+                    _img.drawHeight = _img.drawHeight * dpi96
                     
-                except Exception, e:
-                    log.warn(c.warning("Error in handling image '%s': %s", attr.src, str(e)))
+                # print 888,                    _img.drawWidth, c.frag.zoom,  _img.drawHeight  
+                _img.drawWidth *= _img.pisaZoom
+                _img.drawHeight *= _img.pisaZoom
+                _img.spaceBefore = c.frag.spaceBefore
+                _img.spaceAfter = c.frag.spaceAfter
+              
+                c.addStory(_img)
+                
+            except Exception, e:
+                log.warn(c.warning("Error in handling image '%s': %s", attr.src, str(e)))
         else:
             log.warn(c.warning("Need a valid file name!"))
             

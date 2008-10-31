@@ -327,3 +327,92 @@ def getVAlign(value):
     # Unused
     return value.upper()
 
+import base64
+import re
+import urlparse
+import mimetypes    
+import urllib2
+
+_rx_datauri = re.compile("^data:(?P<mime>[a-z]+/[a-z]+);base64,(?P<data>.*)$", re.M|re.DOTALL)
+
+class pisaFileObject:
+    
+    """
+    XXX
+    """
+    
+    def __init__(self, uri, basepath=None, needFile=True):
+               
+        self.basepath = basepath
+        self.mimetype = None
+        self.file = None        
+        self.data = None
+        self.uri = None
+        self.local = None
+        uri = str(uri)
+    
+        # Data URI
+        if uri.startswith("data:"):
+            m = _rx_datauri.match(uri)
+            self.mimetype = m.group("mime")        
+            data = base64.decodestring(m.group("data"))    
+            if needFile:
+                self.file = StringIO.StringIO(data)
+            else:
+                self.data = data
+
+        else:
+                       
+            # Check if we have an external scheme
+            if basepath:
+                urlParts = urlparse.urlparse(basepath)
+            else:
+                urlParts = urlparse.urlparse(uri)
+            
+            # Drive letters have len==1 but we are looking for things like http:
+            if len(urlParts[0])>1:
+                
+                # External data
+                if basepath:
+                    uri = urlparse.urljoin(basepath, uri)    
+                                                
+                #path = urlparse.urlsplit(url)[2]
+                #mimetype = getMimeType(path)
+                urlResponse = urllib2.urlopen(uri)     
+                self.mimetype = urlResponse.info().get("Content-Type", None).split(";")[0] 
+                self.uri = urlResponse.geturl()
+
+                if needFile:       
+                    self.file = StringIO.StringIO(urlResponse.read())
+                else:
+                    self.data = urlResponse.read()
+        
+            else:
+                
+                # Local data
+                if basepath:
+                    uri = os.path.normpath(os.path.join(basepath, uri)) 
+                
+                if os.path.isfile(uri):
+                    self.uri = uri
+                    self.local = uri
+                    self.setMimeTypeByName(uri)
+                    if needFile:  
+                        self.file = open(uri, "rb")
+                    else:
+                        self.data = open(uri, "rb").read()
+        
+        # print "FileObject %r %r %r" % (self.mimetype, self.uri, self.basepath)    
+        # log.warn("FileObject %r %r %r", self.mimetype, self.uri, self.basepath)
+
+    #def makeTemp(self):
+    #    pass
+                        
+    def setMimeTypeByName(self, name):        
+        " Guess the mime type "
+        mimetype = mimetypes.guess_type(name)[0]
+        if mimetype is not None:
+            self.mimetype = mimetypes.guess_type(name)[0].split(";")[0]
+        
+def getFile(*a , **kw):
+    return pisaFileObject(*a, **kw)    
