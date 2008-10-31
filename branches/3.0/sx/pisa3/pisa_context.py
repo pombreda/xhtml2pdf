@@ -871,9 +871,11 @@ class pisaContext:
     def getFile(self, name, relative=None):
         """
         Returns a file name or None
-        """
+        """        
         try:
-            path = relative or self.pathDirectory
+            if name.startswith("data:"):
+                return name
+            path = relative or self.pathDirectory            
             if self.pathCallback is not None:
                 nv = self.pathCallback(name, relative)
             else:                

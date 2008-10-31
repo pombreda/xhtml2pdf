@@ -6,13 +6,14 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
-Version 3.0.28, 2008-10-26
+Version 3.0.28, 2008-XX
 
 - NEW: Background colors for inline elements like <span>
 - NEW: Possibility to handle table cells that are to large via CSS option      
        -pdf-keep-in-frame-mode    
 - NEW: Option "--system" for command line tool to dump system version infos
 - NEW: CSS attribute -pdf-line-spacing for fix space between lines
+- NEW: Creation and handling of data URI with base64 encoding (others to come)
 - UPD: Paragraphs now use the maximum leading to avoid overlapping text
 - UPD: Removed "Keep with next" from H1 to H6 
 - FIX: Compatible with Reportlab 2.2 now
