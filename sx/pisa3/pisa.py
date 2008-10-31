@@ -442,5 +442,20 @@ def showLogging(debug=False):
     except:   
         logging.basicConfig()
 
+def makeDataURI(data=None, mimetype=None, filename=None):
+    import base64
+    if not mimetype:
+        if filename:
+            import mimetypes
+            # mimetypes.init()
+            mimetype = mimetypes.guess_type(filename)[0]
+        else:
+            raise Exception("You need to provide a mimetype or a filename for makeDataURI")
+    return "data:" + mimetype + ";base64," + base64.encodestring(data)
+
+def makeDataURIFromFile(filename):
+    data = open(filename, "rb").read()
+    return makeDataURI(data, filename=filename)
+
 if __name__=="__main__":
     command()
