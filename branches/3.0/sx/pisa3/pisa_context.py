@@ -36,6 +36,8 @@ sizeDelta = 2       # amount to reduce font size by for super and sub script
 subFraction = 0.4   # fraction of font size that a sub script should be lowered
 superFraction = 0.4
 
+NBSP = u"\u00a0"
+
 def clone(self, **kwargs):
     n = ParaFrag(**self.__dict__)
     if kwargs:
@@ -371,14 +373,13 @@ class pisaCSSParser(css.CSSParser):
         oldRootPath = self.rootPath             
         cssFile = self.c.getFile(cssResourceName, relative=self.rootPath) # StringIO.StringIO("")
         result = []        
+        if not cssFile:
+            return None
         if self.rootPath and self.rootPath.startswith("http:"):
             self.rootPath = urlparse.urljoin(self.rootPath, cssResourceName)
         else:
             self.rootPath = getDirName(cssFile.uri)
-        # print "###", self.rootPath
-        if not cssFile:
-            return None
-        # cssFile = file(cssFile, "r")        
+        # print "###", self.rootPath        
         result = self.parse(cssFile.getData())
         self.rootPath = oldRootPath
         return result
@@ -628,8 +629,10 @@ class pisaContext:
 
     def addPara(self, force=False):
         
-        force = force or self.force
+        # print self.force, repr(self.text)
+        force = (force or self.force) and self.fragList
         self.force = False
+        # self.force = False
 
         # Cleanup the trail
         try:
@@ -639,20 +642,21 @@ class pisaContext:
             rfragList = copy.copy(self.fragList)
             rfragList.reverse()
         
-        for frag in rfragList:           
-            frag.text = frag.text.rstrip()            
-            if frag.text:        
-                break
+        #for frag in rfragList:           
+        #    frag.text = frag.text.rstrip()            
+        #    if frag.text:        
+        #        break
 
         # Find maximum lead
         leading = 0
         #fontSize = 0
         for frag in self.fragList:
-            leading = max(leading, frag.fontSize, frag.leading)      
+            leading = max(leading, frag.fontSize, frag.leading)     
+                       
             #fontSize = max(fontSize, frag.fontSize)      
             # print frag.text, frag.backColor
-                        
-        if force or (self.text.strip() and self.fragList):
+               
+        if force  or (self.text.strip() and self.fragList):
                     
             # Strip trailing whitespaces
             #for f in self.fragList:
@@ -771,9 +775,9 @@ class pisaContext:
         
         # XXX Doesn't work with Reportlab > 2.1
         # NBSP = '\xc2\xa0' # u"_"
-        NBSP = u"\u00a0"
-        if REPORTLAB22:
-            NBSP = u" "
+                
+        #if REPORTLAB22:
+        #    NBSP = u" "
         
         # Replace &shy; with empty and normalize NBSP
         text = (text
@@ -809,7 +813,8 @@ class pisaContext:
         else: 
             for text in re.split(u'(' + NBSP + u')', text):   
                 frag = baseFrag.clone()
-                if text == NBSP:                    
+                if text == NBSP:    
+                    self.force = True                
                     frag.text = NBSP
                     self.text += text
                     self._appendFrag(frag)

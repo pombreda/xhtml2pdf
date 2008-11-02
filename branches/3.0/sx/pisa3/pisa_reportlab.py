@@ -122,12 +122,172 @@ class PmlPageTemplate(PageTemplate):
 #class PmlParagraphAndImage(ParagraphAndImage):
 #    pass
 
+from reportlab.lib.utils import *
+
+def _isPILImage(im):
+    try:
+        from PIL.Image import Image
+        return isinstance(im, Image)
+    except ImportError:
+        return 0
+
+class PmlImageReader(object):
+    "Wraps up either PIL or Java to get data from bitmaps"
+    _cache = {}
+    def __init__(self, fileName):
+        if isinstance(fileName, PmlImageReader):
+            self.__dict__ = fileName.__dict__   #borgize
+            return
+        #start wih lots of null private fields, to be populated by
+        #the relevant engine.
+        self.fileName = fileName
+        self._image = None
+        self._width = None
+        self._height = None
+        self._transparent = None
+        self._data = None        
+        imageReaderFlags=0
+        if _isPILImage(fileName):
+            self._image = fileName
+            self.fp = getattr(fileName, 'fp', None)
+            try:
+                self.fileName = self._image.fileName
+            except AttributeError:
+                self.fileName = 'PILIMAGE_%d' % id(self)
+        else:
+            try:                
+                self.fp = open_for_read(fileName, 'b')
+                if isinstance(self.fp, StringIO.StringIO().__class__):  imageReaderFlags = 0 #avoid messing with already internal files
+                if imageReaderFlags > 0:  #interning
+                    data = self.fp.read()
+                    if imageReaderFlags & 2:  #autoclose
+                        try:
+                            self.fp.close()
+                        except:
+                            pass
+                    if imageReaderFlags & 4:  #cache the data
+                        if not self._cache:
+                            from rl_config import register_reset
+                            register_reset(self._cache.clear)
+                        data = self._cache.setdefault(md5(data).digest(), data)
+                    self.fp = getStringIO(data)
+                elif imageReaderFlags == - 1 and isinstance(fileName, (str, unicode)):
+                    #try Ralf Schmitt's re-opening technique of avoiding too many open files
+                    self.fp.close()
+                    del self.fp #will become a property in the next statement
+                    self.__class__ = LazyImageReader
+                if haveImages:
+                    #detect which library we are using and open the image
+                    if not self._image:
+                        self._image = self._read_image(self.fp)
+                    if getattr(self._image, 'format', None) == 'JPEG': self.jpeg_fh = self._jpeg_fh
+                else:
+                    from reportlab.pdfbase.pdfutils import readJPEGInfo
+                    try:
+                        self._width, self._height, c = readJPEGInfo(self.fp)
+                    except:
+                        raise RuntimeError('Imaging Library not available, unable to import bitmaps only jpegs')
+                    self.jpeg_fh = self._jpeg_fh
+                    self._data = self.fp.read()
+                    self._dataA = None
+                    self.fp.seek(0)
+            except:
+                et, ev, tb = sys.exc_info()
+                if hasattr(ev, 'args'):
+                    a = str(ev.args[ - 1]) + (' fileName=%r' % fileName)
+                    ev.args = ev.args[: - 1] + (a,)
+                    raise et, ev, tb
+                else:
+                    raise
+
+    def _read_image(self, fp):
+        if sys.platform[0:4] == 'java':
+            from javax.imageio import ImageIO
+            return ImageIO.read(fp)
+        else:
+            try:
+                import PIL.Image as Image
+            except:
+                import Image
+            return Image.open(fp)
+
+    def _jpeg_fh(self):
+        fp = self.fp
+        fp.seek(0)
+        return fp
+
+    def jpeg_fh(self):
+        return None
+
+    def getSize(self):
+        if (self._width is None or self._height is None):
+            if sys.platform[0:4] == 'java':
+                self._width = self._image.getWidth()
+                self._height = self._image.getHeight()
+            else:
+                self._width, self._height = self._image.size
+        return (self._width, self._height)
+
+    def getRGBData(self):
+        "Return byte array of RGB data as string"
+        if self._data is None:
+            self._dataA = None
+            if sys.platform[0:4] == 'java':
+                import jarray
+                from java.awt.image import PixelGrabber
+                width, height = self.getSize()
+                buffer = jarray.zeros(width * height, 'i')
+                pg = PixelGrabber(self._image, 0, 0, width, height, buffer, 0, width)
+                pg.grabPixels()
+                # there must be a way to do this with a cast not a byte-level loop,
+                # I just haven't found it yet...
+                pixels = []
+                a = pixels.append
+                for i in range(len(buffer)):
+                    rgb = buffer[i]
+                    a(chr((rgb >> 16) & 0xff))
+                    a(chr((rgb >> 8) & 0xff))
+                    a(chr(rgb & 0xff))
+                self._data = ''.join(pixels)
+                self.mode = 'RGB'
+            else:
+                im = self._image
+                mode = self.mode = im.mode
+                if mode == 'RGBA':
+                    self._dataA = PmlImageReader(im.split()[3])
+                    im = im.convert('RGB')
+                    self.mode = 'RGB'
+                elif mode not in ('L', 'RGB', 'CMYK'):
+                    im = im.convert('RGB')
+                    self.mode = 'RGB'
+                self._data = im.tostring()
+        return self._data
+
+    def getImageData(self):
+        width, height = self.getSize()
+        return width, height, self.getRGBData()
+
+    def getTransparent(self):
+        if sys.platform[0:4] == 'java':
+            return None
+        else:
+            if self._image.info.has_key("transparency"):
+                transparency = self._image.info["transparency"] * 3
+                palette = self._image.palette
+                try:
+                    palette = palette.palette
+                except:
+                    palette = palette.data
+                return map(ord, palette[transparency:transparency + 3])
+            else:
+                return None
+            
 class PmlImage(Flowable):   
     
     _fixedWidth = 1
     _fixedHeight = 1
     
-    def __init__(self, data, width=None, height=None,  mask="auto", mimetype=None):        
+    def __init__(self, data, width=None, height=None, mask="auto", mimetype=None):        
         self.hAlign = 'CENTER'
         self._mask = mask
         self.data = data
@@ -158,9 +318,8 @@ class PmlImage(Flowable):
         self.drawWidth = width or self.imageWidth
         self.drawHeight = height or self.imageHeight
         
-    def _getImage(self):
-        from reportlab.lib.utils import ImageReader  #this may raise an error
-        img = ImageReader(StringIO.StringIO(self.data))
+    def _getImage(self):        
+        img = PmlImageReader(StringIO.StringIO(self.data))
         return img
     
     def wrap(self, availWidth, availHeight):     
