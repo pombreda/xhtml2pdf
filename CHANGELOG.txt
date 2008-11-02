@@ -18,6 +18,7 @@ Version 3.0.28, 2008-XX
 - NEW: PDF Joiner to concatenate mor
 - UPD: Paragraphs now use the maximum leading to avoid overlapping text
 - UPD: Removed "Keep with next" from H1 to H6 
+- FIX: Paragraphs only containing &nbsp; are rendered now
 - FIX: Compatible with Reportlab 2.2 now
 - FIX: Problem regarding the order of border style definitions
 - FIX: Single <br> between two blocks now creates a new line
