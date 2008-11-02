@@ -376,10 +376,10 @@ class pisaCSSParser(css.CSSParser):
         else:
             self.rootPath = getDirName(cssFile.uri)
         # print "###", self.rootPath
-        if not cssFile.file:
+        if not cssFile:
             return None
         # cssFile = file(cssFile, "r")        
-        result = self.parseFile(cssFile.file, True)
+        result = self.parse(cssFile.getData())
         self.rootPath = oldRootPath
         return result
 
