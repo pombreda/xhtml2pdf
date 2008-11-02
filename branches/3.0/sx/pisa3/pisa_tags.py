@@ -233,7 +233,7 @@ class pisaTagIMG(pisaTag):
     def start(self, c):
         c.addPara()
         attr = self.attr        
-        if attr.src and attr.src.file:
+        if attr.src and (not attr.src.notFound()):
                         
             try:
                               
@@ -241,7 +241,10 @@ class pisaTagIMG(pisaTag):
                 # self.next_para(style="img")
                 _width = attr.width 
                 _height = attr.height 
-                _img = PmlImage(attr.src.file, _width, _height) #, kind="proportional") #, lazy=2)
+                _img = PmlImage(
+                    attr.src.getData(), 
+                    width = _width, 
+                    height = _height) 
                 # _img.hAlign = attr.align.upper()
                 _img.hAlign = "LEFT" 
                 _img.pisaZoom = c.frag.zoom
@@ -264,7 +267,7 @@ class pisaTagIMG(pisaTag):
                 c.addStory(_img)
                 
             except Exception, e:
-                log.warn(c.warning("Error in handling image '%s': %s", attr.src, str(e)))
+                log.warn(c.warning("Error in handling image: %r", e), exc_info=1)
         else:
             log.warn(c.warning("Need a valid file name!"))
             

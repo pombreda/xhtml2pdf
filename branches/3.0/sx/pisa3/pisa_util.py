@@ -41,10 +41,10 @@ REPORTLAB22 = (reportlab.Version[0] == "2" and reportlab.Version[2] >= "2")
 
 log = logging.getLogger("ho.pisa")
 
-try:
-    import cStringIO as StringIO
-except:
-    import StringIO
+#try:
+#    import cStringIO as StringIO
+#except:
+import StringIO
 
 try:
     import pyPdf
@@ -341,7 +341,7 @@ class pisaFileObject:
     XXX
     """
     
-    def __init__(self, uri, basepath=None, needFile=True):
+    def __init__(self, uri, basepath=None):
                
         self.basepath = basepath
         self.mimetype = None
@@ -355,11 +355,7 @@ class pisaFileObject:
         if uri.startswith("data:"):
             m = _rx_datauri.match(uri)
             self.mimetype = m.group("mime")        
-            data = base64.decodestring(m.group("data"))    
-            if needFile:
-                self.file = StringIO.StringIO(data)
-            else:
-                self.data = data
+            self.data = base64.decodestring(m.group("data"))    
 
         else:
                        
@@ -381,12 +377,8 @@ class pisaFileObject:
                 urlResponse = urllib2.urlopen(uri)     
                 self.mimetype = urlResponse.info().get("Content-Type", None).split(";")[0] 
                 self.uri = urlResponse.geturl()
-
-                if needFile:       
-                    self.file = StringIO.StringIO(urlResponse.read())
-                else:
-                    self.data = urlResponse.read()
-        
+                self.file = urlResponse
+                
             else:
                 
                 # Local data
@@ -396,17 +388,26 @@ class pisaFileObject:
                 if os.path.isfile(uri):
                     self.uri = uri
                     self.local = uri
-                    self.setMimeTypeByName(uri)
-                    if needFile:  
-                        self.file = open(uri, "rb")
-                    else:
-                        self.data = open(uri, "rb").read()
-        
-        # print "FileObject %r %r %r" % (self.mimetype, self.uri, self.basepath)    
-        # log.warn("FileObject %r %r %r", self.mimetype, self.uri, self.basepath)
-
-    #def makeTemp(self):
-    #    pass
+                    self.setMimeTypeByName(uri)                    
+                    self.file = open(uri, "rb")
+                    
+    def getFile(self):
+        if self.file is not None:
+            return self.file
+        if self.data is not None:
+            return StringIO.StringIO(self.data)
+        return None
+    
+    def getData(self):
+        if self.data is not None:
+            return self.data
+        if self.file is not None:
+            self.data = self.file.read()
+            return self.data
+        return None
+    
+    def notFound(self):
+        return (self.file is None) and (self.data is None)
                         
     def setMimeTypeByName(self, name):        
         " Guess the mime type "
@@ -415,4 +416,7 @@ class pisaFileObject:
             self.mimetype = mimetypes.guess_type(name)[0].split(";")[0]
         
 def getFile(*a , **kw):
-    return pisaFileObject(*a, **kw)    
+    file = pisaFileObject(*a, **kw)
+    if file.notFound():
+        return None
+    return file

@@ -81,7 +81,7 @@ class PmlPageTemplate(PageTemplate):
                 # Paint static frames
                 pagenumber = str(canvas.getPageNumber())
                 for frame in self.pisaStaticList:
-
+                    
                     frame = copy.deepcopy(frame)
                     story = frame.pisaStaticStory
 
@@ -122,21 +122,70 @@ class PmlPageTemplate(PageTemplate):
 #class PmlParagraphAndImage(ParagraphAndImage):
 #    pass
 
-class PmlImage(Image):
+class PmlImage(Flowable):   
+    
+    _fixedWidth = 1
+    _fixedHeight = 1
+    
+    def __init__(self, data, width=None, height=None,  mask="auto", mimetype=None):        
+        self.hAlign = 'CENTER'
+        self._mask = mask
+        self.data = data
+        self.mimetype = mimetype
+        
+        '''        
+        if mimetype and mimetype.split("/")[-1] in ("jpeg", "jpg"):        
+            from reportlab.lib.utils import open_for_read
+            f = open_for_read(filename, 'b')
+            try:
+                try:
+                    info = pdfutils.readJPEGInfo(f)
+                except:
+                    #couldn't read as a JPEG, try like normal
+                    self._setup(width, height, kind, lazy)
+                    return
+            finally:
+                f.close()
+            self.imageWidth = info[0]
+            self.imageHeight = info[1]
+            self._img = None
+            self._setup(width, height, kind, 0)
+        '''
 
-    def wrap(self, availWidth, availHeight):
-        #print 123, self.drawWidth, self.drawHeight, self.pisaZoom
-        #self.drawWidth *= self.pisaZoom
-        #self.drawHeight *= self.pisaZoom
-        # print 456, self.drawWidth, self.drawHeight
+        img = self._getImage()
+        if img: 
+            self.imageWidth, self.imageHeight = img.getSize()        
+        self.drawWidth = width or self.imageWidth
+        self.drawHeight = height or self.imageHeight
+        
+    def _getImage(self):
+        from reportlab.lib.utils import ImageReader  #this may raise an error
+        img = ImageReader(StringIO.StringIO(self.data))
+        return img
+    
+    def wrap(self, availWidth, availHeight):     
         width = min(self.drawWidth, availWidth)
-        # print 999, width, self.drawWidth, availWidth
         factor = float(width) / self.drawWidth
-        # print 123, factor
         self.drawHeight = self.drawHeight * factor
         self.drawWidth = width
-        return Image.wrap(self, availWidth, availHeight)
+        return (self.drawWidth, self.drawHeight)
 
+    def draw(self):        
+        img = self._getImage()
+        self.canv.drawImage(img,
+            getattr(self, '_offs_x', 0),
+            getattr(self, '_offs_y', 0),
+            self.drawWidth,
+            self.drawHeight,
+            mask=self._mask,
+            )        
+
+    def identity(self, maxLen=None):
+        r = Flowable.identity(self, maxLen)
+        if r[ - 4:] == '>...' and type(self.filename) is StringType:
+            r = "%s filename=%s>" % (r[: - 4], self.filename)
+        return r
+        
 class PmlParagraph(Paragraph):
 
     def wrap(self, availWidth, availHeight):
@@ -276,7 +325,7 @@ class PmlTable(Table):
 
     def _listCellGeom(self, V, w, s, W=None, H=None, aH=72000):
         # print "#", self.availHeightValue
-        if aH==72000:
+        if aH == 72000:
             aH = self.availHeightValue
         return Table._listCellGeom(self, V, w, s, W=W, H=H, aH=aH)
        
@@ -329,7 +378,7 @@ class PmlTable(Table):
             quotient = totalWidth / sum(newColWidths)
             # print quotient
             for i in range(len(newColWidths)):
-                newColWidths[i] =  newColWidths[i] * quotient 
+                newColWidths[i] = newColWidths[i] * quotient 
         
         # To avoid rounding errors adjust one col with the difference
         diff = sum(newColWidths) - totalWidth         

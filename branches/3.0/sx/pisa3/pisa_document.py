@@ -160,9 +160,9 @@ def pisaDocument(
                         ctr = 0
                         for bg in c.pisaBackgroundList:
                             page = input1.getPage(ctr)
-                            if bg and bg.file and ("pdf" in bg.mimetype):
+                            if bg and not bg.notFound() and ("pdf" in bg.mimetype):
                                 # print "BACK", bg
-                                bginput = pyPdf.PdfFileReader(bg.file)
+                                bginput = pyPdf.PdfFileReader(bg.getFile())
                                 # page.mergePage(bginput.getPage(0))
                                 pagebg = bginput.getPage(0)
                                 pagebg.mergePage(page)
