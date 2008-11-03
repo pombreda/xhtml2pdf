@@ -17,9 +17,8 @@ def helloWorld():
     filename = __file__ + ".pdf"
     datauri = pisa.makeDataURIFromFile('img/denker.png')
     bguri = os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir, "pdf/background-sample.pdf"))
-    bguri = "".join(pisa.makeDataURIFromFile(bguri).split())
-    pdf = pisa.pisaDocument(
-        u"""
+    bguri = pisa.makeDataURIFromFile(bguri)
+    html = u"""
             <style>
             @page {
                 background: url("%s");
@@ -37,7 +36,9 @@ def helloWorld():
             Hello <strong>World</strong>
             <p>
             <img src="%s">
-        """ % (bguri, datauri),
+        """ % (bguri, datauri)
+    pdf = pisa.pisaDocument(
+        html,
         file(filename, "wb"),
         path = __file__
         )

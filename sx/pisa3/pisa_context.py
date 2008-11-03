@@ -922,7 +922,7 @@ class pisaContext:
     def loadFont(self, names, src, encoding="WinAnsiEncoding", bold=0, italic=0):
         
         # XXX Just works for local filenames!        
-        if names and src.local:
+        if names and src and src.local:
             
             src = str(src.local)
             

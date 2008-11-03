@@ -191,9 +191,9 @@ def pisaDocument(
         # errors in a PDF is preferred
         if show_error_as_pdf and c and c.err:
             return pisaErrorDocument(c.dest, c)
-
+      
     except:
-        # log.exception(c.error("Document error"))
+        # log.exception(c.error("Document error"))        
         log.exception("Document error")
         c.err += 1
 
