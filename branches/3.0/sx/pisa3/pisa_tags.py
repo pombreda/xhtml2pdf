@@ -26,6 +26,9 @@ import pprint
 import re
 import warnings
 
+import logging
+log = logging.getLogger("ho.pisa")
+
 def deprecation(message):
     warnings.warn("<" + message + "> is deprecated!", DeprecationWarning, stacklevel=2)
 

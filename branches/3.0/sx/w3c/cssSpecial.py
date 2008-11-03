@@ -15,7 +15,6 @@ Optimized for use with PISA
 
 import types
 import logging
-
 log = logging.getLogger("ho.css")
 
 def toList(value):

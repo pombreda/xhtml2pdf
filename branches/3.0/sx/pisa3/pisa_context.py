@@ -32,6 +32,9 @@ from sx.w3c import css, cssDOMElementInterface
 
 from html5lib.sanitizer import *
 
+import logging
+log = logging.getLogger("ho.pisa")
+
 sizeDelta = 2       # amount to reduce font size by for super and sub script
 subFraction = 0.4   # fraction of font size that a sub script should be lowered
 superFraction = 0.4

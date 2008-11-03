@@ -10,6 +10,9 @@ __date__      = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
 
 from pisa_util import *
 
+import logging
+log = logging.getLogger("ho.pisa")
+
 class pisaPDF:
 
     def __init__(self):
