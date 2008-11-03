@@ -17,7 +17,7 @@ class pisaPDF:
 
     def addFromURI(self, url, basepath=None):
         obj = getFile(url, basepath)
-        if not obj.notFound():
+        if obj and (not obj.notFound()):
             self.files.append(obj.getFile())
 
     addFromFileName = addFromURI

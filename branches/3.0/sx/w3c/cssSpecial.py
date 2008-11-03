@@ -212,7 +212,7 @@ def parseSpecialRules(declarations, debug=0):
                 part = getNextPart(parts) or oparts
                 if part:
                     
-                    if "." in part:
+                    if ("." in part) or ("data:" in part):
                         dd.append(("background-image", part, last))       
                     else:
                         dd.append(("background-color", part, last))
