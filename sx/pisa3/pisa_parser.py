@@ -28,6 +28,9 @@ from pisa_tables import *
 import sx.w3c.css as css
 import sx.w3c.cssDOMElementInterface as cssDOMElementInterface
 
+import logging
+log = logging.getLogger("ho.pisa")
+
 rxhttpstrip = re.compile("http://[^/]+(.*)", re.M|re.I)
 
 class AttrContainer(dict):

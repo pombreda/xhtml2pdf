@@ -22,6 +22,9 @@ from reportlab_paragraph import Paragraph
 import copy
 import cgi
  
+import logging
+log = logging.getLogger("ho.pisa")
+
 class PmlBaseDoc(BaseDocTemplate):
 
     """

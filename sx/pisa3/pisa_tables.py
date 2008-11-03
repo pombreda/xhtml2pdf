@@ -15,6 +15,9 @@ from pisa_reportlab import PmlTable, TableStyle, KeepInFrame
 import copy
 import sys
 
+import logging
+log = logging.getLogger("ho.pisa")
+
 class PmlKeepInFrame(KeepInFrame):
   
     def wrap(self, availWidth, availHeight):

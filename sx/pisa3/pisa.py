@@ -19,8 +19,10 @@ import tempfile
     
 from pisa_version import *
 from pisa_document import *
-from pisa_util import log
 from pisa_default import DEFAULT_CSS
+
+import logging
+log = logging.getLogger("ho.pisa")
 
 __version__ = VERSION
 

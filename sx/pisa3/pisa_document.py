@@ -18,6 +18,9 @@ import os
 import types
 import cgi
 
+import logging
+log = logging.getLogger("ho.pisa")
+
 def pisaErrorDocument(dest, c):
     out = StringIO.StringIO()
     out.write("<p style='background-color:red;'><strong>%d error(s) occured:</strong><p>" % c.err)
@@ -81,10 +84,10 @@ def pisaDocument(
     xhtml = False,
     encoding = None,
     **kw):
-
+    
     try:
 
-        log.debug("pisaDocument options:\n  src = %r\n  dest = %s\n  path = %r\n  link_callback = %r\n  xhtml = %r",
+        log.debug("pisaDocument options:\n  src = %r\n  dest = %r\n  path = %r\n  link_callback = %r\n  xhtml = %r",
             src,
             dest,
             path,

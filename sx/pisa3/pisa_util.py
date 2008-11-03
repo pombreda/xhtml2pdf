@@ -27,7 +27,6 @@ import os
 import os.path
 import pprint
 import sys
-import logging
 import string
 import re
 
@@ -39,7 +38,9 @@ if not(reportlab.Version[0] == "2" and reportlab.Version[2]>="1"):
 REPORTLAB22 = (reportlab.Version[0] == "2" and reportlab.Version[2] >= "2")
 # print "***", reportlab.Version, REPORTLAB22, reportlab.__file__
 
+import logging
 log = logging.getLogger("ho.pisa")
+
 
 #try:
 #    import cStringIO as StringIO
