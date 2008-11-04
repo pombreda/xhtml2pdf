@@ -15,9 +15,11 @@ Version 3.0.28, 2008-XX
 - NEW: CSS attribute -pdf-line-spacing for fix space between lines
 - NEW: Creation and handling of data URI with base64 encoding (others to come)
 - NEW: New general file loader that is also able to load remote data and data URI
-- NEW: PDF Joiner to concatenate mor
+- NEW: PDF Joiner to concatenate many PDF and pisa documents
+- NEW: Page backgrounds can now be images or PDF
 - UPD: Paragraphs now use the maximum leading to avoid overlapping text
 - UPD: Removed "Keep with next" from H1 to H6 
+- FIX: Images that are higher than the page frame are scaled down to fit
 - FIX: Paragraphs only containing &nbsp; are rendered now
 - FIX: Compatible with Reportlab 2.2 now
 - FIX: Problem regarding the order of border style definitions
