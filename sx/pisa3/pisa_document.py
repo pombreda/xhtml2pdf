@@ -150,23 +150,21 @@ def pisaDocument(
             doc.build(c.story)
 
         # Add watermarks
-        if pyPdf:
-            # print c.pisaBackgroundList
-            for bgouter in c.pisaBackgroundList:
+        if pyPdf:                      
+            for bgouter in c.pisaBackgroundList:     
+                          
                 # If we have at least one background, then lets do it
                 if bgouter:
-                    istream = out
-                    # istream.seek(2,0) #StringIO.StringIO(data)
+                    
+                    istream = out                    
                     try:
                         output = pyPdf.PdfFileWriter()
                         input1 = pyPdf.PdfFileReader(istream)
                         ctr = 0
-                        for bg in c.pisaBackgroundList:
+                        for bg in c.pisaBackgroundList:                            
                             page = input1.getPage(ctr)
-                            if bg and not bg.notFound() and ("pdf" in bg.mimetype):
-                                # print "BACK", bg
+                            if bg and not bg.notFound() and (bg.mimetype=="application/pdf"):
                                 bginput = pyPdf.PdfFileReader(bg.getFile())
-                                # page.mergePage(bginput.getPage(0))
                                 pagebg = bginput.getPage(0)
                                 pagebg.mergePage(page)
                                 page = pagebg
@@ -178,10 +176,10 @@ def pisaDocument(
                         output.write(out)
                         # data = sout.getvalue()
                     except Exception:
-                        log.exception(c.error("pyPDF error"))
-                    # istream.close()
-                # Found a background? So leave loop after first occurence
-                break
+                        log.exception(c.error("pyPDF error"))                    
+                    
+                    # Found a background? So leave loop after first occurence
+                    break
         else:
             log.warn(c.warning("pyPDF not installed!"))
 
