@@ -203,9 +203,8 @@ TAGS = {
         "src":                  (FILE, MUST),
         "width":                SIZE,
         "height":               SIZE,
-        "align":                (["top", "middle", "bottom", "left", "right", 
-                                "texttop", "absmiddle", "absbottom", "baseline"], 
-                                "bottom"),
+        "align":                ["top", "middle", "bottom", "left", "right", 
+                                "texttop", "absmiddle", "absbottom", "baseline"],
         }),
 
     "table": (1, {
@@ -465,7 +464,6 @@ h5,
 h6,
 p,
 pre,
-img,
 hr {
     margin:1em 0;
 }
@@ -487,7 +485,6 @@ h5,
 h6,
 hr,
 isindex,
-img,
 menu,
 noframes,
 noscript,
@@ -557,7 +554,6 @@ ol {
 pre {
     white-space: pre;
 }
-
 """
 
 DEFAULT_FONT = {

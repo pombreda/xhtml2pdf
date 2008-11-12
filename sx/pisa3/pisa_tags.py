@@ -5,8 +5,8 @@
 #############################################
 
 __reversion__ = "$Revision: 20 $"
-__author__    = "$Author: holtwick $"
-__date__      = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
+__author__ = "$Author: holtwick $"
+__date__ = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
 
 from pisa_default import DEFAULT_CSS
 from pisa_reportlab import *
@@ -98,9 +98,9 @@ class pisaTagA(pisaTag):
             # fragments because of a bug in Reportlab! 
             afrag = c.frag.clone()
             afrag.cbDefn = ABag(
-                kind = "anchor",
-                name = attr.name,
-                label = "anchor")            
+                kind="anchor",
+                name=attr.name,
+                label="anchor")            
             c.fragAnchor.append(afrag)
             c.anchorName.append(attr.name)
         if attr.href and self.rxLink.match(attr.href):            
@@ -233,59 +233,96 @@ class pisaTagBR(pisaTag):
 
 class pisaTagIMG(pisaTag):
            
-    def start(self, c):
-        c.addPara()
+    def start(self, c):        
         attr = self.attr        
         if attr.src and (not attr.src.notFound()):
                         
-            try:
-                              
-                # oldnextstyle = self.nextstyle
-                # self.next_para(style="img")
-                _width = attr.width 
-                _height = attr.height 
-                _img = PmlImage(
-                    attr.src.getData(), 
-                    width = _width, 
-                    height = _height) 
-                # _img.hAlign = attr.align.upper()
-                _img.hAlign = "LEFT" 
-                _img.pisaZoom = c.frag.zoom
-                if (_width is None) and (_height is not None):
-                    factor = float(_height) / _img.imageHeight
-                    _img.drawWidth = _img.imageWidth * factor
-                elif (_height is None) and (_width is not None):
-                    factor = float(_width) / _img.imageWidth
-                    _img.drawHeight = _img.imageHeight * factor
-                elif (_width is None) and (_height is None):                        
-                    _img.drawWidth = _img.drawWidth * dpi96
-                    _img.drawHeight = _img.drawHeight * dpi96
+            try:             
+                align = attr.align or c.frag.vAlign or "baseline"    
+                # print "align", align, attr.align, c.frag.vAlign   
+                width = attr.width 
+                height = attr.height 
+                img = PmlImage(
+                    attr.src.getData(),
+                    width=width,
+                    height=height)                  
+                img.pisaZoom = c.frag.zoom
+                if (width is None) and (height is not None):
+                    factor = float(height) / img.imageHeight
+                    img.drawWidth = img.imageWidth * factor
+                elif (height is None) and (width is not None):
+                    factor = float(width) / img.imageWidth
+                    img.drawHeight = img.imageHeight * factor
+                elif (width is None) and (height is None):                        
+                    img.drawWidth = img.drawWidth * dpi96
+                    img.drawHeight = img.drawHeight * dpi96
                     
-                # print 888,                    _img.drawWidth, c.frag.zoom,  _img.drawHeight  
-                _img.drawWidth *= _img.pisaZoom
-                _img.drawHeight *= _img.pisaZoom
-                _img.spaceBefore = c.frag.spaceBefore
-                _img.spaceAfter = c.frag.spaceAfter
-              
-                c.addStory(_img)
-                
+                img.drawWidth *= img.pisaZoom
+                img.drawHeight *= img.pisaZoom
+                img.spaceBefore = c.frag.spaceBefore
+                img.spaceAfter = c.frag.spaceAfter
+
+                # print "image", img.drawWidth, img.drawHeight
+                                  
+                '''
+                TODO:
+
+                - Apply styles
+                - vspace etc.
+                - Borders
+                - Test inside tables
+                '''
+
+                c.force = True
+                if align in ["left", "right"]:
+
+                    c.image = img
+                    c.imageData = dict(
+                        align=align
+                        )
+                                        
+                else:
+
+                    # Important! Make sure that cbDefn is not inherited by other
+                    # fragments because of a bug in Reportlab!
+                    # afrag = c.frag.clone()
+
+                    valign = align
+                    if valign in ["texttop"]:
+                        valign = "top"
+                    elif valign in ["absmiddle"]:
+                        valign = "middle"
+                    elif valign in ["absbottom", "baseline"]:
+                        valign = "bottom"
+
+                    afrag = c.frag.clone()
+                    afrag.text = ""
+                    afrag.cbDefn = ABag(
+                        kind="img",
+                        image=img.getImage(), # XXX Inline?
+                        valign=valign,
+                        fontSize=img.drawHeight,
+                        width=img.drawWidth,
+                        height=img.drawHeight)
+                    # print "add frag", id(afrag), img.drawWidth, img.drawHeight
+                    c.fragList.append(afrag)
+                    c.fontSize = img.drawHeight                    
+                    
             except Exception, e:
-                log.warn(c.warning("Error in handling image: %r", e), exc_info=1)
+                log.warn(c.warning("Error in handling image"), exc_info=1)
         else:
             log.warn(c.warning("Need a valid file name!"))
             
-        c.addPara()
-                             
 class pisaTagHR(pisaTag):
 
     def start(self, c):
         c.addPara()
         c.addStory(HRFlowable(
-            color = self.attr.color,
-            thickness = self.attr.size,
-            width = "100%",
-            spaceBefore = c.frag.spaceBefore,
-            spaceAfter = c.frag.spaceAfter
+            color=self.attr.color,
+            thickness=self.attr.size,
+            width="100%",
+            spaceBefore=c.frag.spaceBefore,
+            spaceAfter=c.frag.spaceAfter
             ))
 
 # --- Forms
@@ -299,7 +336,7 @@ if 0:
         def _render(self, c, attr):
             width = 10
             height = 10
-            if attr.type=="text":
+            if attr.type == "text":
                 width = 100
                 height = 12            
             c.addStory(pisa_reportlab.PmlInput(attr.name,
@@ -469,9 +506,9 @@ class pisaTagPDFTEMPLATE(pisaTag):
             log.warn(c.warning("missing frame definitions for template"))
             
         pt = PmlPageTemplate(
-            id = name,
-            frames = c.frameList,
-            pagesize = A4,
+            id=name,
+            frames=c.frameList,
+            pagesize=A4,
             ) 
         pt.pisaStaticList = c.frameStaticList
         pt.pisaBackgroundList = c.pisaBackgroundList
