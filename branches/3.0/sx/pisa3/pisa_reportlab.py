@@ -12,13 +12,23 @@ from pisa_util import *
 from pisa_default import TAGS, STRING
 
 from reportlab.platypus.doctemplate import BaseDocTemplate, PageTemplate, FrameBreak, NextPageTemplate
-from reportlab.platypus.tables import Table, TableStyle, LongTable
-from reportlab.platypus.flowables import Flowable, Image, CondPageBreak, KeepInFrame #, ParagraphAndImage
+from reportlab.platypus.tables import Table, TableStyle
+from reportlab.platypus.flowables import Flowable, Image, CondPageBreak, KeepInFrame, ParagraphAndImage
 from reportlab.platypus.frames import Frame
 from reportlab.platypus.tableofcontents import TableOfContents
 
 from reportlab_paragraph import Paragraph
 
+from reportlab.lib.utils import *
+
+try:
+    import PIL.Image as PILImage
+except:
+    try:
+        import Image as PILImage
+    except:
+        PILImage = None    
+        
 import copy
 import cgi
 
@@ -30,11 +40,23 @@ class PmlMaxHeightMixIn:
     def maxHeight(self, availHeight):
         self.availHeightValue = availHeight
         if availHeight < 70000:
-            if not hasattr(self.canv, "maxAvailHeightValue"):
-                self.canv.maxAvailHeightValue = 0
-            self.availHeightValue = self.canv.maxAvailHeightValue = max(availHeight, self.canv.maxAvailHeightValue)
+            if hasattr(self, "canv"):
+                if not hasattr(self.canv, "maxAvailHeightValue"):
+                    self.canv.maxAvailHeightValue = 0
+                self.availHeightValue = self.canv.maxAvailHeightValue = max(
+                    availHeight, 
+                    self.canv.maxAvailHeightValue)
+        else:
+            self.availHeightValue = availHeight
+        if not hasattr(self, "availHeightValue"):
+            self.availHeightValue = 0
         return self.availHeightValue
-
+    
+    def getMaxHeight(self):
+        if not hasattr(self, "availHeightValue"):
+            return 0
+        return self.availHeightValue
+    
 class PmlBaseDoc(BaseDocTemplate):
 
     """
@@ -164,17 +186,20 @@ class PmlPageTemplate(PageTemplate):
         finally:
             canvas.restoreState()
 
-#class PmlParagraphAndImage(ParagraphAndImage):
-#    pass
+class PmlParagraphAndImage(ParagraphAndImage):
 
-from reportlab.lib.utils import *
-
-def _isPILImage(im):
-    try:
-        from PIL.Image import Image
-        return isinstance(im, Image)
-    except ImportError:
-        return 0
+    def wrap(self, availWidth, availHeight):
+        # print "# wrap", id(self), self.canv
+        self.I.canv = self.canv
+        result = ParagraphAndImage.wrap(self, availWidth, availHeight)
+        del self.I.canv
+        return result
+    
+    def split(self, availWidth, availHeight):
+        # print "# split", id(self)
+        if not hasattr(self, "wI"):
+            self.wI, self.hI = self.I.wrap(availWidth, availHeight) #drawWidth, self.I.drawHeight        
+        return ParagraphAndImage.split(self, availWidth, availHeight)
 
 class PmlImageReader(object):
     "Wraps up either PIL or Java to get data from bitmaps"
@@ -192,7 +217,7 @@ class PmlImageReader(object):
         self._transparent = None
         self._data = None
         imageReaderFlags = 0
-        if _isPILImage(fileName):
+        if PILImage and isinstance(fileName, PILImage.Image):
             self._image = fileName
             self.fp = getattr(fileName, 'fp', None)
             try:
@@ -202,7 +227,8 @@ class PmlImageReader(object):
         else:
             try:
                 self.fp = open_for_read(fileName, 'b')
-                if isinstance(self.fp, StringIO.StringIO().__class__):  imageReaderFlags = 0 #avoid messing with already internal files
+                if isinstance(self.fp, StringIO.StringIO().__class__):  
+                    imageReaderFlags = 0 #avoid messing with already internal files
                 if imageReaderFlags > 0:  #interning
                     data = self.fp.read()
                     if imageReaderFlags & 2:  #autoclose
@@ -225,7 +251,8 @@ class PmlImageReader(object):
                     #detect which library we are using and open the image
                     if not self._image:
                         self._image = self._read_image(self.fp)
-                    if getattr(self._image, 'format', None) == 'JPEG': self.jpeg_fh = self._jpeg_fh
+                    if getattr(self._image, 'format', None) == 'JPEG': 
+                        self.jpeg_fh = self._jpeg_fh
                 else:
                     from reportlab.pdfbase.pdfutils import readJPEGInfo
                     try:
@@ -249,12 +276,8 @@ class PmlImageReader(object):
         if sys.platform[0:4] == 'java':
             from javax.imageio import ImageIO
             return ImageIO.read(fp)
-        else:
-            try:
-                import PIL.Image as Image
-            except:
-                import Image
-            return Image.open(fp)
+        elif PILImage:            
+            return PILImage.open(fp)
 
     def _jpeg_fh(self):
         fp = self.fp
@@ -337,21 +360,22 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
         self._mask = mask
         self.data = data
         self.mimetype = mimetype
-        img = self._getImage()
+        img = self.getImage()
         if img:
             self.imageWidth, self.imageHeight = img.getSize()
         self.drawWidth = width or self.imageWidth
-        self.drawHeight = height or self.imageHeight
+        self.drawHeight = height or self.imageHeight        
 
-    def _getImage(self):
+    def getImage(self):
         img = PmlImageReader(StringIO.StringIO(self.data))
         return img
 
     def wrap(self, availWidth, availHeight):
         availHeight = self.maxHeight(availHeight)
+        # print "image wrap", self.canv, availWidth, availHeight
         width = min(self.drawWidth, availWidth)
         wfactor = float(width) / self.drawWidth
-        height = min(self.drawHeight, availHeight)
+        height = min(self.drawHeight, availHeight) * 0.99
         hfactor = float(height) / self.drawHeight
         factor = min(wfactor, hfactor)
         self.drawHeight = self.drawHeight * factor
@@ -359,7 +383,7 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
         return (self.drawWidth, self.drawHeight)
 
     def draw(self):
-        img = self._getImage()
+        img = self.getImage()
         self.canv.drawImage(img,
             0, 0,
             self.drawWidth,
@@ -373,6 +397,21 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
 
 class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
 
+    def _calcImageMaxSizes(self, availWidth, availHeight):
+        availHeight = self.getMaxHeight()
+        for frag in self.frags:
+            if hasattr(frag, "cbDefn") and frag.cbDefn.kind == "img":
+                img = frag.cbDefn
+                #print "before", img.width, img.height
+                width = min(img.width, availWidth)
+                wfactor = float(width) / img.width
+                height = min(img.height, availHeight) * 0.99 # XXX 99% because 100% do not work...
+                hfactor = float(height) / img.height
+                factor = min(wfactor, hfactor)
+                img.height = img.height * factor
+                img.width = img.width * factor                
+                #print "after", img.width, img.height
+
     def wrap(self, availWidth, availHeight):
 
         self.maxHeight(availHeight)
@@ -382,7 +421,10 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
         style = self.style
         availWidth -= style.paddingLeft + style.paddingRight
         availHeight -= style.paddingTop + style.paddingBottom
-
+        
+        # Modify maxium image sizes
+        self._calcImageMaxSizes(availWidth, self.getMaxHeight() - style.paddingTop + style.paddingBottom)
+        
         # call the base class to do wrapping and calculate the size
         Paragraph.wrap(self, availWidth, availHeight)
 
@@ -712,6 +754,7 @@ class PmlInput(Flowable):
         hand(canvas, debug=0, fill=1)
         '''
 
+"""
 # --- Flowable example
 
 def hand(canvas, debug=1, fill=0):
@@ -785,3 +828,4 @@ class HandAnnotation(Flowable):
         canvas.rotate(90)
         canvas.scale(self.scale, self.scale)
         hand(canvas, debug=0, fill=1)
+"""

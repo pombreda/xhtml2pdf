@@ -5,8 +5,8 @@
 #############################################
 
 __reversion__ = "$Revision: 20 $"
-__author__    = "$Author: holtwick $"
-__date__      = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
+__author__ = "$Author: holtwick $"
+__date__ = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
 
 from pisa_util import *
 from pisa_reportlab import *
@@ -44,7 +44,11 @@ NBSP = u"\u00a0"
 def clone(self, **kwargs):
     n = ParaFrag(**self.__dict__)
     if kwargs:
-        n.__dict__.update(kwargs)
+        d = n.__dict__
+        d.update(kwargs)
+        # This else could cause trouble in Paragraphs with images etc.
+        if "cbDefn" in d:
+            del d["cbDefn"]
     return n
 
 ParaFrag.clone = clone
@@ -149,7 +153,7 @@ class pisaCSSBuilder(css.CSSBuilder):
             # Font weight
             fweight = str(data.get("font-weight", "normal")).lower() 
             bold = fweight in ("bold", "bolder", "500", "600", "700", "800", "900")            
-            if not bold and fweight<>"normal":   
+            if not bold and fweight <> "normal":   
                 log.warn(self.c.warning("@fontface, unknown value font-weight '%s'", fweight))             
                 
             # Font style
@@ -169,13 +173,13 @@ class pisaCSSBuilder(css.CSSBuilder):
         " Calculate dimensions of a box "
         box = data.get("-pdf-frame-box", [])
         # print 123, box
-        if len(box)==4:            
+        if len(box) == 4:            
             return [getSize(x) for x in box]
         
         top = getSize(data.get("top", 0))
         left = getSize(data.get("left", 0))
-        bottom = -getSize(data.get("bottom", 0))
-        right = -getSize(data.get("right", 0))
+        bottom = - getSize(data.get("bottom", 0))
+        right = - getSize(data.get("right", 0))
         width = getSize(data.get("width", 0))
         height = getSize(data.get("height", 0))
         if height:            
@@ -287,16 +291,16 @@ class pisaCSSBuilder(css.CSSBuilder):
             staticList = []            
             for fname, static, border, x, y, w, h in c.frameList:                
                 x, y, w, h = getCoords(x, y, w, h, c.pageSize)
-                if w<=0 or h<=0:
+                if w <= 0 or h <= 0:
                     log.warn(self.c.warning("Negative width or height of frame. Check @frame definitions."))
                 frame = Frame(
                     x, y, w, h,
-                    id = fname,
-                    leftPadding = 0,
-                    rightPadding = 0,
-                    bottomPadding = 0,
-                    topPadding = 0,
-                    showBoundary = border or pageBorder)
+                    id=fname,
+                    leftPadding=0,
+                    rightPadding=0,
+                    bottomPadding=0,
+                    topPadding=0,
+                    showBoundary=border or pageBorder)
                 if static:
                     frame.pisaStaticStory = []
                     c.frameStatic[static] = [frame] + c.frameStatic.get(static, [])
@@ -315,21 +319,21 @@ class pisaCSSBuilder(css.CSSBuilder):
                 log.warn(c.warning("missing explicit frame definition for content or just static frames"))                
                 fname, static, border, x, y, w, h = self._pisaAddFrame(name, data, first=True, border=pageBorder)           
                 x, y, w, h = getCoords(x, y, w, h, c.pageSize)
-                if w<=0 or h<=0:
+                if w <= 0 or h <= 0:
                     log.warn(c.warning("Negative width or height of frame. Check @page definitions."))
                 frameList.append(Frame(
                     x, y, w, h,
-                    id = fname,
-                    leftPadding = 0,
-                    rightPadding = 0,
-                    bottomPadding = 0,
-                    topPadding = 0,
-                    showBoundary = border or pageBorder))
+                    id=fname,
+                    leftPadding=0,
+                    rightPadding=0,
+                    bottomPadding=0,
+                    topPadding=0,
+                    showBoundary=border or pageBorder))
                 
             pt = PmlPageTemplate(
-                id = name,
-                frames = frameList,
-                pagesize = c.pageSize,
+                id=name,
+                frames=frameList,
+                pagesize=c.pageSize,
                 )             
             pt.pisaStaticList = staticList                        
             pt.pisaBackground = background
@@ -447,11 +451,11 @@ class pisaContext:
         self.pathDirectory = getDirName(self.pathDocument)        
         
         self.meta = dict(
-            author = "",
-            title = "",
-            subject = "",
-            keywords = "",
-            pagesize = A4,
+            author="",
+            title="",
+            subject="",
+            keywords="",
+            pagesize=A4,
             )       
 
     def UID(self):
@@ -463,9 +467,9 @@ class pisaContext:
     def addCSS(self, value):        
         value = value.strip()
         if value.startswith("<![CDATA["):
-            value = value[9:-3]
+            value = value[9: - 3]
         if value.startswith("<!--"):
-            value = value[4:-3]
+            value = value[4: - 3]
         self.cssText += value.strip() + "\n"
 
     def parseCSS(self):
@@ -623,11 +627,14 @@ class pisaContext:
         self.addStory(self.toc)
 
     def dumpPara(self, frags, style):
-        return 
-    
+        return     
         print "%s/%s %s *** PARA" % (style.fontSize, style.leading, style.backColor)
         for frag in frags:
-            print "%s/%s %s %r" % (frag.fontSize, frag.leading, frag.backColor, frag.text)
+            print "%s/%s %r %r" % (
+                frag.fontSize,
+                frag.leading,
+                getattr(frag, "cbDefn", None),
+                frag.text)
         print
 
     def addPara(self, force=False):
@@ -684,11 +691,11 @@ class pisaContext:
             first.bulletText = None
                     
             # Add paragraph to story
-            if force or len(self.fragAnchor + self.fragList)>0:
+            if force or len(self.fragAnchor + self.fragList) > 0:
                 
                 # We need this empty fragment to work around problems in 
                 # Reportlab paragraphs regarding backGround etc.
-                self.fragList.append(self.fragList[-1].clone(text=''))
+                self.fragList.append(self.fragList[ - 1].clone(text=''))
                 
                 self.dumpPara(self.fragAnchor + self.fragList, style)
                 para = PmlParagraph(
@@ -712,8 +719,11 @@ class pisaContext:
                 para.autoLeading = "max"
 
                 if self.image:
-                    para = PmlParagraphAndImage(para, self.image, side=self.imageData.get("align", "left"))
-                
+                    para = PmlParagraphAndImage(
+                        para,
+                        self.image,
+                        side=self.imageData.get("align", "left"))
+                                            
                 self.addStory(para)
             
             self.fragAnchor = []
@@ -757,11 +767,11 @@ class pisaContext:
 
         # XXX Has to be replaced by CSS styles like vertical-align and font-size
         if frag.sub:
-            frag.rise = -frag.fontSize * subFraction
-            frag.fontSize = max(frag.fontSize-sizeDelta, 3)
+            frag.rise = - frag.fontSize * subFraction
+            frag.fontSize = max(frag.fontSize - sizeDelta, 3)
         elif frag.super:
             frag.rise = frag.fontSize * superFraction
-            frag.fontSize = max(frag.fontSize-sizeDelta, 3)
+            frag.fontSize = max(frag.fontSize - sizeDelta, 3)
 
         # XXX Unused?
         #if frag.greek:
@@ -822,7 +832,7 @@ class pisaContext:
                     self.text += text
                     self._appendFrag(frag)
                 else:                    
-                    frag.text = " ".join(("x" + text + "x").split())[1:-1]       
+                    frag.text = " ".join(("x" + text + "x").split())[1: - 1]       
                     if self.fragStrip:
                         frag.text = frag.text.lstrip()
                         if frag.text:
@@ -939,7 +949,7 @@ class pisaContext:
             
             fontName = fontAlias[0]
             parts = src.split(".")                
-            baseName, suffix = ".".join(parts[:-1]), parts[-1]
+            baseName, suffix = ".".join(parts[: - 1]), parts[ - 1]
             suffix = suffix.lower()
                         
             try:
