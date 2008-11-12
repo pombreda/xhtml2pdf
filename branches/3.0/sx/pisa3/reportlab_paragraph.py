@@ -135,6 +135,7 @@ def _putFragLine(tx, words):
             text = f.text
             tx._textOut(text, f is words[ - 1])    # cheap textOut
             
+            # XXX Modified for XHTML2PDF    
             # Background colors (done like underline)            
             # print "#", repr(f.text), f.fontSize, f.backColor, f.underline
             if hasattr(f, "backColor"):            
@@ -165,10 +166,12 @@ def _putFragLine(tx, words):
                 xtraState.strike = 1
                 xtraState.strike_x = cur_x_s
                 xtraState.strikeColor = f.textColor
+                # XXX Modified for XHTML2PDF    
                 xtraState.strikeFontSize = f.fontSize
             elif xtraState.strike:
                 if not f.strike:
                     xtraState.strike = 0
+                    # XXX Modified for XHTML2PDF    
                     xtraState.strikes.append((xtraState.strike_x, cur_x_s, xtraState.strikeColor, xtraState.strikeFontSize))
                     xtraState.strikeColor = None
                     xtraState.strikeFontSize = None
@@ -185,19 +188,21 @@ def _putFragLine(tx, words):
                     xtraState.link = None
             txtlen = tx._canvas.stringWidth(text, tx._fontname, tx._fontsize)
             cur_x += txtlen
-            nSpaces += text.count(' ')
-            
+            nSpaces += text.count(' ')            
     cur_x_s = cur_x + (nSpaces - 1) * ws
     
+    # XXX Modified for XHTML2PDF    
     # Underline
     if xtraState.underline:
         xtraState.underlines.append((xtraState.underline_x, cur_x_s, xtraState.underlineColor))
     
+    # XXX Modified for XHTML2PDF    
     # Backcolor
     if hasattr(f, "backColor"):  
         if xtraState.backgroundColor is not None:
             xtraState.backgrounds.append((xtraState.background_x, cur_x_s, xtraState.backgroundColor, xtraState.backgroundFontSize))
     
+    # XXX Modified for XHTML2PDF    
     # Strike
     if xtraState.strike:
         xtraState.strikes.append((xtraState.strike_x, cur_x_s, xtraState.strikeColor, xtraState.strikeFontSize))
@@ -241,6 +246,8 @@ def _justifyDrawParaLineX(tx, offset, line, last=0):
     setXPos(tx, - offset)
     return offset
 
+# XXX Modified for XHTML2PDF
+# !!! Important, don't import accelerators !!!
 def _sameFrag(f, g):
     'returns 1 if two ParaFrags map out the same'
     if (hasattr(f, 'cbDefn') or hasattr(g, 'cbDefn')
@@ -452,6 +459,7 @@ def _do_link_line(i, t_off, ws, tx):
     textlen = tx._canvas.stringWidth(text, tx._fontname, tx._fontsize)
     _doLink(tx, xs.link, (t_off, y, t_off + textlen + ws, y + leading))
 
+# XXX Modified for XHTML2PDF
 def _do_post_text(i, t_off, tx):
     """
     Try to find out what the variables mean:
@@ -488,6 +496,7 @@ def _do_post_text(i, t_off, tx):
     xs.backgroundColor = None   
     xs.backgroundFontSize = None 
     
+    # XXX Modified for XHTML2PDF
     # Underline    
     ulc = None
     yUnderline = y0 - 1.5 * ff   
@@ -501,6 +510,7 @@ def _do_post_text(i, t_off, tx):
     xs.underline = 0
     xs.underlineColor = None
 
+    # XXX Modified for XHTML2PDF
     # Strike    
     ulc = None
     for x1, x2, c, fs in xs.strikes:        
@@ -517,6 +527,8 @@ def _do_post_text(i, t_off, tx):
 
     yl = y + leading
     for x1, x2, link in xs.links:
+        # XXX Modified for XHTML2PDF
+        # No automatic underlining for links
         # tx._canvas.line(t_off + x1, y, t_off + x2, y)
         _doLink(tx, link, (t_off + x1, y, t_off + x2, yl))
     xs.links = []
@@ -1000,8 +1012,7 @@ class Paragraph(Flowable):
                 tx.setFont(f.fontName, f.fontSize, style.leading)
                 ws = lines[0][0]
                 t_off = dpl(tx, offset, ws, lines[0][1], noJustifyLast and nLines == 1)
-                if f.underline or f.link or f.strike:
-                    # print "ever"
+                if f.underline or f.link or f.strike:                   
                     xs = tx.XtraState = ABag()
                     xs.cur_y = cur_y
                     xs.f = f
@@ -1009,11 +1020,13 @@ class Paragraph(Flowable):
                     xs.lines = lines
                     xs.underlines = []
                     xs.underlineColor = None    
+                    # XXX Modified for XHTML2PDF
                     xs.backgrounds = []
                     xs.backgroundColor = None
                     xs.backgroundFontSize = None                    
                     xs.strikes = []
                     xs.strikeColor = None
+                    # XXX Modified for XHTML2PDF
                     xs.strikeFontSize = None
                     xs.links = []
                     xs.link = f.link
@@ -1057,11 +1070,13 @@ class Paragraph(Flowable):
                 tx = self.beginText(cur_x, cur_y)
                 xs = tx.XtraState = ABag()
                 xs.textColor = None
+                # XXX Modified for XHTML2PDF
                 xs.backColor = None
                 xs.rise = 0
                 xs.underline = 0
                 xs.underlines = []
                 xs.underlineColor = None
+                # XXX Modified for XHTML2PDF
                 xs.background = 0
                 xs.backgrounds = []
                 xs.backgroundColor = None     
@@ -1069,6 +1084,7 @@ class Paragraph(Flowable):
                 xs.strike = 0
                 xs.strikes = []
                 xs.strikeColor = None
+                # XXX Modified for XHTML2PDF
                 xs.strikeFontSize = None
                 xs.links = []
                 xs.link = None

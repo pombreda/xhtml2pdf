@@ -41,6 +41,7 @@ class TableData:
         self.span = []
         self.mode = ""
         self.padding = 0
+        # self.c = None
 
     def add_cell(self, data=None):
         self.col += 1
@@ -48,6 +49,12 @@ class TableData:
 
     def add_style(self, data):
         # print self.mode, data
+        # Do we have color and 
+        # width = data[3]
+        #if data[0].startswith("LINE"):
+        #    color = data[4]
+        #    if color is None:
+        #        return
         self.styles.append(copy.copy(data))
 
     def add_empty(self, x, y):
@@ -63,7 +70,8 @@ class TableData:
         return data
    
     def add_cell_styles(self, c, begin, end, mode="td"):
-        def getColor(a, b): return a
+        def getColor(a, b): 
+            return a
         self.mode = mode.upper()
         if c.frag.backColor and mode != "tr": # XXX Stimmt das so?
             self.add_style(('BACKGROUND', begin, end, c.frag.backColor))
@@ -85,25 +93,25 @@ class TableData:
                 c.frag.borderRightStyle,
                 c.frag.borderRightColor,
                 ))
-        if getBorderStyle(c.frag.borderTopStyle) and c.frag.borderTopWidth:
+        if getBorderStyle(c.frag.borderTopStyle) and c.frag.borderTopWidth and c.frag.borderTopColor is not None:
             self.add_style(('LINEABOVE', begin, (end[0], begin[1]),
                 c.frag.borderTopWidth,
-                getColor(c.frag.borderTopColor, c.frag.textColor),
+                c.frag.borderTopColor,
                 "squared"))
-        if getBorderStyle(c.frag.borderLeftStyle) and c.frag.borderLeftWidth:
+        if getBorderStyle(c.frag.borderLeftStyle) and c.frag.borderLeftWidth and c.frag.borderLeftColor is not None:
             self.add_style(('LINEBEFORE', begin, (begin[0], end[1]),
                 c.frag.borderLeftWidth,
-                getColor(c.frag.borderLeftColor, c.frag.textColor),
+                c.frag.borderLeftColor,
                 "squared"))
-        if getBorderStyle(c.frag.borderRightStyle) and c.frag.borderRightWidth:
+        if getBorderStyle(c.frag.borderRightStyle) and c.frag.borderRightWidth and c.frag.borderRightColor is not None:
             self.add_style(('LINEAFTER', (end[0], begin[1]), end,
                 c.frag.borderRightWidth,
-                getColor(c.frag.borderRightColor, c.frag.textColor),
+                c.frag.borderRightColor,
                 "squared"))
-        if getBorderStyle(c.frag.borderBottomStyle) and c.frag.borderBottomWidth:
+        if getBorderStyle(c.frag.borderBottomStyle) and c.frag.borderBottomWidth and c.frag.borderBottomColor is not None:
             self.add_style(('LINEBELOW', (begin[0], end[1]), end,
                 c.frag.borderBottomWidth,
-                getColor(c.frag.borderBottomColor, c.frag.textColor),
+                c.frag.borderBottomColor,
                 "squared"))
         self.add_style(('LEFTPADDING', begin, end, c.frag.paddingLeft or self.padding))
         self.add_style(('RIGHTPADDING', begin, end, c.frag.paddingRight or self.padding))
@@ -128,8 +136,22 @@ class pisaTagTABLE(pisaTag):
         begin = (0, 0)
         end = (- 1, - 1)
             
-        if attrs.border:
-            tdata.add_style(("GRID", begin, end, attrs.border, attrs.bordercolor))
+        if attrs.border and attrs.bordercolor:
+            frag = c.frag
+            frag.borderLeftWidth = attrs.border
+            frag.borderLeftColor = attrs.bordercolor
+            frag.borderLeftStyle = "solid"
+            frag.borderRightWidth = attrs.border
+            frag.borderRightColor = attrs.bordercolor
+            frag.borderRightStyle = "solid"
+            frag.borderTopWidth = attrs.border
+            frag.borderTopColor = attrs.bordercolor
+            frag.borderTopStyle = "solid"
+            frag.borderBottomWidth = attrs.border
+            frag.borderBottomColor = attrs.bordercolor
+            frag.borderBottomStyle = "solid"
+
+            # tdata.add_style(("GRID", begin, end, attrs.border, attrs.bordercolor))
         
         tdata.padding = attrs.cellpadding
         

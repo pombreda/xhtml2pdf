@@ -126,6 +126,67 @@ def _toColor(arg, default=None):
             raise ValueError('Invalid color value %r' % arg)
         return default
 
+# http://www.w3.org/TR/CSS2/ui.html
+# http://meyerweb.com/eric/css/tests/css2/sec18-02.htm
+_XXX = """
+ActiveBorder
+    Active window border. 
+ActiveCaption
+    Active window caption. 
+AppWorkspace
+    Background color of multiple document interface. 
+Background
+    Desktop background. 
+ButtonFace
+    Face color for three-dimensional display elements. 
+ButtonHighlight
+    Dark shadow for three-dimensional display elements (for edges facing away from the light source). 
+ButtonShadow
+    Shadow color for three-dimensional display elements. 
+ButtonText
+    Text on push buttons. 
+CaptionText
+    Text in caption, size box, and scrollbar arrow box. 
+GrayText
+    Grayed (disabled) text. This color is set to #000 if the current display driver does not support a solid gray color. 
+Highlight
+    Item(s) selected in a control. 
+HighlightText
+    Text of item(s) selected in a control. 
+InactiveBorder
+    Inactive window border. 
+InactiveCaption
+    Inactive window caption. 
+InactiveCaptionText
+    Color of text in an inactive caption. 
+InfoBackground
+    Background color for tooltip controls. 
+InfoText
+    Text color for tooltip controls. 
+Menu
+    Menu background. 
+MenuText
+    Text in menus. 
+Scrollbar
+    Scroll bar gray area. 
+ThreeDDarkShadow
+    Dark shadow for three-dimensional display elements. 
+ThreeDFace
+    Face color for three-dimensional display elements. 
+ThreeDHighlight
+    Highlight color for three-dimensional display elements. 
+ThreeDLightShadow
+    Light color for three-dimensional display elements (for edges facing the light source). 
+ThreeDShadow
+    Dark shadow for three-dimensional display elements. 
+Window
+    Window background. 
+WindowFrame
+    Window frame. 
+WindowText
+    Text in windows. 
+"""
+    
 def getColor(value, default=None):
     " Convert to color value "
     try:
