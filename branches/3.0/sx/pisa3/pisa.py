@@ -19,6 +19,7 @@ import tempfile
     
 from pisa_version import *
 from pisa_document import *
+from pisa_util import StringIO
 from pisa_default import DEFAULT_CSS
 
 import logging
@@ -188,6 +189,7 @@ def command():
             "format=",
             "css=",
             "css-dump",
+            "xml-dump",
             "xhtml",
             "xml",
             "html",
@@ -210,6 +212,7 @@ def command():
     css = None
     xhtml = None
     encoding = None
+    xml_output = None
     
     log_level = logging.ERROR
     log_format = LOG_FORMAT
@@ -294,6 +297,9 @@ def command():
             print DEFAULT_CSS
             return 
 
+        if o in ("--xml-dump",):
+            xml_output = StringIO.StringIO()
+        
         if o in ("-x", "--xml", "--xhtml"):
             xhtml = True        
         elif o in ("--html",):
@@ -399,7 +405,11 @@ def command():
             default_css = css,
             xhtml = xhtml,
             encoding = encoding,
+            xml_output = xml_output,
             )
+    
+        if xml_output:
+            print xml_output.getvalue()
     
         if fdestclose:
             fdest.close()
