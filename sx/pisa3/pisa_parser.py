@@ -562,7 +562,7 @@ def pisaLoop(node, c, path=[], **kw):
         for node in node.childNodes:
             pisaLoop(node, c, path, **kw)
 
-def pisaParser(src, c, default_css="", xhtml=False, encoding=None):
+def pisaParser(src, c, default_css="", xhtml=False, encoding=None, xml_output=None):
     """    
     - Parse HTML and get miniDOM
     - Extract CSS informations, add default CSS, parse CSS
@@ -592,11 +592,13 @@ def pisaParser(src, c, default_css="", xhtml=False, encoding=None):
         else:
              if inputstream.codecName(encoding) is None:
                  log.error("%r is not a valid encoding", encoding)
-            
+    
     document = parser.parse(
         src, 
         encoding=encoding)
-    # print document.toprettyxml()    
+        
+    if xml_output:        
+        xml_output.write(document.toprettyxml())    
 
     if default_css:
         c.addCSS(default_css)

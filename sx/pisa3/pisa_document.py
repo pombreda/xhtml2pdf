@@ -44,6 +44,7 @@ def pisaStory(
     xhtml = False,
     encoding = None,
     c = None,
+    xml_output = None,
     **kw):
 
     # Prepare Context
@@ -56,7 +57,7 @@ def pisaStory(
         default_css = DEFAULT_CSS
 
     # Parse and fill the story
-    pisaParser(src, c, default_css, xhtml, encoding)
+    pisaParser(src, c, default_css, xhtml, encoding, xml_output)
 
     #if 0:
     #    import reportlab.pdfbase.pdfmetrics as pm
@@ -83,6 +84,7 @@ def pisaDocument(
     default_css = None,
     xhtml = False,
     encoding = None,
+    xml_output = None,
     **kw):
     
     try:
@@ -103,7 +105,7 @@ def pisaDocument(
         c.dest = dest
 
         # Build story
-        c = pisaStory(src, path, link_callback, debug, default_css, xhtml, encoding, c=c)
+        c = pisaStory(src, path, link_callback, debug, default_css, xhtml, encoding, c=c, xml_output=xml_output)
 
         # Buffer PDF into memory
         out = StringIO.StringIO()
