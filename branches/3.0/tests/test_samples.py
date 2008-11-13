@@ -46,8 +46,9 @@ class VisualObject:
         source = os.path.abspath(file)
         destination = os.path.join(folder, os.path.basename(file) + ".png")
         self.execute(self.CONVERT, source, destination)
+        self.getFiles(folder, os.path.basename(file)  + "*.png")
         if delete:
-            self.files4del = self.getFiles(folder, os.path.basename(file)  + "*.png")
+            self.files4del = self.files
         return folder
 
     def showDiff(self, left, right):
@@ -121,6 +122,8 @@ import shutil
 
 here = os.path.abspath(os.path.join(__file__, os.pardir))
 
+pisa.showLogging()
+
 class TestCase(unittest.TestCase):
 
     def testSamples(self):
@@ -139,12 +142,16 @@ class TestCase(unittest.TestCase):
             print name
 
             bname = os.path.basename(name)
-            fname = os.path.join(right, name[:-5] + ".pdf")
+            fname = os.path.join(right, bname[:-5] + ".pdf")
 
             pdf = pisa.pisaDocument(
-                name,
-                fname)
-            assert pdf.err == 0
+                open(name, "rb"),
+                open(fname, "wb"))
+
+            if pdf.err:
+                print "*** %d ERRORS OCCURED" % pdf.err
+
+            assert not pdf.err == True
 
             r = VisualObject()
             r.loadFile(fname, right, delete=False)
