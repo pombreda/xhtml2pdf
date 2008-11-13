@@ -101,7 +101,5 @@ def main():
 
     print a.compare(b)
 
-    # a.getFiles(".")
-
 if __name__=="__main__":
     main()

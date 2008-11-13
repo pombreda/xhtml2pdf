@@ -40,7 +40,7 @@ setup(
         'sx.w3c',
         ],
 
-    test_suite = "sx",
+    test_suite = "tests",
 
     entry_points = {
         'console_scripts': [
