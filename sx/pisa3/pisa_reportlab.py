@@ -416,11 +416,15 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
 
         self.maxHeight(availHeight)
 
+        style = self.style
+         
+        deltaWidth = style.paddingLeft + style.paddingRight + style.borderLeftWidth + style.borderRightWidth
+        deltaHeight = style.paddingTop + style.paddingBottom + style.borderTopWidth + style.borderBottomWidth
+               
         # reduce the available width & height by the padding so the wrapping
         # will use the correct size
-        style = self.style
-        availWidth -= style.paddingLeft + style.paddingRight
-        availHeight -= style.paddingTop + style.paddingBottom
+        availWidth -= deltaWidth
+        availHeight -= deltaHeight
         
         # Modify maxium image sizes
         self._calcImageMaxSizes(availWidth, self.getMaxHeight() - style.paddingTop + style.paddingBottom)
@@ -429,8 +433,8 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
         Paragraph.wrap(self, availWidth, availHeight)
 
         # increase the calculated size by the padding
-        self.width += style.paddingLeft + style.paddingRight
-        self.height += style.paddingTop + style.paddingBottom
+        self.width += deltaWidth
+        self.height += deltaHeight
 
         return (self.width, self.height)
 
@@ -493,47 +497,19 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
         w = self.width - (leftIndent + style.rightIndent) + 2 * bp
         h = self.height + 2 * bp
 
-        canvas.saveState()
         if bg:
             # draw a filled rectangle (with no stroke) using bg color
             canvas.setFillColor(bg)
             canvas.rect(x, y, w, h, fill=1, stroke=0)
-
-        def _drawBorderLine(bstyle, width, color, x1, y1, x2, y2):
-            # We need width and border style to be able to draw a border
-            if width and getBorderStyle(bstyle):
-                # If no color for border is given, the text color is used (like defined by W3C)
-                if color is None:
-                    color = style.textColor
-                canvas.setStrokeColor(color)
-                canvas.setLineWidth(width)
-                canvas.line(x1, y1, x2, y2)
-
-        _drawBorderLine(style.borderTopStyle,
-                        style.borderTopWidth,
-                        style.borderTopColor,
-                        x, y + h, x + w, y + h)
-        _drawBorderLine(style.borderBottomStyle,
-                        style.borderBottomWidth,
-                        style.borderBottomColor,
-                        x, y, x + w, y)
-        _drawBorderLine(style.borderLeftStyle,
-                        style.borderLeftWidth,
-                        style.borderLeftColor,
-                        x, y, x, y + h)
-        _drawBorderLine(style.borderRightStyle,
-                        style.borderRightWidth,
-                        style.borderRightColor,
-                        x + w, y, x + w, y + h)
-
-        canvas.restoreState()
-
+        
         # we need to hide the bg color (if any) so Paragraph won't try to draw it again
         style.backColor = None
 
         # offset the origin to compensate for the padding
         canvas.saveState()
-        canvas.translate(style.paddingLeft, - style.paddingTop)
+        canvas.translate(
+            (style.paddingLeft + style.borderLeftWidth), 
+            -1 * (style.paddingTop + style.borderTopWidth)) # + (style.leading / 4)))
 
         # Call the base class draw method to finish up
         Paragraph.draw(self)
@@ -542,6 +518,38 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
         # Reset color because we need it again if we run 2-PASS like we
         # do when using TOC
         style.backColor = bg
+
+        canvas.saveState()
+        
+        def _drawBorderLine(bstyle, width, color, x1, y1, x2, y2):
+            # We need width and border style to be able to draw a border
+            if width and getBorderStyle(bstyle):
+                # If no color for border is given, the text color is used (like defined by W3C)
+                if color is None:
+                    color = style.textColor
+                # print "Border", bstyle, width, color
+                canvas.setStrokeColor(color)
+                canvas.setLineWidth(width)
+                canvas.line(x1, y1, x2, y2)
+                
+        _drawBorderLine(style.borderLeftStyle,
+                        style.borderLeftWidth,
+                        style.borderLeftColor,
+                        x, y, x, y + h)
+        _drawBorderLine(style.borderRightStyle,
+                        style.borderRightWidth,
+                        style.borderRightColor,
+                        x + w, y, x + w, y + h)
+        _drawBorderLine(style.borderTopStyle,
+                        style.borderTopWidth,
+                        style.borderTopColor,
+                        x, y + h, x + w, y + h)
+        _drawBorderLine(style.borderBottomStyle,
+                        style.borderBottomWidth,
+                        style.borderBottomColor,
+                        x, y, x + w, y)        
+
+        canvas.restoreState()
 
 class PmlTable(Table, PmlMaxHeightMixIn):
 

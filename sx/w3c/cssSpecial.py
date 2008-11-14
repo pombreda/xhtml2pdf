@@ -137,7 +137,7 @@ def splitBorder(parts):
     
     width = style = color = None
     copy_parts = parts[:]
-    part = getNextPart(parts)
+    # part = getNextPart(parts)
 
     if len(parts)>3:
         log.warn("To many elements for border style %r", parts)
@@ -366,6 +366,7 @@ def parseSpecialRules(declarations, debug=0):
             elif name in ("border-top", "border-bottom", "border-left", "border-right"):
                 direction = name[7:]
                 width, style, color = splitBorder(parts)
+                # print direction, width
                 if width is not None:                    
                     dd.append(("border-" + direction + "-width", width, last))
                 if style is not None:
