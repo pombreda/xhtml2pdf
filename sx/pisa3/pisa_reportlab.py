@@ -364,14 +364,15 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
         height = min(self.drawHeight, availHeight * 0.99)
         hfactor = float(height) / self.drawHeight
         factor = min(wfactor, hfactor)
-        self.dHeight = self.drawHeight * factor
         self.dWidth = self.drawWidth * factor
-        # print "imgage result", factor, self.drawWidth, self.drawHeight
-        return (self.drawWidth, self.drawHeight)
+        self.dHeight = self.drawHeight * factor
+        # print "imgage result", factor, self.dWidth, self.dHeight
+        return (self.dWidth, self.dHeight)
 
     def draw(self):
         img = self.getImage()
-        self.canv.drawImage(img,
+        self.canv.drawImage(
+            img,
             0, 0,
             self.dWidth,
             self.dHeight,
