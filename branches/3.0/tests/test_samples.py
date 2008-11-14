@@ -11,6 +11,10 @@ class VisualObject:
 
     CONVERT = r"C:\Programme\ImageMagick-6.3.8-Q16\convert.exe"
     DIFF = r"C:\Programme\TortoiseSVN\bin\tortoiseidiff.exe"
+    SUFFIX = ".png"
+
+    # C:\Programme\gs\gs8.54\bin\gswin32.exe -q -dSAFER -dNOPAUSE -dBATCH -sOutputFile=rl_hello-page%04d.png -sDEVICE=png256 -r144x144 -f test-font-and-styles.pdf
+    #
 
     def __init__(self):
         self.files = []
@@ -26,10 +30,19 @@ class VisualObject:
         self.folder4del = None
 
     def execute(self, *a):
-        # print "EXECUTE", " ".join(a)
+        #print
+        #print "EXECUTE", " ".join(a)
+        #print
+        # os.system(" ".join(a))
         r = subprocess.Popen(a, stdout=subprocess.PIPE).communicate()[0]
         # print r
         return r
+
+    def showDiff(self, left, right):
+        return self.execute(self.DIFF, "/fit", "/overlay", "/left:" + left, "/right:" + right)
+
+    def convertFile(self, source, destination):
+        self.execute(self.CONVERT, "-strip", source, destination)
 
     def getFiles(self, folder, pattern="*.*"):
         pattern = os.path.join(folder, pattern)
@@ -44,31 +57,33 @@ class VisualObject:
             delete = True
         # print "FOLDER", folder, "DELETE", delete
         source = os.path.abspath(file)
-        destination = os.path.join(folder, os.path.basename(file) + ".png")
-        self.execute(self.CONVERT, source, destination)
-        self.getFiles(folder, os.path.basename(file)  + "*.png")
+        destination = os.path.join(folder, os.path.basename(file) + "-%04d" + self.SUFFIX)
+        self.convertFile(source, destination)
+        self.getFiles(folder, os.path.basename(file)  + "-????" + self.SUFFIX)
         if delete:
             self.files4del = self.files
         return folder
 
-    def showDiff(self, left, right):
-        return self.execute(self.DIFF, "/left:" + left, "/right:" + right, "/fit", "/overlay")
-
     def compare(self, other, chunk=16*1024, show=True):
         if not self.files:
-            return False
+            return False, "No files"
         if len(self.files) <> len(other.files):
-            return False
+            return False, "Different number of files"
         for i in range(len(self.files)):
             left = self.files[i]
             right = other.files[i]
             a = open(left, "rb")
             b = open(right, "rb")
-            if a.read() <> b.read():
+            diff = a.read() <> b.read()
+            a.close()
+            b.close()
+            del a
+            del b
+            if diff:
                 if show:
                     self.showDiff(left, right)
-                return False
-        return True
+                return False, "Difference in file %r" % left
+        return True, ""
 
 '''
 def getoptions():
@@ -120,14 +135,15 @@ import unittest
 import sx.pisa3.pisa as pisa
 import shutil
 
-here = os.path.abspath(os.path.join(__file__, os.pardir))
-
-pisa.showLogging()
-
 class TestCase(unittest.TestCase):
 
     def testSamples(self):
 
+        # Enable logging
+        pisa.showLogging()
+
+        # Calculate paths
+        here = os.path.abspath(os.path.join(__file__, os.pardir))
         folder = os.path.join(here, "tmp")
         left = os.path.join(folder, "left")
         right = os.path.join(folder, "right")
@@ -139,27 +155,31 @@ class TestCase(unittest.TestCase):
         os.makedirs(right)
 
         for name in glob.glob(os.path.join(here, "samples", "*.html")):
-            print name
+            # print name
 
+            # Create new PDF
             bname = os.path.basename(name)
             fname = os.path.join(right, bname[:-5] + ".pdf")
 
+            dest = open(fname, "wb")
             pdf = pisa.pisaDocument(
                 open(name, "rb"),
-                open(fname, "wb"))
+                dest)
+            dest.close()
 
-            if pdf.err:
-                print "*** %d ERRORS OCCURED" % pdf.err
+            self.assertTrue(not pdf.err, name)
 
-            assert not pdf.err == True
-
+            # New object
             r = VisualObject()
             r.loadFile(fname, right, delete=False)
 
+            # Expected object
             l = VisualObject()
             l.loadFile(name[:-5] + ".pdf", left, delete=False)
 
-            assert l.compare(r) == True
+            # Compare both and open Diff if differences
+            result, msg = l.compare(r)
+            self.assertTrue(result, name + ": " + msg)
 
 def buildTestSuite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)

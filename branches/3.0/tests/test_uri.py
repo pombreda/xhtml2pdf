@@ -67,39 +67,49 @@ class TestCase(unittest.TestCase):
 
     def testAbsouluteUri(self):
 
+        # URL
         f = getFile("http://www.holtwick.it")
         c = f.getFile().read(1)
-        assert len(c) == 1
-        assert c == "<"
-        assert f.mimetype == "text/html"
 
+        self.assertEqual(len(c), 1)
+        self.assertEqual(c, "<")
+        self.assertEqual(f.mimetype, "text/html")
+
+        # Path
         f = getFile("__init__.py")
         c = f.getFile().read(1)
-        assert len(c) == 1
-        assert c == "f"
-        assert f.mimetype == "text/x-python"
 
+        self.assertEqual(len(c), 1)
+        self.assertEqual(c, "f")
+        self.assertEqual(f.mimetype, "text/x-python")
+
+        # Data URI
         f = getFile(_datauri)
         c = f.getFile().read(1)
-        assert len(c) == 1
-        assert c == '\x89'
-        assert f.mimetype == "image/png"
+
+        self.assertEqual(len(c), 1)
+        self.assertEqual(c, '\x89')
+        self.assertEqual(f.mimetype, "image/png")
 
     def testRelativeUri(self):
 
+        # URL
         f = getFile("index", basepath="http://www.holtwick.it")
         c = f.getFile().read(1)
-        assert len(c) == 1
-        assert c == "<"
-        assert f.mimetype == "text/html"
 
+        self.assertEqual(len(c), 1)
+        self.assertEqual(c, "<")
+        self.assertEqual(f.mimetype, "text/html")
+
+        # Path
         base =  os.path.join(os.path.abspath(__file__), os.pardir, os.pardir)
         f = getFile("tests/__init__.py", base)
         c = f.getFile().read(1)
-        print f.mimetype
-        assert len(c) == 1
-        assert c == "f"
-        assert f.mimetype == "text/x-python"
+
+        # print f.mimetype
+        self.assertEqual(len(c), 1)
+        self.assertEqual(c, "f")
+        self.assertEqual(f.mimetype, "text/x-python")
 
 def buildTestSuite():
     return unittest.defaultTestLoader.loadTestsFromName(__name__)
