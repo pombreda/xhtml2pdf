@@ -120,7 +120,7 @@ class pisaTagFONT(pisaTag):
             c.frag.fontName = c.getFontName(self.attr["face"])
         if self.attr["size"] is not None:
             size = getSize(self.attr["size"], c.frag.fontSize, c.baseFontSize)
-            c.frag.fontSize = size
+            c.frag.fontSize = max(size, 1.0)
 
     def end(self, c):
         pass

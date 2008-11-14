@@ -260,7 +260,7 @@ _relativeSizeTable = {
     "-3": 25.0/100.0,
     }      
      
-MIN_FONT_SIZE = 0.0
+MIN_FONT_SIZE = 1.0
  
 def getSize(value, relative=0, base=None):
     """
@@ -318,8 +318,8 @@ def getSize(value, relative=0, base=None):
             value = float(value)
         except:
             log.warn("getSize: Not a float %r", value)
-            value = MIN_FONT_SIZE
-        return max(MIN_FONT_SIZE, value)
+            value = 0
+        return max(0, value)
     except Exception:
         log.warn("getSize %r %r", original, relative, exc_info=1)
         # print "ERROR getSize", repr(value), repr(value), e

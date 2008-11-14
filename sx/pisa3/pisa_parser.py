@@ -233,7 +233,7 @@ def CSS2Frag(c, kw, isBlock):
         c.frag.fontName = c.getFontName(c.cssAttr["font-family"])    
     if c.cssAttr.has_key("font-size"):
         # XXX inherit
-        c.frag.fontSize = getSize("".join(c.cssAttr["font-size"]), c.frag.fontSize, c.baseFontSize)    
+        c.frag.fontSize = max(getSize("".join(c.cssAttr["font-size"]), c.frag.fontSize, c.baseFontSize), 1.0)    
     if c.cssAttr.has_key("line-height"):
         leading = "".join(c.cssAttr["line-height"])
         c.frag.leading = getSize(leading, c.frag.fontSize)
