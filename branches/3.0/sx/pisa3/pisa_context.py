@@ -133,9 +133,6 @@ def getParaFrag(style):
     #frag.keepInFrameMaxWidth = None
     #frag.keepInFrameMaxHeight = None
     
-    frag.width = None
-    frag.height = None
-    
     return frag     
 
 def getDirName(path):
@@ -582,7 +579,7 @@ class pisaContext:
         if (style.borderRightColor is None) and style.borderRightWidth:
             style.borderRightColor = first.textColor      
 
-        style.borderPadding = 0 #first.borderPadding
+        style.borderPadding = first.borderPadding
 
         style.paddingTop = first.paddingTop
         style.paddingBottom = first.paddingBottom

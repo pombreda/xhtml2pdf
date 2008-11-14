@@ -364,8 +364,8 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
         height = min(self.drawHeight, availHeight * 0.99)
         hfactor = float(height) / self.drawHeight
         factor = min(wfactor, hfactor)
-        self.height = self.drawHeight * factor
-        self.width = self.drawWidth * factor
+        self.dHeight = self.drawHeight * factor
+        self.dWidth = self.drawWidth * factor
         # print "imgage result", factor, self.drawWidth, self.drawHeight
         return (self.drawWidth, self.drawHeight)
 
@@ -373,8 +373,8 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
         img = self.getImage()
         self.canv.drawImage(img,
             0, 0,
-            self.width,
-            self.height,
+            self.dWidth,
+            self.dHeight,
             mask=self._mask)
 
     def identity(self, maxLen=None):
@@ -385,7 +385,7 @@ class PmlParagraphAndImage(ParagraphAndImage, PmlMaxHeightMixIn):
 
     def wrap(self, availWidth, availHeight):
         # print "# wrap", id(self), self.canv
-        availHeight = self.maxHeight(availHeight)
+        # availHeight = self.maxHeight(availHeight)
         self.I.canv = self.canv
         result = ParagraphAndImage.wrap(self, availWidth, availHeight)
         del self.I.canv
@@ -501,9 +501,11 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
 
         if bg:
             # draw a filled rectangle (with no stroke) using bg color
+            canvas.saveState()
             canvas.setFillColor(bg)
             canvas.rect(x, y, w, h, fill=1, stroke=0)
-        
+            canvas.restoreState()
+
         # we need to hide the bg color (if any) so Paragraph won't try to draw it again
         style.backColor = None
 

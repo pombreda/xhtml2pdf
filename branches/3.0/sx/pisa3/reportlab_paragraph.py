@@ -17,6 +17,8 @@ from copy import deepcopy
 from reportlab.lib.abag import ABag
 import re
 
+PARAGRAPH_DEBUG = 0
+
 #on UTF8 branch, split and strip must be unicode-safe!
 def split(text, delim=' '):
     if type(text) is str: text = text.decode('utf8')
@@ -840,7 +842,7 @@ class Paragraph(Flowable):
         self.frags = frags
         self.style = style
         self.bulletText = bulletText
-        self.debug = 0  #turn this on to see a pretty one with all the margins etc.
+        self.debug = PARAGRAPH_DEBUG  #turn this on to see a pretty one with all the margins etc.
 
     def wrap(self, availWidth, availHeight):
         # work out widths array for breaking
@@ -1065,19 +1067,15 @@ class Paragraph(Flowable):
             for w in _getFragWords(frags):
                 f=w[-1][0]
                 fontName = f.fontName
-                #try:
-                #    getTypeFace(fontName)
-                #except:
-                #    print "XXX"
-                #    fontName = f.fontName = "Helvetica"
                 fontSize = f.fontSize
                 spaceWidth = stringWidth(' ',fontName, fontSize)
 
                 if not words:
                     currentWidth = -spaceWidth   # hack to get around extra space for word 1
-                    maxSize = fontSize                    
+                    maxSize = fontSize
                     maxAscent, minDescent = getAscentDescent(fontName,fontSize)
-                    wordWidth = w[0]
+
+                wordWidth = w[0]
                 f = w[1][0]
                 if wordWidth>0:
                     newWidth = currentWidth + spaceWidth + wordWidth
