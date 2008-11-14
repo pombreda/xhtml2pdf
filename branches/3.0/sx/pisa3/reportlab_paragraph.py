@@ -840,7 +840,7 @@ class Paragraph(Flowable):
         self.frags = frags
         self.style = style
         self.bulletText = bulletText
-        self.debug = 0  #turn this on to see a pretty one with all the margins etc.
+        # self.debug = 0  #turn this on to see a pretty one with all the margins etc.
 
     def wrap(self, availWidth, availHeight):
         # work out widths array for breaking
