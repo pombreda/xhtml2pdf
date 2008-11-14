@@ -397,9 +397,7 @@ class PmlParagraphAndImage(ParagraphAndImage, PmlMaxHeightMixIn):
             self.wI, self.hI = self.I.wrap(availWidth, availHeight) #drawWidth, self.I.drawHeight        
         return ParagraphAndImage.split(self, availWidth, availHeight)
     
-class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
-
-    debug = 0 
+class PmlParagraph(Paragraph, PmlMaxHeightMixIn):  
 
     def _calcImageMaxSizes(self, availWidth, availHeight):
         availHeight = self.getMaxHeight()

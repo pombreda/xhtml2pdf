@@ -164,7 +164,8 @@ class TestCase(unittest.TestCase):
             dest = open(fname, "wb")
             pdf = pisa.pisaDocument(
                 open(name, "rb"),
-                dest)
+                dest,
+                path = name)
             dest.close()
 
             self.assertTrue(not pdf.err, name)
