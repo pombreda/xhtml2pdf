@@ -642,7 +642,6 @@ class pisaContext:
         # print self.force, repr(self.text)
         force = (force or self.force) and self.fragList
         self.force = False
-        # self.force = False
 
         # Cleanup the trail
         try:
@@ -661,8 +660,8 @@ class pisaContext:
         leading = 0
         #fontSize = 0
         for frag in self.fragList:
-            leading = max(leading, frag.fontSize, frag.leading)     
-                       
+            # leading = max(leading, frag.fontSize, frag.leading)     
+            frag.leading = max(frag.leading, frag.fontSize) + frag.leadingSpace
             #fontSize = max(fontSize, frag.fontSize)      
             # print frag.text, frag.backColor
                
@@ -678,13 +677,11 @@ class pisaContext:
             # Update paragraph style by style of first fragment
             first = self.fragBlock          
             style = self.toParagraphStyle(first)
-            style.leading = leading + first.leadingSpace
+            style.leading = first.leading + first.leadingSpace
             #style.fontSize = fontSize
                 
-            # borderRadius: None,
-        
+            # borderRadius: None,    
             # print repr(self.text.strip()), style.leading, "".join([repr(x.text) for x in self.fragList])
-
             # print first.leftIndent, first.listStyleType,repr(self.text) 
         
             bulletText = copy.copy(first.bulletText)
@@ -707,10 +704,7 @@ class pisaContext:
                 # Mirrored and BIDI
                 #import unicodedata
                 #for c in self.text:                
-                #    print unicodedata.bidirectional(c), 
-                
-                # XXX ???    
-                # print repr(para)
+                #    print unicodedata.bidirectional(c),                         
                             
                 para.outline = first.outline
                 para.outlineLevel = first.outlineLevel

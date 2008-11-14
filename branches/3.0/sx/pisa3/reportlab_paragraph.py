@@ -566,7 +566,8 @@ def _do_post_text(tx):
     autoLeading = xs.autoLeading
     f = xs.f
     if autoLeading=='max':
-        leading = max(leading,1.2*f.fontSize)
+        leading = max(leading, f.fontSize)
+        # leading = max(leading, 1.2*f.fontSize)
     elif autoLeading=='min':
         leading = 1.2*f.fontSize
     ff = 0.125*f.fontSize
@@ -576,9 +577,10 @@ def _do_post_text(tx):
     # Background    
     for x1, x2, c, fs in xs.backgrounds:       
         inlineFF = fs * 0.125        
-        gap = inlineFF * 1.5
+        gap = inlineFF * 1.25
         tx._canvas.setFillColor(c)     
-        tx._canvas.rect(x1, y - gap, x2 - x1, fs + gap, fill=1, stroke=0)
+        tx._canvas.rect(x1, y - gap, x2 - x1, fs + 1, fill=1, stroke=0)
+        # tx._canvas.rect(x1, y, x2 - x1, fs, fill=1, stroke=0)
     xs.backgrounds = []
     xs.background = 0
     xs.backgroundColor = None   
