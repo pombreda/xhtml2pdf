@@ -239,30 +239,45 @@ class pisaTagIMG(pisaTag):
                         
             try:             
                 align = attr.align or c.frag.vAlign or "baseline"    
-                # print "align", align, attr.align, c.frag.vAlign   
-                width = attr.width 
-                height = attr.height 
+                # print "align", align, attr.align, c.frag.vAlign  
+                                
+                width = c.frag.width 
+                height = c.frag.height
+
+                if attr.width:
+                    width = attr.width * dpi96
+                if attr.height:
+                    height = attr.height * dpi96                    
+                
                 img = PmlImage(
                     attr.src.getData(),
-                    width=width,
-                    height=height)                  
+                    width=None,
+                    height=None)   
+                               
                 img.pisaZoom = c.frag.zoom
+
+                img.drawHeight *= dpi96
+                img.drawWidth *= dpi96
+                            
                 if (width is None) and (height is not None):
-                    factor = float(height) / img.imageHeight
-                    img.drawWidth = img.imageWidth * factor
+                    factor = float(height) / img.drawHeight
+                    img.drawWidth *= factor
+                    img.drawHeight = height
                 elif (height is None) and (width is not None):
-                    factor = float(width) / img.imageWidth
-                    img.drawHeight = img.imageHeight * factor
-                elif (width is None) and (height is None):                        
-                    img.drawWidth = img.drawWidth * dpi96
-                    img.drawHeight = img.drawHeight * dpi96
+                    factor = float(width) / img.drawWidth
+                    img.drawHeight *= factor
+                    img.drawWidth = width
+                elif (width is not None) and (height is not None):
+                    img.drawWidth = width
+                    img.drawHeight = height
                     
                 img.drawWidth *= img.pisaZoom
                 img.drawHeight *= img.pisaZoom
+                
                 img.spaceBefore = c.frag.spaceBefore
                 img.spaceAfter = c.frag.spaceAfter
 
-                # print "image", img.drawWidth, img.drawHeight
+                # print "image", id(img), img.drawWidth, img.drawHeight
                                   
                 '''
                 TODO:

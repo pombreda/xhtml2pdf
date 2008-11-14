@@ -17,8 +17,11 @@ Version 3.0.28, 2008-XX
 - NEW: New general file loader that is also able to load remote data and data URI
 - NEW: PDF Joiner to concatenate many PDF and pisa documents
 - NEW: Page backgrounds can now be images or PDF
+- NEW: Visual Unittests 
 - UPD: Paragraphs now use the maximum leading to avoid overlapping text
 - UPD: Removed "Keep with next" from H1 to H6 
+- FIX: Sizing of images is now handled better
+- FIX: Border handling of paragraphs optimized and fixed
 - FIX: Images that are higher than the page frame are scaled down to fit
 - FIX: Paragraphs only containing &nbsp; are rendered now
 - FIX: Compatible with Reportlab 2.2 now

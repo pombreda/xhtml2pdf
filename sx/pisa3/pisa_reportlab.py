@@ -186,21 +186,6 @@ class PmlPageTemplate(PageTemplate):
         finally:
             canvas.restoreState()
 
-class PmlParagraphAndImage(ParagraphAndImage):
-
-    def wrap(self, availWidth, availHeight):
-        # print "# wrap", id(self), self.canv
-        self.I.canv = self.canv
-        result = ParagraphAndImage.wrap(self, availWidth, availHeight)
-        del self.I.canv
-        return result
-    
-    def split(self, availWidth, availHeight):
-        # print "# split", id(self)
-        if not hasattr(self, "wI"):
-            self.wI, self.hI = self.I.wrap(availWidth, availHeight) #drawWidth, self.I.drawHeight        
-        return ParagraphAndImage.split(self, availWidth, availHeight)
-
 class PmlImageReader(object):
     "Wraps up either PIL or Java to get data from bitmaps"
     _cache = {}
@@ -371,46 +356,65 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
         return img
 
     def wrap(self, availWidth, availHeight):
+        " This can be called more than once! Do not overwrite important data like drawWidth "
         availHeight = self.maxHeight(availHeight)
-        # print "image wrap", self.canv, availWidth, availHeight
+        # print "image wrap", id(self), availWidth, availHeight, self.drawWidth, self.drawHeight
         width = min(self.drawWidth, availWidth)
         wfactor = float(width) / self.drawWidth
-        height = min(self.drawHeight, availHeight) * 0.99
+        height = min(self.drawHeight, availHeight * 0.99)
         hfactor = float(height) / self.drawHeight
         factor = min(wfactor, hfactor)
-        self.drawHeight = self.drawHeight * factor
-        self.drawWidth = self.drawWidth * factor
+        self.height = self.drawHeight * factor
+        self.width = self.drawWidth * factor
+        # print "imgage result", factor, self.drawWidth, self.drawHeight
         return (self.drawWidth, self.drawHeight)
 
     def draw(self):
         img = self.getImage()
         self.canv.drawImage(img,
             0, 0,
-            self.drawWidth,
-            self.drawHeight,
-            mask=self._mask,
-            )
+            self.width,
+            self.height,
+            mask=self._mask)
 
     def identity(self, maxLen=None):
         r = Flowable.identity(self, maxLen)
         return r
 
+class PmlParagraphAndImage(ParagraphAndImage, PmlMaxHeightMixIn):
+
+    def wrap(self, availWidth, availHeight):
+        # print "# wrap", id(self), self.canv
+        availHeight = self.maxHeight(availHeight)
+        self.I.canv = self.canv
+        result = ParagraphAndImage.wrap(self, availWidth, availHeight)
+        del self.I.canv
+        return result
+    
+    def split(self, availWidth, availHeight):
+        # print "# split", id(self)
+        if not hasattr(self, "wI"):
+            self.wI, self.hI = self.I.wrap(availWidth, availHeight) #drawWidth, self.I.drawHeight        
+        return ParagraphAndImage.split(self, availWidth, availHeight)
+    
 class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
+
+    debug = 0 
 
     def _calcImageMaxSizes(self, availWidth, availHeight):
         availHeight = self.getMaxHeight()
         for frag in self.frags:
             if hasattr(frag, "cbDefn") and frag.cbDefn.kind == "img":
                 img = frag.cbDefn
-                #print "before", img.width, img.height
+                # print "before", img.width, img.height
                 width = min(img.width, availWidth)
                 wfactor = float(width) / img.width
-                height = min(img.height, availHeight) * 0.99 # XXX 99% because 100% do not work...
+                height = min(img.height, availHeight * 0.99)  # XXX 99% because 100% do not work...
                 hfactor = float(height) / img.height
                 factor = min(wfactor, hfactor)
                 img.height = img.height * factor
                 img.width = img.width * factor                
-                #print "after", img.width, img.height
+                # print "after", img.width, img.height
 
     def wrap(self, availWidth, availHeight):
 
@@ -427,7 +431,7 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
         availHeight -= deltaHeight
         
         # Modify maxium image sizes
-        self._calcImageMaxSizes(availWidth, self.getMaxHeight() - style.paddingTop + style.paddingBottom)
+        self._calcImageMaxSizes(availWidth, self.getMaxHeight() - deltaHeight)
         
         # call the base class to do wrapping and calculate the size
         Paragraph.wrap(self, availWidth, availHeight)
@@ -511,7 +515,7 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
             (style.paddingLeft + style.borderLeftWidth), 
             -1 * (style.paddingTop + style.borderTopWidth)) # + (style.leading / 4)))
 
-        # Call the base class draw method to finish up
+        # Call the base class draw method to finish up        
         Paragraph.draw(self)
         canvas.restoreState()
 
