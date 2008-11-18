@@ -1,5 +1,5 @@
 @font-face {
-	font-family: arialuni;
+	font-family: CODE2000;
 	src: url("font/CODE2000.TTF")
 }
 
@@ -25,5 +25,5 @@
 */
 
 html {
-    font-family: arialuni;
+    font-family: CODE2000;
 }

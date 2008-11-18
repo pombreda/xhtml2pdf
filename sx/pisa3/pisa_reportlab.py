@@ -533,9 +533,10 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
                 if color is None:
                     color = style.textColor
                 # print "Border", bstyle, width, color
-                canvas.setStrokeColor(color)
-                canvas.setLineWidth(width)
-                canvas.line(x1, y1, x2, y2)
+                if color is not None:
+                    canvas.setStrokeColor(color)
+                    canvas.setLineWidth(width)
+                    canvas.line(x1, y1, x2, y2)
                 
         _drawBorderLine(style.borderLeftStyle,
                         style.borderLeftWidth,

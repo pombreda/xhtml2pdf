@@ -17,7 +17,7 @@ from copy import deepcopy
 from reportlab.lib.abag import ABag
 import re
 
-PARAGRAPH_DEBUG = 0
+PARAGRAPH_DEBUG = 1
 
 #on UTF8 branch, split and strip must be unicode-safe!
 def split(text, delim=' '):
@@ -323,12 +323,18 @@ def _justifyDrawParaLineX( tx, offset, line, last=0):
 
 # XXX Modified for XHTML2PDF
 # !!! Important, don't import accelerators !!!
-def _sameFrag(f, g):
+#try:
+#    from _rl_accel import _sameFrag
+#except ImportError:
+#    try:
+#        from reportlab.lib._rl_accel import _sameFrag
+#    except ImportError:
+def _sameFrag(f,g):
     'returns 1 if two ParaFrags map out the same'
-    if (hasattr(f, 'cbDefn') or hasattr(g, 'cbDefn')
-            or hasattr(f, 'lineBreak') or hasattr(g, 'lineBreak')): return 0
+    if (hasattr(f,'cbDefn') or hasattr(g,'cbDefn')
+            or hasattr(f,'lineBreak') or hasattr(g,'lineBreak')): return 0
     for a in ('fontName', 'fontSize', 'textColor', 'backColor', 'rise', 'underline', 'strike', 'link'):
-        if getattr(f, a, None) != getattr(g, a, None): return 0
+        if getattr(f,a,None)!=getattr(g,a,None): return 0
     return 1
 
 def _getFragWords(frags):

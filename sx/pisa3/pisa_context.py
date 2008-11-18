@@ -655,13 +655,12 @@ class pisaContext:
         #        break
 
         # Find maximum lead
-        leading = 0
+        maxLeading = 0
         #fontSize = 0
         for frag in self.fragList:
-            # leading = max(leading, frag.fontSize, frag.leading)     
-            frag.leading = max(frag.leading, frag.fontSize) + frag.leadingSpace
-            #fontSize = max(fontSize, frag.fontSize)      
-            # print frag.text, frag.backColor
+            leading = getSize(frag.leadingSource, frag.fontSize) + frag.leadingSpace    
+            maxLeading = max(leading, frag.fontSize + frag.leadingSpace, maxLeading)     
+            frag.leading = leading
                
         if force  or (self.text.strip() and self.fragList):
                     
@@ -675,7 +674,7 @@ class pisaContext:
             # Update paragraph style by style of first fragment
             first = self.fragBlock          
             style = self.toParagraphStyle(first)
-            style.leading = first.leading + first.leadingSpace
+            style.leading = maxLeading # + first.leadingSpace
             #style.fontSize = fontSize
                 
             # borderRadius: None,    
