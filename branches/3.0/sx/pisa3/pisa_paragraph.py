@@ -1,22 +1,168 @@
 #!/bin/env/python
 # -*- coding: utf-8 -*-
 
-"A simple paragraph class to be used with ReportLab Platypus."
+"""
+A paragraph class to be used with ReportLab Platypus.
 
-import re
+TODO
+====
+
+- Bullets
+- Links
+- Borders and margins (Box)
+- Underline, Background
+- Images
+- Hyphenation
++ Alignment
+- Breakline, empty lines
++ TextIndent
+
+"""
 
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT, TA_RIGHT
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus.flowables import Flowable
 from reportlab.lib.colors import Color
 
+class Style(dict):
+
+    """
+    Style
+    """
+
+    DEFAULT = {
+        "textAlign": TA_LEFT,
+        "textIndent": 0.0,
+        "width": None,
+        "height": None,
+        "fontName": "Times-Roman",
+        "fontSize": 10.0,
+        "color": Color(0,0,0),
+        }
+
+    def __init__(self, **kw):
+        self.update(self.DEFAULT)
+        self.update(kw)
+        self.spaceBefore = 0
+        self.spaceAfter = 0
+        self.keepWithNext = False
+
 class Box(dict):
 
     """
     Box.
+
+    Handles the following styles:
+
+        backgroundColor
+        paddingLeft, paddingRight, paddingTop, paddingBottom
+        marginLeft, marginRight, marginTop, marginBottom
+        borderLeftColor, borderLeftWidth, borderLeftColor, borderLeftStyle
+        borderRightColor, borderRightWidth, borderRightColor, borderRightStyle
+        borderTopColor, borderTopWidth, borderTopColor, borderTopStyle
+        borderBottomColor, borderBottomWidth, borderBottomColor, borderBottomStyle
+
     """
 
-    pass
+    '''
+    def wrap(self, availWidth, availHeight):
+
+        style = self.style
+
+        deltaWidth = style.paddingLeft + style.paddingRight + style.borderLeftWidth + style.borderRightWidth
+        deltaHeight = style.paddingTop + style.paddingBottom + style.borderTopWidth + style.borderBottomWidth
+
+        # reduce the available width & height by the padding so the wrapping
+        # will use the correct size
+        availWidth -= deltaWidth
+        availHeight -= deltaHeight
+
+        # Modify maxium image sizes
+        self._calcImageMaxSizes(availWidth, self.getMaxHeight() - deltaHeight)
+
+        # call the base class to do wrapping and calculate the size
+        Paragraph.wrap(self, availWidth, availHeight)
+
+        # increase the calculated size by the padding
+        self.width += deltaWidth
+        self.height += deltaHeight
+
+        return (self.width, self.height)
+
+    def draw(self):
+
+        # Draw the background and borders here before passing control on to
+        # ReportLab. This is because ReportLab can't handle the individual
+        # components of the border independently. This will also let us
+        # support more border styles eventually.
+        canvas = self.canv
+        style = self.style
+        bg = style.backColor
+        leftIndent = style.leftIndent
+        bp = style.borderPadding
+
+        x = leftIndent - bp
+        y = - bp
+        w = self.width - (leftIndent + style.rightIndent) + 2 * bp
+        h = self.height + 2 * bp
+
+        if bg:
+            # draw a filled rectangle (with no stroke) using bg color
+            canvas.saveState()
+            canvas.setFillColor(bg)
+            canvas.rect(x, y, w, h, fill=1, stroke=0)
+            canvas.restoreState()
+
+        # we need to hide the bg color (if any) so Paragraph won't try to draw it again
+        style.backColor = None
+
+        # offset the origin to compensate for the padding
+        canvas.saveState()
+        canvas.translate(
+            (style.paddingLeft + style.borderLeftWidth),
+            -1 * (style.paddingTop + style.borderTopWidth)) # + (style.leading / 4)))
+
+        # Call the base class draw method to finish up
+        Paragraph.draw(self)
+        canvas.restoreState()
+
+        # Reset color because we need it again if we run 2-PASS like we
+        # do when using TOC
+        style.backColor = bg
+
+        canvas.saveState()
+
+        def _drawBorderLine(bstyle, width, color, x1, y1, x2, y2):
+            # We need width and border style to be able to draw a border
+            if width and getBorderStyle(bstyle):
+                # If no color for border is given, the text color is used (like defined by W3C)
+                if color is None:
+                    color = style.textColor
+                # print "Border", bstyle, width, color
+                if color is not None:
+                    canvas.setStrokeColor(color)
+                    canvas.setLineWidth(width)
+                    canvas.line(x1, y1, x2, y2)
+
+        _drawBorderLine(style.borderLeftStyle,
+                        style.borderLeftWidth,
+                        style.borderLeftColor,
+                        x, y, x, y + h)
+        _drawBorderLine(style.borderRightStyle,
+                        style.borderRightWidth,
+                        style.borderRightColor,
+                        x + w, y, x + w, y + h)
+        _drawBorderLine(style.borderTopStyle,
+                        style.borderTopWidth,
+                        style.borderTopColor,
+                        x, y + h, x + w, y + h)
+        _drawBorderLine(style.borderBottomStyle,
+                        style.borderBottomWidth,
+                        style.borderBottomColor,
+                        x, y, x + w, y)
+
+        canvas.restoreState()
+    '''
 
 class Fragment(Box):
 
@@ -43,9 +189,16 @@ class Space(Fragment):
     def calc(self):
         self["width"] = stringWidth(" ", self["fontName"], self["fontSize"])
 
+class LineBreak(Fragment):
+
+    def calc(self):
+        self["width"] = 0
+
 class Image(Box):
 
     pass
+
+ALIGNMENTS = (TA_LEFT, TA_RIGHT, TA_CENTER, TA_JUSTIFY)
 
 class Line(list):
 
@@ -53,33 +206,37 @@ class Line(list):
     Container for line fragments.
     """
 
-    def __init__(self, firstElementPosition):
+    LINEHEIGHT = 1.0
+
+    def __init__(self, style):
         self.width = 0
         self.height = 0
-        self.firstElementPosition = firstElementPosition
+        self.isLast = False
+        self.style = style
         list.__init__(self)
 
-    def doLayout(self, width, alignment, isLast=False):
+    def doAlignment(self, width, alignment):
+        " Apply alignment "
+        if alignment != TA_LEFT:
+            lineWidth = self[-1]["x"] + self[-1]["width"]
+            emptySpace = width - lineWidth
+            if alignment == TA_RIGHT:
+                for j, frag in enumerate(self):
+                    frag["x"] += emptySpace
+            elif alignment == TA_CENTER:
+                for j, frag in enumerate(self):
+                    frag["x"] += emptySpace / 2.0
+            elif alignment == TA_JUSTIFY and not self.isLast:
+                delta = emptySpace / (len(self) - 1)
+                for j, frag in enumerate(self):
+                    frag["x"] += j * delta
+
+    def doLayout(self, width):
         "Align words in previous line."
 
         # Calculate dimensions
         self.width = width
-        self.height = self.lineHeight = max(frag["fontSize"] * 1.5 for frag in self)
-
-        # Apply alignment
-        if alignment != TA_LEFT:
-            lineWidth = self[-1]["x"] + self[-1]["width"]
-            emptySpace = width - lineWidth
-            for j, frag in enumerate(self):
-                x = frag["x"]
-                if alignment == TA_RIGHT:
-                    frag["x"] += emptySpace
-                elif alignment == TA_CENTER:
-                    frag["pos"] += emptySpace / 2.0
-                elif alignment == TA_JUSTIFY:
-                    # and not isLast and not self.isLast:
-                    delta = emptySpace / (len(self) - 1)
-                    frag["pos"] += j * delta
+        self.height = self.lineHeight = max(frag["fontSize"] * self.LINEHEIGHT for frag in self)
 
         # Apply line height
         self.fontSize = max(frag["fontSize"] for frag in self)
@@ -103,12 +260,13 @@ class Text(list):
     and positions.
     """
 
-    def __init__(self, data=[]):
+    def __init__(self, data=[], style=None):
         self.lines = []
         self.width = 0
         self.height = 0
         self.maxWidth = 0
         self.maxHeight = 0
+        self.style = style
         list.__init__(self, data)
 
     def calc(self):
@@ -126,13 +284,13 @@ class Text(list):
             line.pop()
         # Add line to list
         if line:
-            self.height += line.doLayout(self.width, self.alignment)
+            self.height += line.doLayout(self.width)
             self.minHeight = self.height
             self.lines.append(line)
         # Start in new line
-        return 0, Line(999)
+        return 0, Line(self.style)
 
-    def splitIntoLines(self, maxWidth, maxHeight, alignment = TA_LEFT):
+    def splitIntoLines(self, maxWidth, maxHeight, splitted=False):
         """
         Split text into lines and calculate X positions. If we need more
         space in height than available we return the rest of the text
@@ -141,14 +299,17 @@ class Text(list):
         self.height = 0
         self.maxWidth = self.width = maxWidth
         self.maxHeight = maxHeight
-        self.alignment = alignment
-        x = 0
+
+        style = self.style
+        textIndent = style["textIndent"]
+        x = textIndent
+
         pos = 0
-        line = Line(0)
+        line = Line(style)
         for i, frag in enumerate(self):
             fragWidth = frag["width"]
             # Does it fit into current line?
-            if fragWidth + x > maxWidth:
+            if isinstance(frag, LineBreak) or fragWidth + x > maxWidth:
                 x, line = self.pushLine(line)
                 if self.height > maxHeight:
                     return pos
@@ -163,6 +324,11 @@ class Text(list):
         self.pushLine(line)
         if self.height > maxHeight:
             return pos
+
+        # Apply alignment
+        self.lines[-1].isLast = True
+        [line.doAlignment(maxWidth, style["textAlign"]) for line in self.lines]
+
         return None
 
     def dumpLines(self):
@@ -187,21 +353,24 @@ class Paragraph(Flowable):
 
     """
 
-    def __init__(self, text, style, debug=False, **kwDict):
+    def __init__(self, text, style, debug=False, splitted=False, **kwDict):
 
         Flowable.__init__(self)
         # self._showBoundary = True
 
         self.text = text
         self.text.calc()
-
         self.style = style
+        self.text.style = style
+
         self.debug = debug
+        self.splitted = splitted
+
+        # More attributes
         for k, v in kwDict.items():
             setattr(self, k, v)
 
         # set later...
-        self.splitted = None
         self.splitIndex = None
 
     # overwritten methods from Flowable class
@@ -224,8 +393,8 @@ class Paragraph(Flowable):
         style = self.style
 
         # Split lines
-        width = availWidth - style.leftIndent - style.rightIndent
-        self.splitIndex = self.text.splitIntoLines(width, availHeight, style.alignment)
+        width = availWidth # - style.leftIndent - style.rightIndent
+        self.splitIndex = self.text.splitIntoLines(width, availHeight)
 
         self.width, self.height = availWidth, self.text.height
 
@@ -246,23 +415,21 @@ class Paragraph(Flowable):
         if self.debug:
             print "*** split (%f, %f)" % (availWidth, availHeight)
 
+        splitted = []
         if self.splitIndex:
             text1 = self.text[:self.splitIndex]
             text2 = self.text[self.splitIndex:]
             p1 = Paragraph(Text(text1), self.style, debug=self.debug)
-            p2 = Paragraph(Text(text2), self.style, debug=self.debug)
-            self.splitted = [p1, p2]
+            p2 = Paragraph(Text(text2), self.style, debug=self.debug, splitted=True)
+            splitted = [p1, p2]
 
             if self.debug:
                 print "*** text1 %s / text %s" % (len(text1), len(text2))
-        else:
-            # don't split
-            self.splitted = []
 
         if self.debug:
             print '*** return %s' % self.splitted
 
-        return self.splitted
+        return splitted
 
 
     def draw(self):
@@ -299,9 +466,9 @@ class Paragraph(Flowable):
         for line in self.text.lines:
             y += line.height
             for frag in line:
-                if not isinstance(frag, Space):
+                if frag.get("text", ""):
                     canvas.setFont(frag["fontName"], frag["fontSize"])
-                    canvas.setFillColor(style.textColor)
+                    canvas.setFillColor(frag.get("color", style["color"]))
                     canvas.drawString(frag["x"], dy - y + frag["y"], frag["text"])
 
         canvas.restoreState()
@@ -338,56 +505,81 @@ if __name__=="__main__":
                     )
 
     def createText(data, fn, fs):
-        text = Text()
-        text += list(textGenerator(data, fn, fs))
-        # text.calc()
-        # pprint.pprint(text)
-        # v = text.splitIntoLines(100, 20)
-        # text.dumpLines()
-        # print "###", len(v)
+        text = Text(list(textGenerator(data, fn, fs)))
         return text
 
     def test():
         doc = SimpleDocTemplate("test.pdf")
         story = []
 
-        style = styles["Normal"]
+        style = Style(fontName = "Helvetica", textIndent = 24.0)
+        fn = style["fontName"]
+        fs = style["fontSize"]
+        sampleText1 = createText(TEXT[:100], fn, fs)
+        sampleText2 = createText(TEXT[100:], fn, fs)
 
-        text = Text([
+        text = Text(sampleText1 + [
+            Space(
+                fontName = fn,
+                fontSize = fs),
+            Fragment(
+                text = "TrennbarTrennbar",
+                pairs = [("Trenn-", "barTrennbar")],
+                fontName = fn,
+                fontSize = fs),
+            Space(
+                fontName = fn,
+                fontSize = fs),
             Fragment(
                 text = "Normal",
-                fontName = style.fontName,
-                fontSize = style.fontSize),
+                color = Color(1,0,0),
+                fontName = fn,
+                fontSize = fs),
             Space(
-                fontName = style.fontName,
-                fontSize = style.fontSize),
+                fontName = fn,
+                fontSize = fs),
             Fragment(
-                text = "Größer",
-                fontName = style.fontName,
-                fontSize = style.fontSize * 1.5),
+                text = "gGrößer",
+                fontName = fn,
+                fontSize = fs * 1.5),
             Space(
-                fontName = style.fontName,
-                fontSize = style.fontSize),
+                fontName = fn,
+                fontSize = fs),
             Fragment(
                 text = "Bold",
                 fontName = "Times-Bold",
-                fontSize = style.fontSize),
+                fontSize = fs),
             Space(
-                fontName = style.fontName,
-                fontSize = style.fontSize),
-            ])
+                fontName = fn,
+                fontSize = fs),
+            Fragment(
+                text = "jItalic",
+                fontName = "Times-Italic",
+                fontSize = fs),
+            Space(
+                fontName = fn,
+                fontSize = fs),
+            LineBreak(
+                fontName = fn,
+                fontSize = fs),
+            LineBreak(
+                fontName = fn,
+                fontSize = fs),
+            ] + sampleText2)
 
         story.append(Paragraph(
             copy.copy(text),
-            styles["Normal"],
-            debug = True))
+            style,
+            debug = 0))
 
         for i in range(10):
-            text = createText(("(%d) " % i) + TEXT, style.fontName, style.fontSize)
+            style = copy.deepcopy(style)
+            style["textAlign"] = ALIGNMENTS[i % 4]
+            text = createText(("(%d) " % i) + TEXT, fn, fs)
             story.append(Paragraph(
                 copy.copy(text),
-                styles["Normal"],
-                debug = True))
+                style,
+                debug = 0))
         doc.build(story)
 
     test()
