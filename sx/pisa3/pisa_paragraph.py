@@ -8,10 +8,21 @@ import re
 from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT, TA_RIGHT
 from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.platypus.flowables import Flowable
+from reportlab.lib.colors import Color
 
-class ParaWord(dict):
+class Box(dict):
 
     """
+    Box.
+    """
+
+    pass
+
+class Fragment(Box):
+
+    """
+    Fragment.
+
     text:       String containing text
     fontName:
     fontSize:
@@ -24,18 +35,138 @@ class ParaWord(dict):
         XXX Cache stringWith if not accelerated?!
         """
         self["width"] = stringWidth(self["text"], self["fontName"], self["fontSize"])
-        self["space"] = stringWidth(" ", self["fontName"], self["fontSize"])
 
-class ParaLine(list):
+class Space(Fragment):
+
+    def calc(self):
+        self["width"] = stringWidth(" ", self["fontName"], self["fontSize"])
+
+class Image(Box):
 
     pass
 
-class ParaText(list):
+class Line(list):
+
+    """
+    Container for line fragments.
+    """
+
+    def __init__(self, firstElementPosition):
+        self.width = 0
+        self.height = 0
+        self.firstElementPosition = firstElementPosition
+        list.__init__(self)
+
+    def doLayout(self, width, alignment, isLast=False):
+        "Align words in previous line."
+
+        # Calculate dimensions
+        self.width = width
+        self.height = max(frag["fontSize"] for frag in self)
+
+        # Apply alignment
+        if alignment != TA_LEFT:
+            lineWidth = self[-1]["x"] + self[-1]["width"]
+            emptySpace = width - lineWidth
+            for j, frag in enumerate(self):
+                x = frag["x"]
+                if alignment == TA_RIGHT:
+                    frag["x"] += emptySpace
+                elif alignment == TA_CENTER:
+                    frag["pos"] += emptySpace / 2.0
+                elif alignment == TA_JUSTIFY:
+                    # and not isLast and not self.isLast:
+                    delta = emptySpace / (len(self) - 1)
+                    frag["pos"] += j * delta
+
+        return self.height
+
+    def dumpFragments(self):
+        for frag in self:
+            print "%r[%.1f]" % (frag["text"], frag["x"]),
+        print
+
+class Text(list):
+
+    """
+    Container for text fragments.
+
+    Helper functions for splitting text into lines and calculating sizes
+    and positions.
+    """
+
+    def __init__(self, data=[]):
+        self.lines = []
+        self.width = 0
+        self.height = 0
+        self.maxWidth = 0
+        self.maxHeight = 0
+        self.minHeight = 0
+        list.__init__(self, data)
 
     def calc(self):
+        """
+        Calculate sizes of fragments.
+        """
         [word.calc() for word in self]
 
-class Para(Flowable):
+    def pushLine(self, line):
+        """
+        Push line on the line stack and return a new position and line Element.
+        """
+        # Remove trailing white spaces
+        while line and isinstance(line[-1], Space):
+            line.pop()
+        # Add line to list
+        if line:
+            self.height += line.doLayout(self.width, self.alignment)
+            self.minHeight = self.height
+            self.lines.append(line)
+        # Start in new line
+        return 0, Line(999)
+
+    def splitIntoLines(self, maxWidth, maxHeight, alignment = TA_LEFT):
+        """
+        Split text into lines and calculate X positions. If we need more
+        space in height than available we return the rest of the text
+        """
+        self.maxWidth = maxWidth
+        self.maxHeight = maxHeight
+        self.alignment = alignment
+        x = 0
+        pos = 0
+        line = Line(0)
+        for i, frag in enumerate(self):
+            fragWidth = frag["width"]
+            # Does it fit into current line?
+            if fragWidth + x > maxWidth:
+                x, line = self.pushLine(line)
+                if self.height > maxHeight:
+                    return pos
+                pos = i
+            # First element of line should not be a space
+            if x==0 and isinstance(frag, Space):
+                continue
+            # Add fragment to line and update x
+            frag["x"] = x
+            x += fragWidth
+            line.append(frag)
+        self.pushLine(line)
+        if self.height > maxHeight:
+            return pos
+        return None
+
+    def dumpLines(self):
+        """
+        For debugging dump all line and their content
+        """
+        i = 0
+        for line in self.lines:
+            print "Line %d:" % i,
+            line.dumpFragments()
+            i += 1
+
+class Paragraph(Flowable):
     """A simple Paragraph class respecting alignment.
 
     Does text without tags.
@@ -45,139 +176,23 @@ class Para(Flowable):
     rightIndent, textColor, alignment.
     (spaceBefore, spaceAfter are handled by the Platypus framework.)
 
-    text = "foo and bar"
-
-    after parsed():
-    words = [
-        {"text":"foo", "width":...},
-        {"text":"and", "width":...},
-        {"text":"bar", "width":...},
-    ]
-
-    after wrap():
-    words = [
-        {"text":"foo", "width":..., "pos":(x, y)},
-        {"text":"and", "width":..., "pos":(x, y)},
-        {"text":"", "meta":"newline"},
-        {"text":"bar", "width":..., "pos":(x, y)},
-    ]
     """
 
-    def __init__(self, text, style, words=None, containsFirstLine=True,
-            debug=False, **kwDict):
+    def __init__(self, text, style, debug=False, **kwDict):
 
         Flowable.__init__(self)
 
         self.text = text
-        self.style = style
+        self.text.calc()
 
-        self.words = words
-        self.containsFirstLine = containsFirstLine
+        self.style = style
         self.debug = debug
         for k, v in kwDict.items():
             setattr(self, k, v)
 
         # set later...
-        self.dy = None
-        self.words = None # important!
         self.splitted = None
         self.splitIndex = None
-
-
-    def parse(self, text):
-        "Parse text and build a word list with string widths out of it."
-
-        if self.debug:
-            print "*** parse", text
-
-        fn, fs = self.style.fontName, self.style.fontSize
-        self.words = [{"text":w, "width":stringWidth(w, fn, fs)}
-            for w in self.doSplitIntoWords(text)]
-
-
-    def doSplitIntoWords(self, text):
-        "Return text split into words."
-
-        # vanilla version
-        # return text.split()
-
-        # split at white space, if not preceeded by backslash
-        words = re.split(r"(?<!\\)\s", text)
-        words = [w.replace(r"\ ", " ") for w in words]
-        return words
-
-
-    def _NOT_NEEDED_getPreviousLine(self):
-        "Get elements on previous line."
-
-        words = self.words
-        i = -1
-        while True:
-            try:
-                p = words[i]
-                # if "meta" in p and p["meta"] == "newline":
-                if p.get("meta", None) == "newline":
-                    break
-            except IndexError:
-                break
-            i = i - 1
-
-        return self.words[i+1:]
-
-
-    def doAlign(self, isLast=False):
-        "Align words in previous line."
-
-        alignment = self.style.alignment
-        if alignment != TA_LEFT:
-            words = self.words
-            i = -1
-            while True:
-                try:
-                    p = words[i]
-                    # if "meta" in p and p["meta"] == "newline":
-                    if p.get("meta", None) == "newline":
-                        break
-                except IndexError:
-                    break
-                i = i - 1
-            prevLine = words[i+1:]
-            minX = min([w["pos"][0] for w in prevLine if "pos" in w])
-            maxX = max([w["pos"][0]+w["width"] for w in prevLine if "pos" in w])
-            lineWidth = maxX - minX
-            emptySpace = self.avWidth - lineWidth
-            for j, elem in enumerate(prevLine):
-                if not "pos" in elem:
-                    continue
-                text, width, (x, y) = elem["text"], elem["width"], elem["pos"]
-                if alignment == TA_RIGHT:
-                    elem["pos"] = (x + emptySpace, y)
-                elif alignment == TA_CENTER:
-                    elem["pos"] = (x + emptySpace / 2.0, y)
-                elif alignment == TA_JUSTIFY:
-                    # and not isLast and not self.isLast:
-                    delta = emptySpace / (len(words[i+1:]) - 1)
-                    elem["pos"] = (x + j * delta, y)
-
-
-    def doLineBreak(self, x, y, i):
-        "Break current line, return 'cursor' position at start of next line."
-
-        self.doAlign()
-        self.words.insert(i, {"text":"", "width":0, "meta":"newline"})
-        x, y = self.style.leftIndent, y - self.style.leading
-
-        return x, y, i+1
-
-
-    def doPlace(self, word, x, y):
-        "Add position of word to word entry, return pos. after this word."
-
-        style = self.style
-        word["pos"] = (x, y + style.leading - style.fontSize)
-
-        return x + word["width"], y
-
 
     # overwritten methods from Flowable class
 
@@ -188,71 +203,32 @@ class Para(Flowable):
         self.avWidth = availWidth
         self.avHeight = availHeight
 
-        if self.words == None:
-            self.parse(self.text)
-
         if self.debug:
             print "*** wrap (%f, %f)" % (availWidth, availHeight)
 
-        if not self.words:
+        if not self.text:
             if self.debug:
                 print "*** wrap (%f, %f) needed" % (0, 0)
             return 0, 0
 
         style = self.style
-        blankWidth = stringWidth(" ", style.fontName, style.fontSize)
 
-        x0, y0 = style.leftIndent, availHeight
-        if self.containsFirstLine:
-            x0 += style.firstLineIndent
-        x, y = x0, y0 - style.leading
+        # Split lines
+        width = availWidth - style.leftIndent - style.rightIndent
+        self.splitIndex = self.text.splitIntoLines(width, availHeight, style.alignment)
 
-        self.splitIndex = 0
-        i = 0
-        while i < len(self.words):
-            word = self.words[i]
-            width = word["width"]
+        neededWidth, neededHeight = availWidth, self.text.height
 
-            # does it fit entirely into current line?
-            if x + width <= availWidth - style.rightIndent:
-                x, y = self.doPlace(word, x, y)
-            # does it overlap the end of the current line?
-            else:
-                # print "wrapped:", word
-                # break line if not at top
-                # if i != 0:
-                x, y, i = self.doLineBreak(x, y, i)
-                x, y = self.doPlace(word, x, y)
-
-            # add space to current line if it fits there
-            if x + blankWidth <= availWidth:
-                x += blankWidth
-
-            # if we need too much height, memorize index and break
-            if y < y0 - availHeight:
-                self.words.insert(i, {"text":"", "width":0, "meta":"endpara"})
-                self.splitIndex = i
-                break
-
-            i += 1
-
-        self.doAlign(isLast=True)
-
-        neededWidth, neededHeight = availWidth, y0 - y
-        self.dy = y
         if self.debug:
-            print "*** wrap (%f, %f) needed" % (neededWidth, neededHeight)
+            print "*** wrap (%f, %f) needed, splitIndex %r" % (neededWidth, neededHeight, self.splitIndex)
 
         return neededWidth, neededHeight
 
+    #def visitFirstParagraph(self, para):
+    #    return para
 
-    def visitFirstParagraph(self, para):
-        return para
-
-
-    def visitOtherParagraph(self, para):
-        return para
-
+    #def visitOtherParagraph(self, para):
+    #    return para
 
     def split(self, availWidth, availHeight):
         "Split ourself in two paragraphs."
@@ -261,23 +237,14 @@ class Para(Flowable):
             print "*** split (%f, %f)" % (availWidth, availHeight)
 
         if self.splitIndex:
-            si = self.splitIndex
-            if self.debug:
-                print '*** splitIndex %d' % si
-            t1 = " ".join([w["text"] for w in self.words[:si] if w["text"]])
-            t2 = " ".join([w["text"] for w in self.words[si:] if w["text"]])
-            if self.debug:
-                print "t1", t1
-                print "t2", t2
+            text1 = self.text[:self.splitIndex]
+            text2 = self.text[self.splitIndex:]
+            p1 = Paragraph(Text(text1), self.style, debug=self.debug)
+            p2 = Paragraph(Text(text2), self.style, debug=self.debug)
+            self.splitted = [p1, p2]
 
-            paraClass = self.__class__
-            para1 = paraClass(t1, self.style, words=self.words[:si],
-                containsFirstLine=self.containsFirstLine)
-            para1 = self.visitFirstParagraph(para1)
-            # the following gets no 'words' arg on purpose
-            para2 = paraClass(t2, self.style, containsFirstLine=False)
-            para2 = self.visitOtherParagraph(para2)
-            self.splitted = [para1, para2]
+            if self.debug:
+                print "*** text1 %s / text %s" % (len(text1), len(text2))
         else:
             # don't split
             self.splitted = []
@@ -294,7 +261,7 @@ class Para(Flowable):
         if self.debug:
             print "*** draw"
 
-        if not self.words:
+        if not self.text:
             return
 
         canvas = self.canv
@@ -302,25 +269,43 @@ class Para(Flowable):
 
         canvas.saveState()
 
-        canvas.setFont(style.fontName, style.fontSize)
-        canvas.setFillColor(style.textColor)
+        if self.debug:
+            bw = 0.5
+            bc = Color(1,1,0)
+            bg = Color(0.9,0.9,0.9)
+            canvas.setStrokeColor(bc)
+            canvas.setLineWidth(bw)
+            canvas.setFillColor(bg)
+            canvas.rect(
+                0,
+                0,
+                self.text.width,
+                -self.text.height,
+                fill=1,
+                stroke=1)
 
-        for word in self.words:
-            if "meta" in word or not "pos" in word:
-                continue
-            text, (x, y) = word["text"], word["pos"]
-            canvas.drawString(x, y - self.dy, text)
+        y = 0
+        dy = self.text.height
+        for line in self.text.lines:
+            for frag in line:
+                if not isinstance(frag, Space):
+                    canvas.setFont(frag["fontName"], frag["fontSize"])
+                    canvas.setFillColor(style.textColor)
+                    canvas.drawString(frag["x"], dy - y, frag["text"])
+            y += line.height
 
         canvas.restoreState()
 
 if __name__=="__main__":
-    from reportlab.platypus import *
+    from reportlab.platypus import SimpleDocTemplate
     from reportlab.lib.styles import *
     from reportlab.rl_config import *
     from reportlab.lib.units import *
 
     import os
     import copy
+    import re
+    import pprint
 
     styles = getSampleStyleSheet()
 
@@ -328,26 +313,46 @@ if __name__=="__main__":
     Lörem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
     """.strip()
 
+    def textGenerator(data, fn, fs):
+        for word in re.split('\s+', data):
+            if word:
+                yield Fragment(
+                    text = word,
+                    fontName = fn,
+                    fontSize = fs
+                    )
+                yield Space(
+                    text = " ",
+                    fontName = fn,
+                    fontSize = fs
+                    )
+
     def createText(data, fn, fs):
-        text = ParaText()
-        text += [ParaWord(
-            text = word,
-            fontName = fn,
-            fontSize = fs
-            ) for word in data.split() if word]
-        text.calc()
-        print text
+        text = Text()
+        text += list(textGenerator(data, fn, fs))
+        # text.calc()
+        # pprint.pprint(text)
+        # v = text.splitIntoLines(100, 20)
+        # text.dumpLines()
+        # print "###", len(v)
+        return text
 
     def test():
         doc = SimpleDocTemplate("test.pdf")
         story = []
 
         style = styles["Normal"]
-        createText(TEXT, style.fontName, style.fontSize)
+        text = createText(TEXT, style.fontName, style.fontSize)
 
         for i in range(10):
-            story.append(Para(TEXT, styles["Normal"]))
+            text = createText(("(%d) " % i) + TEXT, style.fontName, style.fontSize)
+            story.append(Paragraph(
+                copy.copy(text),
+                styles["Normal"],
+                debug = True))
         doc.build(story)
 
     test()
     os.system("start test.pdf")
+
+    # createText(TEXT, styles["Normal"].fontName, styles["Normal"].fontSize)
