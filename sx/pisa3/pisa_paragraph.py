@@ -30,6 +30,8 @@ class Fragment(Box):
     height:     Height of string
     """
 
+    # def __init__(self,
+
     def calc(self):
         """
         XXX Cache stringWith if not accelerated?!
@@ -62,7 +64,7 @@ class Line(list):
 
         # Calculate dimensions
         self.width = width
-        self.height = max(frag["fontSize"] for frag in self)
+        self.height = self.lineHeight = max(frag["fontSize"] * 1.5 for frag in self)
 
         # Apply alignment
         if alignment != TA_LEFT:
@@ -78,6 +80,12 @@ class Line(list):
                     # and not isLast and not self.isLast:
                     delta = emptySpace / (len(self) - 1)
                     frag["pos"] += j * delta
+
+        # Apply line height
+        self.fontSize = max(frag["fontSize"] for frag in self)
+        y = (self.lineHeight - self.fontSize) # / 2
+        for frag in self:
+            frag["y"] = y
 
         return self.height
 
@@ -101,7 +109,6 @@ class Text(list):
         self.height = 0
         self.maxWidth = 0
         self.maxHeight = 0
-        self.minHeight = 0
         list.__init__(self, data)
 
     def calc(self):
@@ -130,7 +137,9 @@ class Text(list):
         Split text into lines and calculate X positions. If we need more
         space in height than available we return the rest of the text
         """
-        self.maxWidth = maxWidth
+        self.lines = []
+        self.height = 0
+        self.maxWidth = self.width = maxWidth
         self.maxHeight = maxHeight
         self.alignment = alignment
         x = 0
@@ -181,6 +190,7 @@ class Paragraph(Flowable):
     def __init__(self, text, style, debug=False, **kwDict):
 
         Flowable.__init__(self)
+        # self._showBoundary = True
 
         self.text = text
         self.text.calc()
@@ -217,12 +227,12 @@ class Paragraph(Flowable):
         width = availWidth - style.leftIndent - style.rightIndent
         self.splitIndex = self.text.splitIntoLines(width, availHeight, style.alignment)
 
-        neededWidth, neededHeight = availWidth, self.text.height
+        self.width, self.height = availWidth, self.text.height
 
         if self.debug:
-            print "*** wrap (%f, %f) needed, splitIndex %r" % (neededWidth, neededHeight, self.splitIndex)
+            print "*** wrap (%f, %f) needed, splitIndex %r" % (self.width, self.height, self.splitIndex)
 
-        return neededWidth, neededHeight
+        return self.width, self.height
 
     #def visitFirstParagraph(self, para):
     #    return para
@@ -277,22 +287,22 @@ class Paragraph(Flowable):
             canvas.setLineWidth(bw)
             canvas.setFillColor(bg)
             canvas.rect(
+                style.leftIndent,
                 0,
-                0,
-                self.text.width,
-                -self.text.height,
+                self.width,
+                self.height,
                 fill=1,
                 stroke=1)
 
         y = 0
-        dy = self.text.height
+        dy = self.height
         for line in self.text.lines:
+            y += line.height
             for frag in line:
                 if not isinstance(frag, Space):
                     canvas.setFont(frag["fontName"], frag["fontSize"])
                     canvas.setFillColor(style.textColor)
-                    canvas.drawString(frag["x"], dy - y, frag["text"])
-            y += line.height
+                    canvas.drawString(frag["x"], dy - y + frag["y"], frag["text"])
 
         canvas.restoreState()
 
@@ -342,7 +352,35 @@ if __name__=="__main__":
         story = []
 
         style = styles["Normal"]
-        text = createText(TEXT, style.fontName, style.fontSize)
+
+        text = Text([
+            Fragment(
+                text = "Normal",
+                fontName = style.fontName,
+                fontSize = style.fontSize),
+            Space(
+                fontName = style.fontName,
+                fontSize = style.fontSize),
+            Fragment(
+                text = "Größer",
+                fontName = style.fontName,
+                fontSize = style.fontSize * 1.5),
+            Space(
+                fontName = style.fontName,
+                fontSize = style.fontSize),
+            Fragment(
+                text = "Bold",
+                fontName = "Times-Bold",
+                fontSize = style.fontSize),
+            Space(
+                fontName = style.fontName,
+                fontSize = style.fontSize),
+            ])
+
+        story.append(Paragraph(
+            copy.copy(text),
+            styles["Normal"],
+            debug = True))
 
         for i in range(10):
             text = createText(("(%d) " % i) + TEXT, style.fontName, style.fontSize)
