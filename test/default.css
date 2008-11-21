@@ -63,10 +63,8 @@ h4,
 h5,
 h6 {
     font-weight:bold;
-    -pdf-keep-with-next: true;
     -pdf-outline: true;    
     -pdf-outline-open: false;
-    -keep-with-next: true;
 }
 
 h1 {
@@ -107,7 +105,6 @@ h5,
 h6,
 p,
 pre,
-img,
 hr {
     margin:1em 0;
 }
@@ -129,7 +126,6 @@ h5,
 h6,
 hr,
 isindex,
-img,
 menu,
 noframes,
 noscript,
@@ -148,11 +144,21 @@ pdftoc {
     display: block;
 }
 
+table {
+     -pdf-keep-in-frame-mode: shrink;
+}
+
 tr,
 th,
 td {
-    vertical-align: top;
+
+    vertical-align: middle;
     width: auto;
+}
+
+th {
+    text-align: center;
+    font-weight: bold;
 }
 
 center {
