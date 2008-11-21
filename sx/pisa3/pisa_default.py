@@ -185,7 +185,7 @@ TAGS = {
         "href":                (STRING, MUST),
         "rel":                 (STRING, ""),
         "type":                (STRING, ""),
-        "media":               (STRING, "screen"),
+        "media":               (STRING, "all"),
         "charset":             (STRING, "latin1"), # XXX Must be something else...
         }),
 

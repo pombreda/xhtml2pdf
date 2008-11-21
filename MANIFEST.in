@@ -16,7 +16,6 @@ exclude lib/*
 exclude test/font/*
 include test/font/README.txt
 exclude *.bat
-exclude *.txt
 exclude check*
 exclude *.jar
 exclude tests/*

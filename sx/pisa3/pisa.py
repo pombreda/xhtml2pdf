@@ -391,48 +391,42 @@ def command():
         if not quiet:
             print "Converting %s to %s..." % (src, dest)          
     
-        pdf = pisaDocument(
-            fsrc,
-            fdest,
-            debug = debug,
-            path = wpath,
-            errout = sys.stdout,
-            #multivalent_path = multivalent_path,
-            #booklet = booklet,
-            tempdir = tempdir,
-            format = format,
-            link_callback = lc,
-            default_css = css,
-            xhtml = xhtml,
-            encoding = encoding,
-            xml_output = xml_output,
-            )
-    
-        if xml_output:
-            print xml_output.getvalue()
-    
-        if fdestclose:
-            fdest.close()
-    
-        errors += pdf.err
-    
-        if not quiet:
-    
-            #if pdf.log and (pdf.err or (pdf.warn and warn)):
-            #    for mode, line, msg, code in pdf.log:
-            #        print "%s in line %d: %s" % (mode, line, msg)
-        
-            if pdf.err:
-                print "*** %d ERRORS OCCURED" % pdf.err
-                    
-        if (not pdf.err) and startviewer:
-            if not quiet:
-                print "Open viewer for file %s" % dest
-            startViewer(dest)
-    
-    if errors:
-        sys.exit(1)
+        try:
+            pdf = pisaDocument(
+                fsrc,
+                fdest,
+                debug = debug,
+                path = wpath,
+                errout = sys.stdout,
+                #multivalent_path = multivalent_path,
+                #booklet = booklet,
+                tempdir = tempdir,
+                format = format,
+                link_callback = lc,
+                default_css = css,
+                xhtml = xhtml,
+                encoding = encoding,
+                xml_output = xml_output,
+                )
 
+            if xml_output:
+                print xml_output.getvalue()
+        
+            if fdestclose:
+                fdest.close()
+                        
+            if (not errors) and startviewer:
+                if not quiet:
+                    print "Open viewer for file %s" % dest
+                startViewer(dest)
+
+        except:
+            
+            if not quiet: 
+                print "*** ERRORS OCCURED" 
+    
+            sys.exit(1)
+    
 def startViewer(filename):
     " Helper for opening a PDF file"
     try:
