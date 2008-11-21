@@ -605,7 +605,7 @@ class pisaContext:
         #cssAttrs = copy.deepcopy(self.node.cssAttrs)
         #frag = copy.deepcopy(self.frag)
         styles = [] 
-        for i in range(0, 5):
+        for i in range(0, 20):
             self.node.attributes["class"] = "pdftoclevel%d" % i    
             #self.node.cssAttrs = copy.deepcopy(cssAttrs)  
             #self.frag = copy.deepcopy(frag)  

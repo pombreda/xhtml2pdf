@@ -26,9 +26,9 @@ setup(
     author_email   = "dirk.holtwick@gmail.com",
     url            = "http://www.htmltopdf.org/",
     download_url   = "http://www.htmltopdf.org/download.html",
-    keywords       = "HTML, CSS, PDF",
+    keywords       = "PDF, HTML, XHTML, XML, CSS",
 
-    requires       = ["html5lib"], #, "reportlab"],
+    requires       = ["html5lib", "pypdf", "pil"], #, "reportlab"],
 
     include_package_data = False,
 

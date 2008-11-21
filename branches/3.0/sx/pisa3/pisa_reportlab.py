@@ -35,6 +35,8 @@ import cgi
 import logging
 log = logging.getLogger("ho.pisa")
 
+MAX_IMAGE_RATIO = 0.95
+ 
 class PmlMaxHeightMixIn:
 
     def maxHeight(self, availHeight):
@@ -361,7 +363,7 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
         # print "image wrap", id(self), availWidth, availHeight, self.drawWidth, self.drawHeight
         width = min(self.drawWidth, availWidth)
         wfactor = float(width) / self.drawWidth
-        height = min(self.drawHeight, availHeight * 0.99)
+        height = min(self.drawHeight, availHeight * MAX_IMAGE_RATIO)
         hfactor = float(height) / self.drawHeight
         factor = min(wfactor, hfactor)
         self.dWidth = self.drawWidth * factor
@@ -414,7 +416,7 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
                 # print "before", img.width, img.height
                 width = min(img.width, availWidth)
                 wfactor = float(width) / img.width
-                height = min(img.height, availHeight * 0.99)  # XXX 99% because 100% do not work...
+                height = min(img.height, availHeight * MAX_IMAGE_RATIO)  # XXX 99% because 100% do not work...
                 hfactor = float(height) / img.height
                 factor = min(wfactor, hfactor)
                 img.height = img.height * factor

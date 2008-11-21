@@ -85,7 +85,7 @@ def pisaDocument(
     xhtml = False,
     encoding = None,
     xml_output = None,
-    raise_exception = False,
+    raise_exception = True,
     **kw):
     
     try:
@@ -179,7 +179,10 @@ def pisaDocument(
                         output.write(out)
                         # data = sout.getvalue()
                     except Exception:
-                        log.exception(c.error("pyPDF error"))                    
+                        log.exception(c.error("pyPDF error"))   
+                        if raise_exception:
+                            raise
+                 
                     
                     # Found a background? So leave loop after first occurence
                     break
@@ -200,6 +203,8 @@ def pisaDocument(
         # log.exception(c.error("Document error"))        
         log.exception("Document error")
         c.err += 1
+        if raise_exception:
+            raise
 
     if raise_exception and c.err:
         raise Exception("Errors occured, please see log files for more informations") 
