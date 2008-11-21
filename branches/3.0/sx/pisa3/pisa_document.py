@@ -85,6 +85,7 @@ def pisaDocument(
     xhtml = False,
     encoding = None,
     xml_output = None,
+    raise_exception = False,
     **kw):
     
     try:
@@ -199,5 +200,8 @@ def pisaDocument(
         # log.exception(c.error("Document error"))        
         log.exception("Document error")
         c.err += 1
+
+    if raise_exception and c.err:
+        raise Exception("Errors occured, please see log files for more informations") 
 
     return c

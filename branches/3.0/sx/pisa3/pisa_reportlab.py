@@ -397,13 +397,19 @@ class PmlParagraphAndImage(ParagraphAndImage, PmlMaxHeightMixIn):
         if not hasattr(self, "wI"):
             self.wI, self.hI = self.I.wrap(availWidth, availHeight) #drawWidth, self.I.drawHeight        
         return ParagraphAndImage.split(self, availWidth, availHeight)
-    
+
+import reportlab.platypus.paragraph
+#class PmlParagraph(reportlab.platypus.paragraph.Paragraph):   
+#    pass
+ 
 class PmlParagraph(Paragraph, PmlMaxHeightMixIn):  
 
     def _calcImageMaxSizes(self, availWidth, availHeight):
+        self.hasImages = False
         availHeight = self.getMaxHeight()
         for frag in self.frags:
             if hasattr(frag, "cbDefn") and frag.cbDefn.kind == "img":
+                self.hasImages = True
                 img = frag.cbDefn
                 # print "before", img.width, img.height
                 width = min(img.width, availWidth)
@@ -421,25 +427,45 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
 
         style = self.style
          
-        deltaWidth = style.paddingLeft + style.paddingRight + style.borderLeftWidth + style.borderRightWidth
-        deltaHeight = style.paddingTop + style.paddingBottom + style.borderTopWidth + style.borderBottomWidth
+        self.deltaWidth = style.paddingLeft + style.paddingRight + style.borderLeftWidth + style.borderRightWidth
+        self.deltaHeight = style.paddingTop + style.paddingBottom + style.borderTopWidth + style.borderBottomWidth
                
         # reduce the available width & height by the padding so the wrapping
         # will use the correct size
-        availWidth -= deltaWidth
-        availHeight -= deltaHeight
+        availWidth -= self.deltaWidth
+        availHeight -= self.deltaHeight
         
         # Modify maxium image sizes
-        self._calcImageMaxSizes(availWidth, self.getMaxHeight() - deltaHeight)
+        self._calcImageMaxSizes(availWidth, self.getMaxHeight() - self.deltaHeight)
         
         # call the base class to do wrapping and calculate the size
         Paragraph.wrap(self, availWidth, availHeight)
 
+        #self.height = max(1, self.height)
+        #self.width = max(1, self.width)
+
         # increase the calculated size by the padding
-        self.width += deltaWidth
-        self.height += deltaHeight
+        self.width = self.width + self.deltaWidth
+        self.height = self.height + self.deltaHeight
 
         return (self.width, self.height)
+
+    def split(self, availWidth, availHeight):
+        
+        if len(self.frags)<=0: 
+            return []
+
+        #the split information is all inside self.blPara
+        if not hasattr(self,'blPara'):
+            self.wrap(availWidth,availHeight)
+
+        availWidth -= self.deltaWidth
+        availHeight -= self.deltaHeight
+
+        if self.hasImages:
+            return []
+
+        return Paragraph.split(self, availWidth, availHeight)
 
     def draw(self):
 
@@ -493,7 +519,7 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
         style = self.style
         bg = style.backColor
         leftIndent = style.leftIndent
-        bp = style.borderPadding
+        bp = 0 #style.borderPadding
 
         x = leftIndent - bp
         y = - bp

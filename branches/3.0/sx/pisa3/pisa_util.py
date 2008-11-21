@@ -213,11 +213,11 @@ def getColor(value, default=None):
         log.warn("Unknown color %r", original)
     return default
 
-def getBorderStyle(value):
+def getBorderStyle(value, default=None):
     # log.debug(value)
     if value and (str(value).lower() not in ("none", "hidden")):
         return value
-    return None
+    return default
 
 mm = cm / 10.0
 dpi96 = (1.0 / 96.0 * inch)
@@ -262,7 +262,7 @@ _relativeSizeTable = {
      
 MIN_FONT_SIZE = 1.0
  
-def getSize(value, relative=0, base=None):
+def getSize(value, relative=0, base=None, default=0.0):
     """
     Converts strings to standard sizes
     """
@@ -274,9 +274,8 @@ def getSize(value, relative=0, base=None):
             return value
         elif type(value) is types.IntType:
             return float(value)
-        elif type(value)==types.TupleType:
+        elif type(value) in (types.TupleType, types.ListType):
             value = "".join(value)
-
         value = str(value).strip().lower().replace(",", ".")
         if value[-2:]=='cm':
             return float(value[:-2].strip()) * cm
@@ -318,12 +317,12 @@ def getSize(value, relative=0, base=None):
             value = float(value)
         except:
             log.warn("getSize: Not a float %r", value)
-            value = 0
+            return default #value = 0
         return max(0, value)
     except Exception:
         log.warn("getSize %r %r", original, relative, exc_info=1)
         # print "ERROR getSize", repr(value), repr(value), e
-        return 0.0
+        return default
 
 def getCoords(x, y, w, h, pagesize):
     """
@@ -352,7 +351,7 @@ def getBox(box, pagesize):
     The last to values with negative values are interpreted as offsets form
     the right and lower border.
     """
-    box = box.split()
+    box = str(box).split()
     if len(box)!=4:
         raise Exception, "box not defined right way"
     x, y, w, h = map(getSize, box)
@@ -362,7 +361,7 @@ def getPos(position, pagesize):
     """
     Pair of coordinates
     """
-    position = string.split(position)
+    position = str(position).split()
     if len(position)!=2:
         raise Exception, "position not defined right way"
     x, y = map(getSize, position)
@@ -387,12 +386,12 @@ _alignments = {
     "justify": TA_JUSTIFY,
     }
 
-def getAlign(value):
-    return _alignments.get(value.lower(), TA_LEFT)
+def getAlign(value, default=TA_LEFT):
+    return _alignments.get(str(value).lower(), default)
 
-def getVAlign(value):
-    # Unused
-    return value.upper()
+#def getVAlign(value):
+#    # Unused
+#    return str(value).upper()
 
 import base64
 import re
