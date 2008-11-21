@@ -674,7 +674,9 @@ class pisaContext:
             # Update paragraph style by style of first fragment
             first = self.fragBlock          
             style = self.toParagraphStyle(first)
-            style.leading = maxLeading # + first.leadingSpace
+            style.leading = first.leading + first.leadingSpace
+
+            # style.leading = maxLeading # + first.leadingSpace
             #style.fontSize = fontSize
                 
             # borderRadius: None,    

@@ -384,7 +384,7 @@ class Text(list):
             #    pos = posSpace
 
             # Remove trailing white spaces
-            while line and line[-1].isSoft and not line[-1].isLF:
+            while line and line[-1].name in ("space", "br"):
                 # print "Pop",
                 line.pop()
 
@@ -610,10 +610,11 @@ if __name__ == "__main__":
     """.strip()
 
     def textGenerator(data, fn, fs):
+        i = 1
         for word in re.split('\s+', data):
             if word:
                 yield Word(
-                    text=word,
+                    text="[%d|%s]" % (i, word),
                     fontName=fn,
                     fontSize=fs
                     )
@@ -641,6 +642,7 @@ if __name__ == "__main__":
             borderBottomWidth=width,
             borderBottomStyle=style
             )
+
     def test():
         doc = SimpleDocTemplate("test.pdf")
         story = []

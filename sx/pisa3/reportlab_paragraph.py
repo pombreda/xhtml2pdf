@@ -17,7 +17,7 @@ from copy import deepcopy
 from reportlab.lib.abag import ABag
 import re
 
-PARAGRAPH_DEBUG = 1
+PARAGRAPH_DEBUG = 0
 
 #on UTF8 branch, split and strip must be unicode-safe!
 def split(text, delim=' '):

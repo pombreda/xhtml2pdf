@@ -361,7 +361,7 @@ def pisaPreLoop(node, c, collect=False):
         if name in ("style", "link"):
             attr = pisaGetAttributes(c, name, node.attributes)
             # print " ", attr
-            media = [x.strip() for x in attr.media.lower().split(",")]
+            media = [x.strip() for x in attr.media.lower().split(",") if x.strip()]
             
             if (attr.get("type", "").lower() in ("", "text/css") and (
                 not media or
