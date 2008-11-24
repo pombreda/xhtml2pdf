@@ -6,6 +6,11 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
+Version 3.0.29, 2008-xxx
+
+- FIX: Added margins to <blockquote> default CSS
+- FIX: Inline images in static frames did not work
+
 Version 3.0.28, 2008-11-21
 
 - NEW: Requires Reportlab 2.2 now!
@@ -20,14 +25,14 @@ Version 3.0.28, 2008-11-21
 - NEW: PDF Joiner to concatenate many PDF and pisa documents
 - NEW: Page backgrounds can now be images or PDF
 - NEW: Visual Unittests based on ImageMagick and TortoiseIDiff (for Windows)
-- NEW: Pisa raises execptions now if errors occure; with 
+- NEW: Pisa raises execptions now if errors occure; with
        pisaDocument(..., raise_execeptions=False) you can turn them off
 - UPD: Paragraphs now use the maximum leading to avoid overlapping text
 - UPD: Removed "Keep with next" from H1 to H6
-- FIX: Sizing of images is now handled better; should better work with PIL 
+- FIX: Sizing of images is now handled better; should better work with PIL
 - FIX: Border handling of paragraphs optimized and fixed
 - FIX: Images that are higher than the page frame are scaled down to fit
-- FIX: Paragraphs only containing &nbsp; are rendered 
+- FIX: Paragraphs only containing &nbsp; are rendered
 - FIX: Problem regarding the order of border style definitions
 - FIX: Single <br> between two blocks now creates a new line
 - FIX: Set table attribute "repeat" to "0"

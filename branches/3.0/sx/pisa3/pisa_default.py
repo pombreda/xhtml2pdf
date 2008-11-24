@@ -554,6 +554,11 @@ ol {
 pre {
     white-space: pre;
 }
+
+blockquote {
+    margin-left: 1.5em;
+    margin-right: 1.5em;
+}
 """
 
 DEFAULT_FONT = {
