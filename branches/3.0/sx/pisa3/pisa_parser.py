@@ -599,7 +599,7 @@ def pisaParser(src, c, default_css="", xhtml=False, encoding=None, xml_output=No
         encoding=encoding)
         
     if xml_output:        
-        xml_output.write(document.toprettyxml())    
+        xml_output.write(document.toprettyxml(encoding="utf8"))    
 
     if default_css:
         c.addCSS(default_css)

@@ -41,11 +41,10 @@ REPORTLAB22 = (reportlab.Version[0] == "2" and reportlab.Version[2] >= "2")
 import logging
 log = logging.getLogger("ho.pisa")
 
-
-#try:
-#    import cStringIO as StringIO
-#except:
-import StringIO
+try:
+    import cStringIO as StringIO
+except:
+    import StringIO
 
 try:
     import pyPdf
@@ -407,8 +406,7 @@ class pisaFileObject:
     XXX
     """
     
-    def __init__(self, uri, basepath=None):
-               
+    def __init__(self, uri, basepath=None):               
         self.basepath = basepath
         self.mimetype = None
         self.file = None        

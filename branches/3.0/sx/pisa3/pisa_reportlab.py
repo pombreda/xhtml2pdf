@@ -346,6 +346,7 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
         self.hAlign = 'CENTER'
         self._mask = mask
         self.data = data
+        # print "###", repr(data)
         self.mimetype = mimetype
         img = self.getImage()
         if img:

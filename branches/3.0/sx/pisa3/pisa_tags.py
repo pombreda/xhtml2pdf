@@ -314,7 +314,7 @@ class pisaTagIMG(pisaTag):
                     afrag.text = ""
                     afrag.cbDefn = ABag(
                         kind="img",
-                        image=img.getImage(), # XXX Inline?
+                        image=img, #.getImage(), # XXX Inline?
                         valign=valign,
                         fontSize=img.drawHeight,
                         width=img.drawWidth,
