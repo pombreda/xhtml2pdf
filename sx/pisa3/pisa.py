@@ -298,7 +298,7 @@ def command():
             return 
 
         if o in ("--xml-dump",):
-            xml_output = StringIO.StringIO()
+            xml_output = sys.stdout
         
         if o in ("-x", "--xml", "--xhtml"):
             xhtml = True        
@@ -410,7 +410,7 @@ def command():
                 )
 
             if xml_output:
-                print xml_output.getvalue()
+                xml_output.getvalue()
         
             if fdestclose:
                 fdest.close()
