@@ -17,7 +17,7 @@ import zipfile
 from distutils.core import setup
 import py2exe
 
-VERSION = "VERSION{3.0.28}VERSION"[8:-8]
+VERSION = "VERSION{3.0.29}VERSION"[8:-8]
 
 class Target:
     def __init__(self, **kw):
@@ -57,7 +57,7 @@ setup(
         },
 
     name           = "pisa",
-    version        = "VERSION{3.0.28}VERSION"[8:-8],
+    version        = "VERSION{3.0.29}VERSION"[8:-8],
     description    = "PDF generator using HTML and CSS",
     license        = "GNU General Public License (GPL)",
     author         = "Dirk Holtwick",

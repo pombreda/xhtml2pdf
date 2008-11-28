@@ -8,8 +8,13 @@ CHANGELOG
 
 Version 3.0.29, 2008-xxx
 
+- UPD: Better support for named colors
+- UPD: Modifed frame handling to better support relative values
+- FIX: Splitting paragraph threw errors some times; also had problems with
+       line breaks on the second page, fix for RL 2.2 paragraph was needed
 - FIX: Added margins to <blockquote> default CSS
 - FIX: Inline images in static frames did not work
+- FIX: Link anchors and non internal fonts caused an strange error
 
 Version 3.0.28, 2008-11-21
 
