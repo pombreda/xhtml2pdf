@@ -169,42 +169,45 @@ class pisaCSSBuilder(css.CSSBuilder):
             log.warn(self.c.warning("@fontface"), exc_info=1)
         return {}, {}   
     
-    def _pisaDimensions(self, data):
+    def _pisaDimensions(self, data, width, height):
         " Calculate dimensions of a box "
+        # print data, width, height
         box = data.get("-pdf-frame-box", [])
         # print 123, box
         if len(box) == 4:            
-            return [getSize(x) for x in box]
-        
-        top = getSize(data.get("top", 0))
-        left = getSize(data.get("left", 0))
-        bottom = - getSize(data.get("bottom", 0))
-        right = - getSize(data.get("right", 0))
-        width = getSize(data.get("width", 0))
-        height = getSize(data.get("height", 0))
-        if height:            
-            if (not top) and bottom:
-                top = bottom - height
+            return [getSize(x) for x in box]        
+        top = getSize(data.get("top", 0), height)
+        left = getSize(data.get("left", 0), width)
+        bottom = - getSize(data.get("bottom", 0), height)
+        right = - getSize(data.get("right", 0), width)
+        w = getSize(data.get("width", 0), width, default=None)
+        h = getSize(data.get("height", 0), height, default=None)
+        #print width, height, top, left, bottom, right, w, h        
+        if "height" in data:      
+            if "bottom" in data:      
+                top = bottom - h
             else:
-                bottom = top + height
-        if width:              
-            if (not left) and right:
-                left = right - width
+                bottom = top + h
+        if "width" in data:
+            if "right" in data:
+                # print right, w
+                left = right - w
             else:
-                right = left + width
-        top += getSize(data.get("margin-top", 0))
-        left += getSize(data.get("margin-left", 0))    
-        bottom -= getSize(data.get("margin-bottom", 0))
-        right -= getSize(data.get("margin-right", 0))
+                right = left + w                
+        top += getSize(data.get("margin-top", 0), height)
+        left += getSize(data.get("margin-left", 0), width)    
+        bottom -= getSize(data.get("margin-bottom", 0), height)
+        right -= getSize(data.get("margin-right", 0), width)
         # box = getCoords(left, top, width, height, self.c.pageSize)        
         # print "BOX", box
+        # print top, left, w, h
         return left, top, right, bottom
     
-    def _pisaAddFrame(self, name, data, first=False, border=None):
+    def _pisaAddFrame(self, name, data, first=False, border=None, size=(0,0)):
         c = self.c            
         if not name:
             name = "-pdf-frame-%d" % c.UID()                
-        x, y, w, h = self._pisaDimensions(data)
+        x, y, w, h = self._pisaDimensions(data, size[0], size[1])
         # print name, x, y, w, h 
         #if not (w and h):
         #    return None 
@@ -234,22 +237,7 @@ class pisaCSSBuilder(css.CSSBuilder):
                                               
                 if declarations:             
                     data = result[0].values()[0]
-                    pageBorder = data.get("-pdf-frame-border", None)
-                    for prop in [
-                        "margin-top",
-                        "margin-left",
-                        "margin-right",
-                        "margin-bottom",
-                        "top",
-                        "left",
-                        "right",
-                        "bottom",
-                        "width",
-                        "height"
-                        ]:
-                        if data.has_key(prop):                       
-                            c.frameList.append(self._pisaAddFrame(name, data, first=True, border=pageBorder))
-                            break                
+                    pageBorder = data.get("-pdf-frame-border", None)                    
                             
             if c.templateList.has_key(name):
                 log.warn(self.c.warning("template '%s' has already been defined", name))
@@ -279,7 +267,22 @@ class pisaCSSBuilder(css.CSSBuilder):
                     c.pageSize = sizeList
                 if isLandscape:
                     c.pageSize = landscape(c.pageSize)
-            
+
+            for prop in [
+                "margin-top",
+                "margin-left",
+                "margin-right",
+                "margin-bottom",
+                "top",
+                "left",
+                "right",
+                "bottom",
+                "width",
+                "height"
+                ]:
+                if data.has_key(prop):                       
+                    c.frameList.append(self._pisaAddFrame(name, data, first=True, border=pageBorder, size=c.pageSize))
+                    break                            
             # self._drawing = PmlPageDrawing(self._pagesize)
 
             #if not c.frameList:                
@@ -317,7 +320,7 @@ class pisaCSSBuilder(css.CSSBuilder):
             if not frameList:    
                 # print 999            
                 log.warn(c.warning("missing explicit frame definition for content or just static frames"))                
-                fname, static, border, x, y, w, h = self._pisaAddFrame(name, data, first=True, border=pageBorder)           
+                fname, static, border, x, y, w, h = self._pisaAddFrame(name, data, first=True, border=pageBorder, size=c.pageSize)           
                 x, y, w, h = getCoords(x, y, w, h, c.pageSize)
                 if w <= 0 or h <= 0:
                     log.warn(c.warning("Negative width or height of frame. Check @page definitions."))
@@ -367,7 +370,8 @@ class pisaCSSBuilder(css.CSSBuilder):
                     self.c.frameList.append(
                         self._pisaAddFrame(
                             name,
-                            data))
+                            data,
+                            size=self.c.pageSize))
             except Exception, e:
                 log.warn(self.c.warning("@frame"), exc_info=1)            
         return {}, {}
@@ -674,8 +678,11 @@ class pisaContext:
             # Update paragraph style by style of first fragment
             first = self.fragBlock          
             style = self.toParagraphStyle(first)
-            style.leading = first.leading + first.leadingSpace
-
+            # style.leading = first.leading + first.leadingSpace
+            if first.leadingSpace:
+                style.leading = maxLeading
+            else:
+                style.leading = getSize(first.leadingSource, first.fontSize) + first.leadingSpace    
             # style.leading = maxLeading # + first.leadingSpace
             #style.fontSize = fontSize
                 
@@ -931,6 +938,8 @@ class pisaContext:
         if names and src and src.local:
             
             src = str(src.local)
+            
+            log.debug("Load font %r", src)
             
             if type(names) is types.ListType:
                 fontAlias = names

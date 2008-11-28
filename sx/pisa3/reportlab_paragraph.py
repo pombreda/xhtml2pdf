@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 # Copyright ReportLab Europe Ltd. 2000-2008
 # see license.txt for license details
 # history http://www.reportlab.co.uk/cgi-bin/viewcvs.cgi/public/reportlab/trunk/reportlab/platypus/paragraph.py
@@ -20,9 +21,12 @@ import re
 PARAGRAPH_DEBUG = 0
 
 #on UTF8 branch, split and strip must be unicode-safe!
-def split(text, delim=' '):
+def split(text, delim=None):
     if type(text) is str: text = text.decode('utf8')
     if type(delim) is str: delim = delim.decode('utf8')
+    # This fixed &nbsp; issue and multiple linebraks on splitted page part
+    if delim is None and text == u'\xa0':
+        delim = ' '
     return [uword.encode('utf8') for uword in text.split(delim)]
 
 def strip(text):
@@ -355,6 +359,8 @@ def _getFragWords(frags):
             if hangingStrip:
                 hangingStrip = False
                 text = text.lstrip()
+            if type(text) is str: 
+                text = text.decode('utf8')             
             S = split(text)
             if S==[]: S = ['']
             if W!=[] and text[0] in whitespace:
