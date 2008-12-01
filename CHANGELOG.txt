@@ -6,15 +6,16 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
-Version 3.0.29, 2008-xxx
+Version 3.0.29, 2008-12-01
 
+- NEW: Warning if Reportlab 2.2 is not installed
 - UPD: Better support for named colors
 - UPD: Modifed frame handling to better support relative values
 - FIX: Splitting paragraph threw errors some times; also had problems with
        line breaks on the second page, fix for RL 2.2 paragraph was needed
 - FIX: Added margins to <blockquote> default CSS
 - FIX: Inline images in static frames did not work
-- FIX: Link anchors and non internal fonts caused an strange error
+- FIX: Link anchors and non internal fonts caused a strange error
 
 Version 3.0.28, 2008-11-21
 

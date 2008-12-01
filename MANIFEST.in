@@ -27,4 +27,4 @@ include README.txt
 include CHANGELOG.txt
 include LICENSE.txt
 recursive-include tests *.html *.jpg *.py *.css *.txt *.pdf
-exclude test/tmp/*
+exclude tests/tmp/*
