@@ -15,8 +15,8 @@ IMPORT ERROR!
 ****************************************************
 
 The following Python packages are required for PISA:
-- ReportlabToolkit>=2.1 <http://www.reportlab.org/>
-- HTML5lib>=0.11.1 <http://code.google.com/p/html5lib/>
+- Reportlab Toolkit >= 2.2 <http://www.reportlab.org/>
+- HTML5lib >= 0.11.1 <http://code.google.com/p/html5lib/>
 
 Optional packages:
 - pyPDF <http://pybrary.net/pyPdf/>
@@ -24,11 +24,17 @@ Optional packages:
 
 """.lstrip()
 
+import logging
+log = logging.getLogger(__name__)
+
 try:
     from pisa import *
+    if not REPORTLAB22:
+        raise ImportError, "Reportlab Toolkit Version 2.2 or higher needed"
 except ImportError, e:
     import sys
     sys.stderr.write(REQUIRED_INFO % e)
+    log.error(REQUIRED_INFO % e)
     raise
 
 __version__   = VERSION
