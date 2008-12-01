@@ -19,8 +19,11 @@ import tempfile
     
 from pisa_version import *
 from pisa_document import *
-from pisa_util import log
+from pisa_util import StringIO
 from pisa_default import DEFAULT_CSS
+
+import logging
+log = logging.getLogger("ho.pisa")
 
 __version__ = VERSION
 
@@ -186,10 +189,12 @@ def command():
             "format=",
             "css=",
             "css-dump",
+            "xml-dump",
             "xhtml",
             "xml",
             "html",
             "encoding=",
+            "system",
             ])
     except getopt.GetoptError:
         usage()
@@ -207,6 +212,7 @@ def command():
     css = None
     xhtml = None
     encoding = None
+    xml_output = None
     
     log_level = logging.ERROR
     log_format = LOG_FORMAT
@@ -251,6 +257,24 @@ def command():
             print COPYRIGHT
             sys.exit(0)
 
+        if o in ("--system",):
+            print COPYRIGHT           
+            print
+            print "SYSTEM INFORMATIONS"
+            print "--------------------------------------------"            
+            print "OS:                ", sys.platform
+            print "Python:            ", sys.version             
+            import html5lib
+            print "html5lib:          ", "?"
+            import reportlab
+            print "Reportlab:         ", reportlab.Version
+            #try:
+            #    import pyPdf
+            #    print "pyPdf:             ", pyPdf.__version__
+            #except:
+            #    print "pyPdf:             ","-"
+            sys.exit(0)
+            
 #        if o in ("--tempdir",):
 #            # Tempdir
 #            tempdir = a
@@ -273,6 +297,9 @@ def command():
             print DEFAULT_CSS
             return 
 
+        if o in ("--xml-dump",):
+            xml_output = sys.stdout
+        
         if o in ("-x", "--xml", "--xhtml"):
             xhtml = True        
         elif o in ("--html",):
@@ -322,7 +349,7 @@ def command():
             if src.startswith("http:"):
                 wpath = src
                 fsrc = urllib2.urlopen(src)
-                lc = pisaLinkLoader(src, quiet=quiet).getFileName                
+                # lc = pisaLinkLoader(src, quiet=quiet).getFileName                
                 src = "".join(urlparse.urlsplit(src)[1:3]).replace("/", "-")                                
             else:
                 fsrc = wpath = os.path.abspath(src)
@@ -364,44 +391,42 @@ def command():
         if not quiet:
             print "Converting %s to %s..." % (src, dest)          
     
-        pdf = pisaDocument(
-            fsrc,
-            fdest,
-            debug = debug,
-            path = wpath,
-            errout = sys.stdout,
-            #multivalent_path = multivalent_path,
-            #booklet = booklet,
-            tempdir = tempdir,
-            format = format,
-            link_callback = lc,
-            default_css = css,
-            xhtml = xhtml,
-            encoding = encoding,
-            )
-    
-        if fdestclose:
-            fdest.close()
-    
-        errors += pdf.err
-    
-        if not quiet:
-    
-            #if pdf.log and (pdf.err or (pdf.warn and warn)):
-            #    for mode, line, msg, code in pdf.log:
-            #        print "%s in line %d: %s" % (mode, line, msg)
-        
-            if pdf.err:
-                print "*** %d ERRORS OCCURED" % pdf.err
-                    
-        if (not pdf.err) and startviewer:
-            if not quiet:
-                print "Open viewer for file %s" % dest
-            startViewer(dest)
-    
-    if errors:
-        sys.exit(1)
+        try:
+            pdf = pisaDocument(
+                fsrc,
+                fdest,
+                debug = debug,
+                path = wpath,
+                errout = sys.stdout,
+                #multivalent_path = multivalent_path,
+                #booklet = booklet,
+                tempdir = tempdir,
+                format = format,
+                link_callback = lc,
+                default_css = css,
+                xhtml = xhtml,
+                encoding = encoding,
+                xml_output = xml_output,
+                )
 
+            if xml_output:
+                xml_output.getvalue()
+        
+            if fdestclose:
+                fdest.close()
+                        
+            if (not errors) and startviewer:
+                if not quiet:
+                    print "Open viewer for file %s" % dest
+                startViewer(dest)
+
+        except:
+            
+            if not quiet: 
+                print "*** ERRORS OCCURED" 
+    
+            sys.exit(1)
+    
 def startViewer(filename):
     " Helper for opening a PDF file"
     try:
@@ -422,6 +447,23 @@ def showLogging(debug=False):
             format=log_format)
     except:   
         logging.basicConfig()
+
+# Background informations in data URI here:
+# http://en.wikipedia.org/wiki/Data_URI_scheme
+
+def makeDataURI(data=None, mimetype=None, filename=None):
+    import base64
+    if not mimetype:
+        if filename:
+            import mimetypes            
+            mimetype = mimetypes.guess_type(filename)[0].split(";")[0]
+        else:
+            raise Exception("You need to provide a mimetype or a filename for makeDataURI")
+    return "data:" + mimetype + ";base64," + "".join(base64.encodestring(data).split())
+
+def makeDataURIFromFile(filename):
+    data = open(filename, "rb").read()
+    return makeDataURI(data, filename=filename)
 
 if __name__=="__main__":
     command()

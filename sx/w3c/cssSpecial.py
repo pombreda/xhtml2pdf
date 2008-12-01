@@ -15,7 +15,6 @@ Optimized for use with PISA
 
 import types
 import logging
-
 log = logging.getLogger("ho.css")
 
 def toList(value):
@@ -56,18 +55,18 @@ _weightTable = {
     #wx.BOLD: 700,
     }
 
-_absSizeTable = {
-    "xx-small" : 3./5.,
-    "x-small": 3./4.,
-    "small": 8./9.,
-    "medium": 1./1.,
-    "large": 6./5.,
-    "x-large": 3./2.,
-    "xx-large": 2./1.,
-    "xxx-large": 3./1.,
-    "larger": 1.25,      # XXX Not totaly CSS conform:
-    "smaller": 0.75,     # http://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
-    }
+#_absSizeTable = {
+#    "xx-small" : 3./5.,
+#    "x-small": 3./4.,
+#    "small": 8./9.,
+#    "medium": 1./1.,
+#    "large": 6./5.,
+#    "x-large": 3./2.,
+#    "xx-large": 2./1.,
+#    "xxx-large": 3./1.,
+#    "larger": 1.25,      # XXX Not totaly CSS conform:
+#    "smaller": 0.75,     # http://www.w3.org/TR/CSS21/fonts.html#propdef-font-size
+#    }
 
 _borderStyleTable = {
     "none": 0,
@@ -130,27 +129,34 @@ def isSize(value):
     return value and ((type(value) is types.TupleType) or value=="0")
         
 def splitBorder(parts):
+    """
+    The order of the elements seems to be of no importance:
+    
+    http://www.w3.org/TR/CSS21/box.html#border-shorthand-properties
+    """
+    
     width = style = color = None
     copy_parts = parts[:]
-    part = getNextPart(parts)
+    # part = getNextPart(parts)
 
-    # Width        
-    if isSize(part):
-        width = part
-        part = getNextPart(parts)
+    if len(parts)>3:
+        log.warn("To many elements for border style %r", parts)
+
+    for part in parts:
+        # Width        
+        if isSize(part):
+            width = part
+            # part = getNextPart(parts)
+        
+        # Style
+        elif _borderStyleTable.has_key(part.lower()):
+            style = part
+            # part = getNextPart(parts)
     
-    # Style
-    if part and _borderStyleTable.has_key(part.lower()):
-        style = part
-        part = getNextPart(parts)
-
-    # Color
-    if part:
-        color = part
-
-    if len(parts)>1:
-        log.warn("Border not split up correctly, rest: %r", parts)
-
+        # Color
+        else:
+            color = part
+    
     # log.debug("Border styles: %r -> %r ", copy_parts, (width, style, color))
 
     return (width, style, color)
@@ -166,6 +172,7 @@ def parseSpecialRules(declarations, debug=0):
                 log.debug("CSS special  IN: %r", d)
 
             name, parts, last = d
+            oparts = parts
             parts = toList(parts)
 
             # FONT
@@ -199,15 +206,27 @@ def parseSpecialRules(declarations, debug=0):
             # BACKGROUND
             elif name == "background":
                 # [<'background-color'> || <'background-image'> || <'background-repeat'> || <'background-attachment'> || <'background-position'>] | inherit
-                part = getNextPart(parts)
-                # Color
-                if part and (not part.startswith("url")):
-                    dd.append(("background-color", part, last))
-                    part = getNextPart(parts)
-                # Background
+                
+                # XXX We do not receive url() and parts list, so we go for a dirty work arround
+                part = getNextPart(parts) or oparts
                 if part:
-                    dd.append(("background-url", part, last))                   
-                # XXX Incomplete! Error in url()!               
+                    
+                    if ("." in part) or ("data:" in part):
+                        dd.append(("background-image", part, last))       
+                    else:
+                        dd.append(("background-color", part, last))
+                        
+                if 0:
+                    part = getNextPart(parts) or oparts
+                    print "~", part, parts, oparts, declarations
+                    # Color
+                    if part and (not part.startswith("url")):
+                        dd.append(("background-color", part, last))
+                        part = getNextPart(parts)
+                    # Background
+                    if part:
+                        dd.append(("background-image", part, last))                   
+                    # XXX Incomplete! Error in url()!               
 
             # MARGIN
             elif name == "margin":
@@ -347,6 +366,7 @@ def parseSpecialRules(declarations, debug=0):
             elif name in ("border-top", "border-bottom", "border-left", "border-right"):
                 direction = name[7:]
                 width, style, color = splitBorder(parts)
+                # print direction, width
                 if width is not None:                    
                     dd.append(("border-" + direction + "-width", width, last))
                 if style is not None:

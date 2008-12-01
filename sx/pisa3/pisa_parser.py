@@ -28,6 +28,9 @@ from pisa_tables import *
 import sx.w3c.css as css
 import sx.w3c.cssDOMElementInterface as cssDOMElementInterface
 
+import logging
+log = logging.getLogger("ho.pisa")
+
 rxhttpstrip = re.compile("http://[^/]+(.*)", re.M|re.I)
 
 class AttrContainer(dict):
@@ -169,6 +172,8 @@ attrNames = '''
     -pdf-outline
     -pdf-outline-level
     -pdf-outline-open
+    -pdf-line-spacing
+    -pdf-keep-in-frame-mode    
     '''.strip().split()
  
 def getCSSAttr(self, cssCascade, attrName, default=NotImplemented):
@@ -228,13 +233,16 @@ def CSS2Frag(c, kw, isBlock):
         c.frag.fontName = c.getFontName(c.cssAttr["font-family"])    
     if c.cssAttr.has_key("font-size"):
         # XXX inherit
-        c.frag.fontSize = getSize("".join(c.cssAttr["font-size"]), c.frag.fontSize)    
+        c.frag.fontSize = max(getSize("".join(c.cssAttr["font-size"]), c.frag.fontSize, c.baseFontSize), 1.0)    
     if c.cssAttr.has_key("line-height"):
         leading = "".join(c.cssAttr["line-height"])
         c.frag.leading = getSize(leading, c.frag.fontSize)
         c.frag.leadingSource = leading
     else:
         c.frag.leading = getSize(c.frag.leadingSource, c.frag.fontSize)
+    if c.cssAttr.has_key("-pdf-line-spacing"):         
+        c.frag.leadingSpace = getSize("".join(c.cssAttr["-pdf-line-spacing"]))    
+        # print "line-spacing", c.cssAttr["-pdf-line-spacing"], c.frag.leading                            
     if c.cssAttr.has_key("font-weight"):
         value = c.cssAttr["font-weight"].lower()
         if value in ("bold", "bolder", "500", "600", "700", "800", "900"):
@@ -353,10 +361,11 @@ def pisaPreLoop(node, c, collect=False):
         if name in ("style", "link"):
             attr = pisaGetAttributes(c, name, node.attributes)
             # print " ", attr
-            media = [x.strip() for x in attr.media.lower().split(",")]
+            media = [x.strip() for x in attr.media.lower().split(",") if x.strip()]
+            # print repr(media)
             
             if (attr.get("type", "").lower() in ("", "text/css") and (
-                not media or
+                not media or                
                 "all" in media or
                 "print" in media or
                 "pdf" in media)):  
@@ -483,8 +492,17 @@ def pisaLoop(node, c, path=[], **kw):
         if c.cssAttr.has_key("-pdf-outline-level"):
             c.frag.outlineLevel = int(c.cssAttr["-pdf-outline-level"])
         if c.cssAttr.has_key("-pdf-outline-open"):
-            c.frag.outlineOpen = getBool(c.cssAttr["-pdf-outline-open"])            
-                          
+            c.frag.outlineOpen = getBool(c.cssAttr["-pdf-outline-open"])
+        #if c.cssAttr.has_key("-pdf-keep-in-frame-max-width"):
+        #    c.frag.keepInFrameMaxWidth = getSize("".join(c.cssAttr["-pdf-keep-in-frame-max-width"]))
+        #if c.cssAttr.has_key("-pdf-keep-in-frame-max-height"):
+        #    c.frag.keepInFrameMaxHeight = getSize("".join(c.cssAttr["-pdf-keep-in-frame-max-height"]))
+        if c.cssAttr.has_key("-pdf-keep-in-frame-mode"):
+            value = str(c.cssAttr["-pdf-keep-in-frame-mode"]).strip().lower()
+            if value not in ("shrink","error", "overflow", "shrink", "truncate"):
+                value = None
+            c.frag.keepInFrameMode = value
+                
         # BEGIN tag
         klass = globals().get("pisaTag%s" % node.tagName.replace(":", "").upper(), None)
         obj = None      
@@ -545,7 +563,7 @@ def pisaLoop(node, c, path=[], **kw):
         for node in node.childNodes:
             pisaLoop(node, c, path, **kw)
 
-def pisaParser(src, c, default_css="", xhtml=False, encoding=None):
+def pisaParser(src, c, default_css="", xhtml=False, encoding=None, xml_output=None):
     """    
     - Parse HTML and get miniDOM
     - Extract CSS informations, add default CSS, parse CSS
@@ -575,11 +593,13 @@ def pisaParser(src, c, default_css="", xhtml=False, encoding=None):
         else:
              if inputstream.codecName(encoding) is None:
                  log.error("%r is not a valid encoding", encoding)
-            
+    
     document = parser.parse(
         src, 
         encoding=encoding)
-    # print document.toprettyxml()    
+        
+    if xml_output:        
+        xml_output.write(document.toprettyxml(encoding="utf8"))    
 
     if default_css:
         c.addCSS(default_css)

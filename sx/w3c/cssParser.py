@@ -829,6 +829,8 @@ class CSSParser(object):
         nsPrefix, src = self._getMatchResult(self.re_namespace_selector, src)
         attrName, src = self._getIdent(src)
 
+        src=src.lstrip()
+
         if attrName is None:
             raise self.ParseError('Expected a selector attribute name', src, ctxsrc)
         if nsPrefix is not None:

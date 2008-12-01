@@ -16,12 +16,12 @@
   <pdf:pagenumber />
 </div>
 <p class="title"><em>pisa</em>
-  <!--VERSION-->3.0.27<!--VERSION-->
+  <!--VERSION-->3.0.29<!--VERSION-->
 </p>
 <p class="subtitle">XHTML/HTML/CSS to PDF converter </p>
 <p class="copyright">(C)opyright by Dirk Holtwick, Germany <br />
   <a href="mailto:dirk.holtwick@gmail.com">dirk.holtwick@gmail.com</a><br />
-  <a href="http://www.htmltopdf.org">http://www.htmltopdf.org</a></p>
+  <a href="http://www.xhtml2pdf.com">http://www.xhtml2pdf.com</a></p>
 <pdf:nexttemplate name="regular"/>
 <h1 style="-pdf-outline: false;" class="pdf">Table of Contents</h1>
 <div class="pdf">
@@ -53,11 +53,11 @@
     The Python Imaging Library (PIL) is requred by ReportLab for handling of different image formats like GIF and PNG. </li>
 </ul>
 <h2>Windows precompiled version</h2>
-<p>For Windows a precompiled version exists that includes Python and all needed libraries. The package contains the file <code>pisa.exe</code>. Please add the directory where <code>pisa.exe</code> is placed to the Windows <code>PATH</code> variable.</p>
-<p>The Windows version is distributed via the Website &lt;<a href="http://www.htmltopdf.org">http://www.htmltopdf.org</a>&gt; in the &quot;Download&quot; section.</p>
+<p>For Windows a precompiled version exists that includes Python and all needed libraries. The package contains the file <code>xhtml2pdf.exe</code>. Please add the directory where <code>xhtml2pdf.exe</code> is placed to the Windows <code>PATH</code> variable.</p>
+<p>The Windows version is distributed via the Website &lt;<a href="http://www.xhtml2pdf.com">http://www.xhtml2pdf.com</a>&gt; in the &quot;Download&quot; section.</p>
 <h1>Command line</h1>
-<p>If you do not want to integrate <em>pisa</em> in your own application, you may use the command line tool that gives you a simple interface to the features of <em>pisa</em>. Just call <code>pisa -h</code> to get the following help informations:</p>
-<!--HELP--><pre>pisa 3.0.27 (Build 2008-10-04)
+<p>If you do not want to integrate <em>pisa</em> in your own application, you may use the command line tool that gives you a simple interface to the features of <em>pisa</em>. Just call <code>xhtml2pdf --help</code> to get the following help informations:</p>
+<!--HELP--><pre>pisa 3.0.29 (Build 2008-12-01)
 (C) 2002-2008 Dirk Holtwick &lt;dirk.holtwick@gmail.com&gt;, Germany
 Website http://www.htmltopdf.org
 
@@ -105,19 +105,19 @@ DEST
 </pre><!--HELP-->
 <h2>Converting HTML data </h2>
 <p>To generate a PDF from an HTML file called <code>test.html</code> call:</p>
-<pre>$ pisa -s test.html</pre>
+<pre>$ xhtml2pdf -s test.html</pre>
 <p>The resulting PDF will be called <code>test.pdf</code> (if this file is locked e.g. by the Adobe Reader it will be called <code>test-0.pdf</code> and so on). The <code>-s</code> option takes care that the PDF will be opened directly in the Operating Systems default viewer. </p>
 <p>To convert more than one file you may use wildcard patterns like <code>*</code> and <code>?</code>:</p>
-<pre>$ pisa &quot;test/test-*.html&quot;</pre>
+<pre>$ xhtml2pdf &quot;test/test-*.html&quot;</pre>
 <p>You may also directly access pages from the internet:</p>
-<pre>$ pisa -s http://www.htmltopdf.org/</pre>
+<pre>$ xhtml2pdf -s http://www.xhtml2pdf.com/</pre>
 <h2>Using special properties</h2>
 <p>If the conversion doesn't work as expected some more informations may be usefull. You may turn on the output of warnings adding <code>-w</code> or even the debugging output by using <code>-d</code>.</p>
 <p>Another reason could be, that the parsing failed. Consider trying the <code>-xhtml</code> and <code>-html</code> options. <em>pisa</em> uses the HTMLT5lib parser that offers two internal parsing modes: one for HTML and one for XHTML.</p>
 <p>When generating the HTML output <em>pisa</em> uses an internal default CSS definition (otherwise all tags would appear with no diffences). To get an impression of how this one looks like start <em>pisa</em> like this:</p>
-<pre>$ pisa --css-dump &gt; pisa-default.css</pre>
+<pre>$ xhtml2pdf --css-dump &gt; xhtml2pdf-default.css</pre>
 <p>The CSS will be dumped into the file <code>pisa-default.css</code>. You may modify this or even take a totaly self defined one and hand it in by using the <code>-css</code> option, e.g.: </p>
-<pre>$ pisa --css=pisa-default.css test.html  </pre>
+<pre>$ xhtml2pdf --css=xhtml2pdf-default.css test.html  </pre>
 <h1>Python module</h1>
 <p><strong>XXX TO BE COMPLETED </strong></p>
 <p>The integration into a Python program is quite easy. We will start with a simple &quot;Hello World&quot; example:</p>
@@ -341,6 +341,25 @@ pdftoc.pdftoclevel2 {
     margin-left: 2em;
     font-style: italic;
 } </pre>
+<h1>Tables</h1>
+<p>Tables are supported but may behave a little different to the way you might expect them to do. These restriction are due to the underlying table mechanism of ReportLab. </p>
+<ul>
+  <li>The main restriction is that table cells that are longer than one page lead to an error</li>
+  <li>Tables can not float left or right and can not be inlined </li>
+</ul>
+<h2>Long cells</h2>
+<p>Pisa is not able to split table cells that are larger than the available space. To work around it you may define what should happen in this case.  The <code>-pdf-keep-in-frame-mode</code> can be one of: &quot;error&quot;, &quot;overflow&quot;, &quot;shrink&quot;, &quot;truncate&quot;, where &quot;shrink&quot; is the default value. </p>
+<pre>table {<br />    -pdf-keep-in-frame-mode: shrink;<br />}</pre>
+<h2>Cell widths </h2>
+<p>The table renderer is not able  to adjust the width of the table automatically. Therefore you should explicitly set the width of the table and to the table rows or cells.</p>
+<h2>Headers</h2>
+<p>It is possible to repeat table rows if a page break occurs within a table. The number of repeated rows is passed in the attribute <code>repeat</code>. Example: </p>
+<pre>&lt;table repeat=&quot;1&quot;&gt;
+  &lt;tr&gt;&lt;th&gt;Column 1&lt;/th&gt;&lt;th&gt;...&lt;/th&gt;&lt;/tr&gt;
+  ...
+&lt;/table&gt;</pre>
+<h2>Borders</h2>
+<p>Borders are supported. Use corresponding CSS styles. </p>
 <h1>Images</h1>
 <h2>Size </h2>
 <p>By default JPG images are supported. If the Python Imaging Library (PIL) is installed the file types supported by it are available too. As mapping pixels to points is not trivial the images may appear bigger in the PDF as in the browser. To adjust this you may want to use the <code>zoom</code> style. Here is a small example:</p>
@@ -377,77 +396,7 @@ the page number will require e.g. &quot;00&quot;.<br />
 <h1>License</h1>
 <p><strong><em>pisa</em> is copyrighted by Dirk Holtwick, Germany.</strong><br />
   <em>pisa</em> is distributed by Dirk Holtwick, Schreiberstraﬂe 2, 47058 Duisburg, Germany.<br />
-  <em>pisa</em> is licensed under the Q Public License v1.0.</p>
+  <em>pisa</em> is licensed under the GNU Gerneral Public License version 2.</p>
 <p><strong>For commercial usage of <em>pisa</em> a developer license can be purchased!</strong></p>
-<pdf:nextpage />
-<h2>Q Public License v1.0</h2>
-<div class="license">
-  <p> Copyright &copy;&nbsp;1999 Trolltech AS, Norway. </p>
-  <p> Everyone is permitted to copy and distribute this license document. </p>
-  <p> The intent of this license is to establish freedom to share and change the
-    software regulated by this license under the open source model. </p>
-  <p> This license applies to any software containing a notice placed by the copyright
-    holder saying that it may be distributed under the terms of the Q Public License
-    version 1.0. Such software is herein referred to as the Software. This license
-    covers modification and distribution of the Software, use of third-party application
-    programs based on the Software, and development of free software which uses
-    the Software. </p>
-  <p><strong>Granted Rights</strong></p>
-  <p>1. You are granted the non-exclusive rights set forth in this license provided
-    you agree to and comply with any and all conditions in this license. Whole
-    or partial distribution of the Software, or software items that link with the
-    Software, in any form signifies acceptance of this license. </p>
-  <p> 2. You may copy and distribute the Software in unmodified form provided that
-    the entire package, including - but not restricted to - copyright, trademark
-    notices and disclaimers, as released by the initial developer of the Software,
-    is distributed. </p>
-  <p> 3. You may make modifications to the Software and distribute your modifications,
-    in a form that is separate from the Software, such as patches. The following
-    restrictions apply to modifications: </p>
-  <p> a. Modifications must not alter or remove any copyright notices in the Software. </p>
-  <p> b. When modifications to the Software are released under this license, a
-    non-exclusive royalty-free right is granted to the initial developer of the
-    Software to distribute your modification in future versions of the Software
-    provided such versions remain available under these terms in addition to any
-    other license(s) of the initial developer. </p>
-  <p> 4. You may distribute machine-executable forms of the Software or machine-executable
-    forms of modified versions of the Software, provided that you meet these restrictions: </p>
-  <p> a. You must include this license document in the distribution. </p>
-  <p> b. You must ensure that all recipients of the machine-executable forms are
-    also able to receive the complete machine-readable source code to the distributed
-    Software, including all modifications, without any charge beyond the costs
-    of data transfer, and place prominent notices in the distribution explaining
-    this. </p>
-  <p> c. You must ensure that all modifications included in the machine-executable
-    forms are available under the terms of this license. </p>
-  <p> 5. You may use the original or modified versions of the Software to compile,
-    link and run application programs legally developed by you or by others. </p>
-  <p> 6. You may develop application programs, reusable components and other software
-    items that link with the original or modified versions of the Software. These
-    items, when distributed, are subject to the following requirements: </p>
-  <p> a. You must ensure that all recipients of machine-executable forms of these
-    items are also able to receive and use the complete machine-readable source
-    code to the items without any charge beyond the costs of data transfer. </p>
-  <p> b. You must explicitly license all recipients of your items to use and re-distribute
-    original and modified versions of the items in both machine-executable and
-    source code forms. The recipients must be able to do so without any charges
-    whatsoever, and they must be able to re-distribute to anyone they choose. </p>
-  <p> c. If the items are not available to the general public, and the initial
-    developer of the Software requests a copy of the items, then you must supply
-    one. </p>
-  <p><strong>Limitations of Liability</strong></p>
-  <p> In no event shall the initial developers or copyright holders be liable for
-    any damages whatsoever, including - but not restricted to - lost revenue or
-    profits or other direct, indirect, special, incidental or consequential damages,
-    even if they have been advised of the possibility of such damages, except to
-    the extent invariable law, if any, provides otherwise. </p>
-  <p><strong>No Warranty</strong> </p>
-  <p> The Software and this license document are provided AS IS with NO WARRANTY
-    OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS
-    FOR A PARTICULAR PURPOSE. </p>
-  <p><strong>Choice of Law</strong></p>
-  <p> This license is governed by the Laws of Norway. Disputes shall be settled
-    by Oslo City Court. </p>
-</div>
 </body>
 </html>

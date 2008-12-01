@@ -11,6 +11,7 @@ __svnid__   = "$Id: pisa.py 103 2007-10-31 16:08:54Z holtwick $"
 
 import ho.pisa as pisa
 import StringIO
+
 import logging
 log = logging.getLogger("ho.pisa.wsgi")
 

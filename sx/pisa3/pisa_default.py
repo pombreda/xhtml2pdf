@@ -185,7 +185,7 @@ TAGS = {
         "href":                (STRING, MUST),
         "rel":                 (STRING, ""),
         "type":                (STRING, ""),
-        "media":               (STRING, "screen"),
+        "media":               (STRING, "all"),
         "charset":             (STRING, "latin1"), # XXX Must be something else...
         }),
 
@@ -203,9 +203,8 @@ TAGS = {
         "src":                  (FILE, MUST),
         "width":                SIZE,
         "height":               SIZE,
-        "align":                (["top", "middle", "bottom", "left", "right", 
-                                "texttop", "absmiddle", "absbottom", "baseline"], 
-                                "bottom"),
+        "align":                ["top", "middle", "bottom", "left", "right", 
+                                "texttop", "absmiddle", "absbottom", "baseline"],
         }),
 
     "table": (1, {
@@ -216,12 +215,12 @@ TAGS = {
         "bgcolor":              COLOR,
         "cellpadding":          (SIZE, "0"),
         "cellspacing":          (SIZE, "0"),
-        "repeat":               (INT, "1"),  # XXX Remove this! Set to 0 
+        "repeat":               (INT, "0"),  # XXX Remove this! Set to 0 
         "width":                STRING,
-        "keepmaxwidth":         SIZE,
-        "keepmaxheight":        SIZE,
-        "keepmergespace":       (INT, 1),
-        "keepmode":             (["error", "overflow", "shrink", "truncate"], "shrink"),
+        #"keepmaxwidth":         SIZE,
+        #"keepmaxheight":        SIZE,
+        #"keepmergespace":       (INT, 1),
+        #"keepmode":             (["error", "overflow", "shrink", "truncate"], "shrink"),
         }),
 
     "tr": (1, {
@@ -423,10 +422,8 @@ h4,
 h5,
 h6 {
     font-weight:bold;
-    -pdf-keep-with-next: true;
     -pdf-outline: true;    
     -pdf-outline-open: false;
-    -keep-with-next: true;
 }
 
 h1 {
@@ -467,7 +464,6 @@ h5,
 h6,
 p,
 pre,
-img,
 hr {
     margin:1em 0;
 }
@@ -489,7 +485,6 @@ h5,
 h6,
 hr,
 isindex,
-img,
 menu,
 noframes,
 noscript,
@@ -508,11 +503,21 @@ pdftoc {
     display: block;
 }
 
+table {
+     -pdf-keep-in-frame-mode: shrink;
+}
+
 tr,
 th,
 td {
-    vertical-align: top;
+
+    vertical-align: middle;
     width: auto;
+}
+
+th {
+    text-align: center;
+    font-weight: bold;
 }
 
 center {
@@ -548,6 +553,11 @@ ol {
 
 pre {
     white-space: pre;
+}
+
+blockquote {
+    margin-left: 1.5em;
+    margin-right: 1.5em;
 }
 """
 

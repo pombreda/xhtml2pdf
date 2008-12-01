@@ -18,6 +18,9 @@ import os
 import types
 import cgi
 
+import logging
+log = logging.getLogger("ho.pisa")
+
 def pisaErrorDocument(dest, c):
     out = StringIO.StringIO()
     out.write("<p style='background-color:red;'><strong>%d error(s) occured:</strong><p>" % c.err)
@@ -41,8 +44,9 @@ def pisaStory(
     xhtml = False,
     encoding = None,
     c = None,
+    xml_output = None,
     **kw):
-    
+
     # Prepare Context
     if not c:
         c = pisaContext(path, debug=debug)
@@ -51,28 +55,28 @@ def pisaStory(
     # Use a default set of CSS definitions to get an expected output
     if default_css is None:
         default_css = DEFAULT_CSS
-    
-    # Parse and fill the story    
-    pisaParser(src, c, default_css, xhtml, encoding)
+
+    # Parse and fill the story
+    pisaParser(src, c, default_css, xhtml, encoding, xml_output)
 
     #if 0:
     #    import reportlab.pdfbase.pdfmetrics as pm
     #    pm.dumpFontData()
-    
+
     # Avoid empty documents
     if not c.story:
         c.addPara(force=True)
-    
-    # Remove anchors if they do not exist (because of a bug in Reportlab)    
+
+    # Remove anchors if they do not exist (because of a bug in Reportlab)
     for frag, anchor in c.anchorFrag:
         if anchor not in c.anchorName:
             frag.link = None
-            
+
     return c
 
 def pisaDocument(
     src,
-    dest,
+    dest = None,
     path = None,
     link_callback = None,
     debug = 0,
@@ -80,11 +84,13 @@ def pisaDocument(
     default_css = None,
     xhtml = False,
     encoding = None,
+    xml_output = None,
+    raise_exception = True,
     **kw):
-
+    
     try:
 
-        log.debug("pisaDocument options:\n  src = %r\n  dest = %s\n  path = %r\n  link_callback = %r\n  xhtml = %r",
+        log.debug("pisaDocument options:\n  src = %r\n  dest = %r\n  path = %r\n  link_callback = %r\n  xhtml = %r",
             src,
             dest,
             path,
@@ -94,9 +100,13 @@ def pisaDocument(
         # Prepare simple context
         c = pisaContext(path, debug=debug)
         c.pathCallback = link_callback
-        
+
+        if dest is None:
+            dest = StringIO.StringIO()
+        c.dest = dest
+
         # Build story
-        c = pisaStory(src, path, link_callback, debug, default_css, xhtml, encoding, c=c)
+        c = pisaStory(src, path, link_callback, debug, default_css, xhtml, encoding, c=c, xml_output=xml_output)
 
         # Buffer PDF into memory
         out = StringIO.StringIO()
@@ -143,55 +153,60 @@ def pisaDocument(
             doc.build(c.story)
 
         # Add watermarks
-        if pyPdf:
-            # print c.pisaBackgroundList
-            for bgouter in c.pisaBackgroundList:
+        if pyPdf:                      
+            for bgouter in c.pisaBackgroundList:     
+                          
                 # If we have at least one background, then lets do it
                 if bgouter:
-                    istream = out
-                    # istream.seek(2,0) #StringIO.StringIO(data)
+                    
+                    istream = out                    
                     try:
                         output = pyPdf.PdfFileWriter()
                         input1 = pyPdf.PdfFileReader(istream)
                         ctr = 0
-                        for bg in c.pisaBackgroundList:
+                        for bg in c.pisaBackgroundList:                            
                             page = input1.getPage(ctr)
-                            if bg:
-                                if os.path.exists(bg):
-                                    # print "BACK", bg
-                                    bginput = pyPdf.PdfFileReader(open(bg, "rb"))
-                                    # page.mergePage(bginput.getPage(0))
-                                    pagebg = bginput.getPage(0)
-                                    pagebg.mergePage(page)
-                                    page = pagebg
-                                else:
-                                    log.warn(c.warning("Background PDF %s doesn't exist.", bg))
+                            if bg and not bg.notFound() and (bg.mimetype=="application/pdf"):
+                                bginput = pyPdf.PdfFileReader(bg.getFile())
+                                pagebg = bginput.getPage(0)
+                                pagebg.mergePage(page)
+                                page = pagebg
+                            else:
+                                log.warn(c.warning("Background PDF %s doesn't exist.", bg))
                             output.addPage(page)
                             ctr += 1
                         out = StringIO.StringIO()
                         output.write(out)
                         # data = sout.getvalue()
                     except Exception:
-                        log.exception(c.error("pyPDF error"))
-                    # istream.close()
-                # Found a background? So leave loop after first occurence
-                break
+                        log.exception(c.error("pyPDF error"))   
+                        if raise_exception:
+                            raise
+                 
+                    
+                    # Found a background? So leave loop after first occurence
+                    break
         else:
             log.warn(c.warning("pyPDF not installed!"))
 
         # Get the resulting PDF and write it to the file object
         # passed from the caller
         data = out.getvalue()
-        dest.write(data)
+        c.dest.write(data)
 
         # In web frameworks for debugging purposes maybe an output of
         # errors in a PDF is preferred
         if show_error_as_pdf and c and c.err:
-            return pisaErrorDocument(dest, c)
-
+            return pisaErrorDocument(c.dest, c)
+      
     except:
-        # log.exception(c.error("Document error"))
+        # log.exception(c.error("Document error"))        
         log.exception("Document error")
-        c.err += 1 
+        c.err += 1
+        if raise_exception:
+            raise
+
+    if raise_exception and c.err:
+        raise Exception("Errors occured, please see log files for more informations") 
 
     return c

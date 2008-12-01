@@ -6,11 +6,55 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
+Version 3.0.29, 2008-12-01
+
+- NEW: Warning if Reportlab 2.2 is not installed
+- UPD: Better support for named colors
+- UPD: Modifed frame handling to better support relative values
+- FIX: Splitting paragraph threw errors some times; also had problems with
+       line breaks on the second page, fix for RL 2.2 paragraph was needed
+- FIX: Added margins to <blockquote> default CSS
+- FIX: Inline images in static frames did not work
+- FIX: Link anchors and non internal fonts caused a strange error
+
+Version 3.0.28, 2008-11-21
+
+- NEW: Requires Reportlab 2.2 now!
+- NEW: Background colors for inline elements like <span>
+- NEW: Inline images and left and right aligned images implemented
+- NEW: Possibility to handle table cells that are to large via CSS option
+       -pdf-keep-in-frame-mode
+- NEW: Option "--system" for command line tool to dump system version infos
+- NEW: CSS attribute -pdf-line-spacing for fix space between lines
+- NEW: Creation and handling of data URI with base64 encoding (others to come)
+- NEW: New general file loader that is also able to load remote data and data URI
+- NEW: PDF Joiner to concatenate many PDF and pisa documents
+- NEW: Page backgrounds can now be images or PDF
+- NEW: Visual Unittests based on ImageMagick and TortoiseIDiff (for Windows)
+- NEW: Pisa raises execptions now if errors occure; with
+       pisaDocument(..., raise_execeptions=False) you can turn them off
+- UPD: Paragraphs now use the maximum leading to avoid overlapping text
+- UPD: Removed "Keep with next" from H1 to H6
+- FIX: Sizing of images is now handled better; should better work with PIL
+- FIX: Border handling of paragraphs optimized and fixed
+- FIX: Images that are higher than the page frame are scaled down to fit
+- FIX: Paragraphs only containing &nbsp; are rendered
+- FIX: Problem regarding the order of border style definitions
+- FIX: Single <br> between two blocks now creates a new line
+- FIX: Set table attribute "repeat" to "0"
+- FIX: Some <font> attributes did not work as expected
+- FIX: Font sizes reworked to behave like browser implmentations
+- FIX: Like in most HTML browser table cells now have "valign=middle" and
+       table headers have font weight bold
+- FIX: Little fix in CSS parsing
+- FIX: Default of <link media=""> was "screen", changed to "all"
+- FIX: Command line tools did not install with "easy_install"
+
 Version 3.0.27, 2008-10-04
 
 - INF: License changed from Qt to GPLv2
 - INF: Not yet completely combatible with Reportlab 2.2 (&nbsp; errors and borders)
-- NEW: Command line tool called "xhtml" ("pisa" still available but will 
+- NEW: Command line tool called "xhtml" ("pisa" still available but will
        be deprecatedwith pisa 3.1)
 - NEW: EGG for Python 2.6
 - NEW: Basic support for Data URI

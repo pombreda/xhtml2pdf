@@ -19,16 +19,16 @@ except ImportError:
 
 setup(
     name           = "pisa",
-    version        = "VERSION{3.0.27}VERSION"[8:-8],
+    version        = "VERSION{3.0.29}VERSION"[8:-8],
     description    = "PDF generator using HTML and CSS",
     license        = "GNU General Public License (GPL)",
     author         = "Dirk Holtwick",
     author_email   = "dirk.holtwick@gmail.com",
     url            = "http://www.htmltopdf.org/",
     download_url   = "http://www.htmltopdf.org/download.html",
-    keywords       = "HTML, CSS, PDF",
+    keywords       = "PDF, HTML, XHTML, XML, CSS",
 
-    requires       = ["html5lib", "reportlab"],
+    requires       = ["html5lib", "pypdf", "pil"], #, "reportlab"],
 
     include_package_data = False,
 
@@ -40,7 +40,7 @@ setup(
         'sx.w3c',
         ],
 
-    test_suite = "sx",
+    test_suite = "tests",
 
     entry_points = {
         'console_scripts': [
