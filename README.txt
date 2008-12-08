@@ -6,7 +6,7 @@ HELP
 REQUIREMENTS
 ============
 
-- Reportlab Toolkit 2.1+
+- Reportlab Toolkit 2.2+
   <http://www.reportlab.org/>
 
 - html5lib 0.11.1+

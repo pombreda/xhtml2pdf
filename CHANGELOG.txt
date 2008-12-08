@@ -6,6 +6,10 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
+Version 3.0.30, 2008-xxx
+
+- UPD: Better whitespace handling in RL Paragraph
+
 Version 3.0.29, 2008-12-01
 
 - NEW: Warning if Reportlab 2.2 is not installed

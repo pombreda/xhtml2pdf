@@ -401,10 +401,11 @@ class PmlParagraphAndImage(ParagraphAndImage, PmlMaxHeightMixIn):
             self.wI, self.hI = self.I.wrap(availWidth, availHeight) #drawWidth, self.I.drawHeight        
         return ParagraphAndImage.split(self, availWidth, availHeight)
 
-#import reportlab.platypus.paragraph
-#Paragraph = reportlab.platypus.paragraph.Paragraph
-#class PmlParagraph(reportlab.platypus.paragraph.Paragraph):   
-#    pass
+# if 1:
+#    import reportlab.platypus.paragraph
+#    Paragraph = reportlab.platypus.paragraph.Paragraph
+#    class PmlParagraph(reportlab.platypus.paragraph.Paragraph):   
+#        pass
  
 class PmlParagraph(Paragraph, PmlMaxHeightMixIn):  
 
@@ -467,8 +468,8 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
         availWidth -= self.deltaWidth
         availHeight -= self.deltaHeight
 
-        if self.hasImages:
-            return []
+        #if self.hasImages:
+        #    return []
 
         return Paragraph.split(self, availWidth, availHeight)
 

@@ -18,19 +18,54 @@ from copy import deepcopy
 from reportlab.lib.abag import ABag
 import re
 
-PARAGRAPH_DEBUG = 0
+PARAGRAPH_DEBUG = False
+LEADING_FACTOR = 1.0
 
-#on UTF8 branch, split and strip must be unicode-safe!
+_wsc_re_split=re.compile('[%s]+'% re.escape(''.join((
+    u'\u0009',    # HORIZONTAL TABULATION
+    u'\u000A',    # LINE FEED
+    u'\u000B',    # VERTICAL TABULATION
+    u'\u000C',    # FORM FEED
+    u'\u000D',    # CARRIAGE RETURN
+    u'\u001C',    # FILE SEPARATOR
+    u'\u001D',    # GROUP SEPARATOR
+    u'\u001E',    # RECORD SEPARATOR
+    u'\u001F',    # UNIT SEPARATOR
+    u'\u0020',    # SPACE
+    u'\u0085',    # NEXT LINE
+    #u'\u00A0', # NO-BREAK SPACE
+    u'\u1680',    # OGHAM SPACE MARK
+    u'\u2000',    # EN QUAD
+    u'\u2001',    # EM QUAD
+    u'\u2002',    # EN SPACE
+    u'\u2003',    # EM SPACE
+    u'\u2004',    # THREE-PER-EM SPACE
+    u'\u2005',    # FOUR-PER-EM SPACE
+    u'\u2006',    # SIX-PER-EM SPACE
+    u'\u2007',    # FIGURE SPACE
+    u'\u2008',    # PUNCTUATION SPACE
+    u'\u2009',    # THIN SPACE
+    u'\u200A',    # HAIR SPACE
+    u'\u200B',    # ZERO WIDTH SPACE
+    u'\u2028',    # LINE SEPARATOR
+    u'\u2029',    # PARAGRAPH SEPARATOR
+    u'\u202F',    # NARROW NO-BREAK SPACE
+    u'\u205F',    # MEDIUM MATHEMATICAL SPACE
+    u'\u3000',    # IDEOGRAPHIC SPACE
+    )))).split
+
 def split(text, delim=None):
-    if type(text) is str: text = text.decode('utf8')
-    if type(delim) is str: delim = delim.decode('utf8')
-    # This fixed &nbsp; issue and multiple linebraks on splitted page part
-    if delim is None and text == u'\xa0':
-        delim = ' '
-    return [uword.encode('utf8') for uword in text.split(delim)]
+    if type(text) is str: 
+        text = text.decode('utf8')
+    if type(delim) is str: 
+        delim = delim.decode('utf8')
+    elif delim is None and u'\xa0' in text:
+        return [uword.encode('utf8') for uword in _wsc_re_split(text)]
+    return [uword.encode('utf8') for uword in text.split(delim)] 
 
 def strip(text):
-    if type(text) is str: text = text.decode('utf8')
+    if type(text) is str: 
+        text = text.decode('utf8')
     return text.strip().encode('utf8')
 
 class ParaLines(ABag):
@@ -158,7 +193,7 @@ def _putFragLine(cur_x, tx, line):
             if abs(xcy-cur_y)>1e-8:
                 cur_y = xcy
                 tx.setTextOrigin(x0,cur_y)
-                xs.cur_y = cur_y
+                xs.cur_y = cur_y                
         tx._olb = cur_y - descent
         tx._oleading = leading
     ws = getattr(tx,'_wordSpace',0)
@@ -177,7 +212,7 @@ def _putFragLine(cur_x, tx, line):
                     txfs = xs.style.fontSize
                 iy0,iy1 = imgVRange(h,cbDefn.valign,txfs)
                 cur_x_s = cur_x + nSpaces*ws
-                # print "draw", id(f), id(cbDefn.image), cur_x_s,cur_y+iy0,w,h
+                # print "draw", id(f), id(cbDefn.image), repr(dal), cur_y, iy0, iy1, h
                 tx._canvas.drawImage(cbDefn.image.getImage(),cur_x_s,cur_y+iy0,w,h,mask='auto')
                 cur_x += w
                 cur_x_s += w
@@ -359,8 +394,8 @@ def _getFragWords(frags):
             if hangingStrip:
                 hangingStrip = False
                 text = text.lstrip()
-            if type(text) is str: 
-                text = text.decode('utf8')             
+            #if type(text) is str: 
+            #    text = text.decode('utf8')             
             S = split(text)
             if S==[]: S = ['']
             if W!=[] and text[0] in whitespace:
@@ -580,10 +615,10 @@ def _do_post_text(tx):
     autoLeading = xs.autoLeading
     f = xs.f
     if autoLeading=='max':
-        leading = max(leading, f.fontSize)
-        # leading = max(leading, 1.2*f.fontSize)
+        # leading = max(leading, f.fontSize)
+        leading = max(leading, LEADING_FACTOR*f.fontSize)
     elif autoLeading=='min':
-        leading = 1.2*f.fontSize
+        leading = LEADING_FACTOR*f.fontSize
     ff = 0.125*f.fontSize
     y0 = xs.cur_y
     y = y0 - ff
@@ -857,7 +892,18 @@ class Paragraph(Flowable):
         self.debug = PARAGRAPH_DEBUG  #turn this on to see a pretty one with all the margins etc.
 
     def wrap(self, availWidth, availHeight):
+
+        if self.debug:
+            print id(self), "wrap"
+            try:
+                print repr(self.getPlainText()[:80])
+            except:
+                print "???"
+                
         # work out widths array for breaking
+        if hasattr(self, "blPara"):
+            return self.width, self.height
+        
         self.width = availWidth
         style = self.style
         leftIndent = style.leftIndent
@@ -884,9 +930,9 @@ class Paragraph(Flowable):
                 raise ValueError('invalid autoLeading value %r' % autoLeading)
         else:
             if autoLeading=='max':
-                leading = max(leading,1.2*style.fontSize)
+                leading = max(leading,LEADING_FACTOR*style.fontSize)
             elif autoLeading=='min':
-                leading = 1.2*style.fontSize
+                leading = LEADING_FACTOR*style.fontSize
             height = len(blPara.lines) * leading
         self.height = height
         return self.width, height
@@ -911,10 +957,15 @@ class Paragraph(Flowable):
         return self.blPara.kind==0 and _split_blParaSimple or _split_blParaHard
 
     def split(self,availWidth, availHeight):
+        
+        if self.debug:
+            print  id(self), "split"         
+
         if len(self.frags)<=0: return []
 
         #the split information is all inside self.blPara
         if not hasattr(self,'blPara'):
+            # return []
             self.wrap(availWidth,availHeight)
         blPara = self.blPara
         style = self.style
@@ -924,7 +975,7 @@ class Paragraph(Flowable):
         if blPara.kind==1 and autoLeading not in ('','off'):
             s = height = 0
             if autoLeading=='max':
-                for i,l in enumerate(blPara.lines):
+                for i,l in enumerate(blPara.lines):                    
                     h = max(l.ascent-l.descent,leading)
                     n = height+h
                     if n>availHeight+1e-8:
@@ -942,10 +993,10 @@ class Paragraph(Flowable):
                 raise ValueError('invalid autoLeading value %r' % autoLeading)
         else:
             l = leading
-            if autoLeading=='max':
-                l = max(leading,1.2*style.fontSize)
+            if autoLeading=='max':                
+                l = max(leading,LEADING_FACTOR*style.fontSize)
             elif autoLeading=='min':
-                l = 1.2*style.fontSize
+                l = LEADING_FACTOR*style.fontSize
             s = int(availHeight/l)
             height = s*l
 
@@ -973,10 +1024,12 @@ class Paragraph(Flowable):
         P1._splitpara = 1
         P1.height = height
         P1.width = availWidth
+        P1.autoLeading = self.autoLeading
         if style.firstLineIndent != 0:
             style = deepcopy(style)
             style.firstLineIndent = 0
         P2=self.__class__(None,style,bulletText=None,frags=func(blPara,s,n))
+        P2.autoLeading = self.autoLeading
         return [P1,P2]
 
     def draw(self):
@@ -1013,6 +1066,9 @@ class Paragraph(Flowable):
         last item repeated until necessary. A 2-element list is useful when there is a
         different first line indent; a longer list could be created to facilitate custom wraps
         around irregular objects."""
+
+        if self.debug:
+            print id(self), "breakLines"
 
         if not isinstance(width,(tuple,list)): maxWidths = [width]
         else: maxWidths = width
@@ -1228,6 +1284,9 @@ class Paragraph(Flowable):
         """Initially, the dumbest possible wrapping algorithm.
         Cannot handle font variations."""
 
+        if self.debug:
+            print id(self), "breakLinesCJK"
+            
         if not isinstance(width,(list,tuple)): maxWidths = [width]
         else: maxWidths = width
         style = self.style
@@ -1277,6 +1336,9 @@ class Paragraph(Flowable):
         paragraphs without spaces e.g. Japanese; wrapping
         algorithm will go infinite."""
 
+        if self.debug:
+            print id(self), "drawPara", self.blPara.kind
+            
         #stash the key facts locally for speed
         canvas = self.canv
         style = self.style
@@ -1353,9 +1415,9 @@ class Paragraph(Flowable):
 
                 tx = self.beginText(cur_x, cur_y)
                 if autoLeading=='max':
-                    leading = max(leading,1.2*f.fontSize)
+                    leading = max(leading,LEADING_FACTOR*f.fontSize)
                 elif autoLeading=='min':
-                    leading = 1.2*f.fontSize
+                    leading = LEADING_FACTOR*f.fontSize
 
                 #now the font for the rest of the paragraph
                 tx.setFont(f.fontName, f.fontSize, leading)
