@@ -10,20 +10,13 @@ __date__ = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
 
 from pisa_tags import pisaTag
 from pisa_util import *
-from pisa_reportlab import PmlTable, TableStyle, KeepInFrame
+from pisa_reportlab import PmlTable, TableStyle, PmlKeepInFrame
 
 import copy
 import sys
 
 import logging
 log = logging.getLogger("ho.pisa")
-
-class PmlKeepInFrame(KeepInFrame):
-  
-    def wrap(self, availWidth, availHeight):
-        self.maxWidth = availWidth
-        self.maxHeight = availHeight - 0.1       
-        return KeepInFrame.wrap(self, availWidth, availHeight)
             
 def _width(value=None):
     if value is None:

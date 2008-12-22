@@ -8,7 +8,10 @@ CHANGELOG
 
 Version 3.0.30, 2008-xxx
 
+- NEW: Default CSS now hides content of <noscript>
 - UPD: Better whitespace handling in RL Paragraph
+- FIX: Fixed RL Paragraph.split to work with autoleading and images
+- FIX: Small bug fix for show_error_as_pdf
 
 Version 3.0.29, 2008-12-01
 

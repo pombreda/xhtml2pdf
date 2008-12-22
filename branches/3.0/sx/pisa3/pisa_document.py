@@ -33,7 +33,7 @@ def pisaErrorDocument(dest, c):
         if mode=="warning":
             out.write("<p>%s in line %d: %s</p>" % (mode, line, cgi.escape(msg)))
 
-    return pisaDocument(out.getvalue(), dest)
+    return pisaDocument(out.getvalue(), dest, raise_exception=False)
 
 def pisaStory(
     src,
@@ -87,6 +87,10 @@ def pisaDocument(
     xml_output = None,
     raise_exception = True,
     **kw):
+    
+    c = None    
+    if show_error_as_pdf:
+        raise_excpetion = False
     
     try:
 
@@ -189,16 +193,16 @@ def pisaDocument(
         else:
             log.warn(c.warning("pyPDF not installed!"))
 
+        # In web frameworks for debugging purposes maybe an output of
+        # errors in a PDF is preferred        
+        if show_error_as_pdf and c and c.err:
+            return pisaErrorDocument(c.dest, c)
+
         # Get the resulting PDF and write it to the file object
         # passed from the caller
         data = out.getvalue()
         c.dest.write(data)
-
-        # In web frameworks for debugging purposes maybe an output of
-        # errors in a PDF is preferred
-        if show_error_as_pdf and c and c.err:
-            return pisaErrorDocument(c.dest, c)
-      
+            
     except:
         # log.exception(c.error("Document error"))        
         log.exception("Document error")

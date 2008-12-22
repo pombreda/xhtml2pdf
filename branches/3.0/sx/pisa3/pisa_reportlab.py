@@ -39,7 +39,7 @@ MAX_IMAGE_RATIO = 0.95
  
 class PmlMaxHeightMixIn:
 
-    def maxHeight(self, availHeight):
+    def setMaxHeight(self, availHeight):
         self.availHeightValue = availHeight
         if availHeight < 70000:
             if hasattr(self, "canv"):
@@ -360,7 +360,7 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
 
     def wrap(self, availWidth, availHeight):
         " This can be called more than once! Do not overwrite important data like drawWidth "
-        availHeight = self.maxHeight(availHeight)
+        availHeight = self.setMaxHeight(availHeight)
         # print "image wrap", id(self), availWidth, availHeight, self.drawWidth, self.drawHeight
         width = min(self.drawWidth, availWidth)
         wfactor = float(width) / self.drawWidth
@@ -389,7 +389,7 @@ class PmlParagraphAndImage(ParagraphAndImage, PmlMaxHeightMixIn):
 
     def wrap(self, availWidth, availHeight):
         # print "# wrap", id(self), self.canv
-        # availHeight = self.maxHeight(availHeight)
+        # availHeight = self.setMaxHeight(availHeight)
         self.I.canv = self.canv
         result = ParagraphAndImage.wrap(self, availWidth, availHeight)
         del self.I.canv
@@ -428,7 +428,7 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
 
     def wrap(self, availWidth, availHeight):
 
-        self.maxHeight(availHeight)
+        self.setMaxHeight(availHeight)
 
         style = self.style
          
@@ -589,6 +589,13 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
 
         canvas.restoreState()
 
+class PmlKeepInFrame(KeepInFrame, PmlMaxHeightMixIn):
+  
+    def wrap(self, availWidth, availHeight):
+        self.maxWidth = availWidth
+        self.maxHeight = self.setMaxHeight(availHeight)       
+        return KeepInFrame.wrap(self, availWidth, availHeight)
+    
 class PmlTable(Table, PmlMaxHeightMixIn):
 
     def _normWidth(self, w, maxw):
@@ -661,7 +668,7 @@ class PmlTable(Table, PmlMaxHeightMixIn):
         if diff > 0:
             newColWidths[0] -= diff
 
-        self.maxHeight(availHeight)
+        self.setMaxHeight(availHeight)
 
         # print "New values:", totalWidth, newColWidths, sum(newColWidths)
 
