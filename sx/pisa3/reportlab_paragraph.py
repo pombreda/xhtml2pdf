@@ -80,13 +80,15 @@ class ParaLines(ABag):
     """
 
 class FragLine(ABag):
-    """class FragLine contains a styled line (ie a line with more than one style)
+    """
+    class FragLine contains a styled line (ie a line with more than one style)::
 
     extraSpace  unused space for justification only
     wordCount   1+spaces in line for justification purposes
     words       [ParaFrags] style text lumps to be concatenated together
     fontSize    maximum fontSize seen on the line; not used at present,
                 but could be used for line spacing.
+                
     """
 
 #our one and only parser
@@ -1024,12 +1026,15 @@ class Paragraph(Flowable):
         P1._splitpara = 1
         P1.height = height
         P1.width = availWidth
-        P1.autoLeading = self.autoLeading
         if style.firstLineIndent != 0:
             style = deepcopy(style)
             style.firstLineIndent = 0
         P2=self.__class__(None,style,bulletText=None,frags=func(blPara,s,n))
-        P2.autoLeading = self.autoLeading
+        for a in ('autoLeading',    #possible attributes that might be directly on self.
+                ):
+            if hasattr(self,a):
+                setattr(P1,a,getattr(self,a))
+                setattr(P2,a,getattr(self,a)) 
         return [P1,P2]
 
     def draw(self):
@@ -1044,20 +1049,22 @@ class Paragraph(Flowable):
 
         A) For the simple case of a single formatting input fragment the output is
             A fragment specifier with
-                kind = 0
-                fontName, fontSize, leading, textColor
-                lines=  A list of lines
+                - kind = 0
+                - fontName, fontSize, leading, textColor
+                - lines=  A list of lines
+                        
                         Each line has two items.
-                        1) unused width in points
-                        2) word list
+                        
+                        1. unused width in points
+                        2. word list
 
         B) When there is more than one input formatting fragment the output is
             A fragment specifier with
-                kind = 1
-                lines=  A list of fragments each having fields
-                            extraspace (needed for justified)
-                            fontSize
-                            words=word list
+               - kind = 1
+               - lines=  A list of fragments each having fields
+                            - extraspace (needed for justified)
+                            - fontSize
+                            - words=word list
                                 each word is itself a fragment with
                                 various settings
 

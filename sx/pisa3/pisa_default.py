@@ -559,6 +559,10 @@ blockquote {
     margin-left: 1.5em;
     margin-right: 1.5em;
 }
+
+noscript {
+    display: none;
+}  
 """
 
 DEFAULT_FONT = {

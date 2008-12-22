@@ -14,8 +14,8 @@ BODY
 """
 
 class TestCase(unittest.TestCase):
-        
-    def testSample(self):
+
+    def testParser(self):
         c = pisaContext(".")
         r = pisaParser(_data, c)
         self.assertEqual(c, r)
