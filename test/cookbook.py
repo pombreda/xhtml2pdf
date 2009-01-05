@@ -34,7 +34,7 @@ def HTML2PDF(data, filename, open=False):
         file(filename, "wb"))
 
     if open and (not pdf.err):
-        os.startfile(str(filename))
+        pisa.startViewer(filename)
 
     return not pdf.err
 
