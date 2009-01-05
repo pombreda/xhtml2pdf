@@ -28,18 +28,6 @@ def dumpErrors(pdf, showLog=True):
     if pdf.err:
         print "*** %d ERRORS OCCURED" % pdf.err
 
-def startViewer(filename):
-    " Open PDF with a viewer like Adobe Reader "
-    if filename:
-        try:
-            # This should start a file with it's
-            # corresponding application. Works fine for Windows
-            os.startfile(str(filename))
-        except:
-            # This works under MacOS X
-            cmd = 'open "%s"' % str(filename)
-            os.system(cmd)
-
 def testSimple(
     data="""Hello <b>World</b><br/><img src="img/test.jpg"/>""",
     dest="test.pdf"):
@@ -58,7 +46,7 @@ def testSimple(
     if pdf.err:
         dumpErrors(pdf)
     else:
-        startViewer(dest)
+        pisa.startViewer(dest)
 
 def testCGI(data="Hello <b>World</b>"):
 
@@ -103,7 +91,7 @@ def testBackgroundAndImage(
 
     dumpErrors(pdf)
     if not pdf.err:
-        startViewer(dest)
+        pisa.startViewer(dest)
 
 def testURL(
     url="http://www.htmltopdf.org",
@@ -130,7 +118,7 @@ def testURL(
 
     dumpErrors(pdf)
     if not pdf.err:
-        startViewer(dest)
+        pisa.startViewer(dest)
 
 if __name__=="__main__":
 

@@ -43,7 +43,7 @@ SRC
 DEST
   Name of the generated PDF file or "-" if you like
   to send the result to stdout. Take care that the
-  destination file is not alread opened by an other
+  destination file is not already opened by an other
   application like the Adobe Reader. If the destination is
   not writeable a similar name will be calculated automatically.
 
@@ -429,11 +429,12 @@ def command():
     
 def startViewer(filename):
     " Helper for opening a PDF file"
-    try:
-        os.startfile(filename)
-    except:
-        # try to opan a la apple
-        os.system('open "%s"' % filename)
+    if filename:
+        try:
+            os.startfile(filename)
+        except:
+            # try to opan a la apple
+            os.system('open "%s"' % filename)
 
 def showLogging(debug=False):
     " Shortcut for enabling log dump "
