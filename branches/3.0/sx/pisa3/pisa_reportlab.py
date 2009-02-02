@@ -428,7 +428,7 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
 
     def wrap(self, availWidth, availHeight):
 
-        self.setMaxHeight(availHeight)
+        availHeight = self.setMaxHeight(availHeight)
 
         style = self.style
          
@@ -609,10 +609,12 @@ class PmlTable(Table, PmlMaxHeightMixIn):
     def _listCellGeom(self, V, w, s, W=None, H=None, aH=72000):
         # print "#", self.availHeightValue
         if aH == 72000:
-            aH = self.availHeightValue
+            aH = self.getMaxHeight() or aH
         return Table._listCellGeom(self, V, w, s, W=W, H=H, aH=aH)
 
     def wrap(self, availWidth, availHeight):
+
+        self.setMaxHeight(availHeight)
 
         # Strange bug, sometime the totalWidth is not set !?
         try:
@@ -667,9 +669,7 @@ class PmlTable(Table, PmlMaxHeightMixIn):
         diff = sum(newColWidths) - totalWidth
         if diff > 0:
             newColWidths[0] -= diff
-
-        self.setMaxHeight(availHeight)
-
+        
         # print "New values:", totalWidth, newColWidths, sum(newColWidths)
 
         return Table.wrap(self, availWidth, availHeight)
