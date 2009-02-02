@@ -338,6 +338,8 @@ import re
 import urlparse
 import mimetypes
 import urllib2
+import urllib
+import httplib
 
 _rx_datauri = re.compile("^data:(?P<mime>[a-z]+/[a-z]+);base64,(?P<data>.*)$", re.M|re.DOTALL)
 
@@ -355,6 +357,7 @@ class pisaFileObject:
         self.uri = None
         self.local = None
         uri = str(uri)
+        log.debug("FileObject %r, Basepath: %r", uri, basepath)
 
         # Data URI
         if uri.startswith("data:"):
@@ -365,13 +368,15 @@ class pisaFileObject:
         else:
 
             # Check if we have an external scheme
-            if basepath:
+            if basepath and not uri.startswith("http://"):
                 urlParts = urlparse.urlparse(basepath)
             else:
                 urlParts = urlparse.urlparse(uri)
 
+            log.debug("URLParts: %r", urlParts)
+
             # Drive letters have len==1 but we are looking for things like http:
-            if len(urlParts[0])>1:
+            if len(urlParts[0])>1 :
 
                 # External data
                 if basepath:
@@ -379,10 +384,30 @@ class pisaFileObject:
 
                 #path = urlparse.urlsplit(url)[2]
                 #mimetype = getMimeType(path)
-                urlResponse = urllib2.urlopen(uri)
-                self.mimetype = urlResponse.info().get("Content-Type", None).split(";")[0]
-                self.uri = urlResponse.geturl()
-                self.file = urlResponse
+                
+                # Using HTTPLIB
+                server, path = urllib.splithost(uri[uri.find("//"):])
+                conn = httplib.HTTPConnection(server)
+                conn.request("GET", path)
+                r1 = conn.getresponse()
+                # log.debug("HTTP %r %r %r %r", server, path, uri, r1)
+                if (r1.status, r1.reason) == (200, "OK"):
+                    # data = r1.read()
+                    self.mimetype = r1.getheader("Content-Type", None).split(";")[0]
+                    self.uri = uri
+                    if r1.getheader("content-encoding") == "gzip":
+                        # zbuf = cStringIO.StringIO(data)
+                        self.file = gzip.GzipFile(mode="rb", fileobj=r1)
+                        #data = zfile.read()
+                        #zfile.close()
+                    else:
+                        self.file = r1                    
+                    # self.file = urlResponse
+                                                  
+                #urlResponse = urllib2.urlopen(uri)
+                #self.mimetype = urlResponse.info().get("Content-Type", None).split(";")[0]
+                #self.uri = urlResponse.geturl()
+                #self.file = urlResponse
 
             else:
 

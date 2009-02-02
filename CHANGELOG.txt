@@ -13,6 +13,8 @@ Version 3.0.30, 2009-01-xxx
 - FIX: Fixed RL Paragraph.split to work with autoleading and images
 - FIX: Small bug fix for show_error_as_pdf
 - FIX: Demos used os.startfile which is not supported on non Windows OSes
+- FIX: Table available height threw exceptions
+- FIX: Switched from urllib2 to httplib for loading external sources 
 
 Version 3.0.29, 2008-12-01
 

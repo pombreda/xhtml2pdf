@@ -19,7 +19,7 @@ import tempfile
     
 from pisa_version import *
 from pisa_document import *
-from pisa_util import StringIO
+from pisa_util import StringIO, getFile
 from pisa_default import DEFAULT_CSS
 
 import logging
@@ -346,9 +346,10 @@ def command():
             wpath = os.getcwd()
         else:
             # fsrc = open(src, "r")
-            if src.startswith("http:"):
+            if src.startswith("http:"):                
                 wpath = src
-                fsrc = urllib2.urlopen(src)
+                fsrc = getFile(src).getFile()
+                # fsrc = urllib2.urlopen(src)
                 # lc = pisaLinkLoader(src, quiet=quiet).getFileName                
                 src = "".join(urlparse.urlsplit(src)[1:3]).replace("/", "-")                                
             else:
