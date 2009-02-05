@@ -160,8 +160,20 @@ class pisaLinkLoader:
                 print "  ERROR:", e
             log.exception("pisaLinkLoader.getFileName")
         return None
-    
-def command():    
+
+def command():
+    if "--profile" in sys.argv:
+        print "*** PROFILING ENABLED"
+        import cProfile as profile
+        import pstats        
+        prof = profile.Profile()
+        prof.runcall(execute)
+        pstats.Stats(prof).strip_dirs().sort_stats('cumulative').print_stats() 
+        # cProfile.run("execute()")
+    else:
+        execute()
+        
+def execute():    
 #    from optparse import OptionParser
 #
 #    parser = OptionParser()
@@ -195,6 +207,7 @@ def command():
             "html",
             "encoding=",
             "system",
+            "profile",
             ])
     except getopt.GetoptError:
         usage()
@@ -393,6 +406,7 @@ def command():
             print "Converting %s to %s..." % (src, dest)          
     
         try:
+                                
             pdf = pisaDocument(
                 fsrc,
                 fdest,

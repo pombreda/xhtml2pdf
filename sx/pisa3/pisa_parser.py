@@ -208,6 +208,8 @@ def getCSSAttr(self, cssCascade, attrName, default=NotImplemented):
 xml.dom.minidom.Element.getCSSAttr = getCSSAttr
 
 def CSSCollect(node, c):
+    #node.cssAttrs = {}
+    #return node.cssAttrs
     if c.css:
         node.cssElement = cssDOMElementInterface.CSSDOMElementInterface(node)
         node.cssAttrs = {}

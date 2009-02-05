@@ -363,20 +363,24 @@ def _justifyDrawParaLineX( tx, offset, line, last=0):
     setXPos(tx,-offset)
 
 # XXX Modified for XHTML2PDF
-# !!! Important, don't import accelerators !!!
-#try:
-#    from _rl_accel import _sameFrag
-#except ImportError:
-#    try:
-#        from reportlab.lib._rl_accel import _sameFrag
-#    except ImportError:
-def _sameFrag(f,g):
+# !!! Accelerator do not support backgrounds !!!
+def _sameFragSlow(f,g):
     'returns 1 if two ParaFrags map out the same'
     if (hasattr(f,'cbDefn') or hasattr(g,'cbDefn')
             or hasattr(f,'lineBreak') or hasattr(g,'lineBreak')): return 0
     for a in ('fontName', 'fontSize', 'textColor', 'backColor', 'rise', 'underline', 'strike', 'link'):
         if getattr(f,a,None)!=getattr(g,a,None): return 0
     return 1
+
+try:
+    from _rl_accel import _sameFrag
+except ImportError:
+    try:
+        from reportlab.lib._rl_accel import _sameFrag
+    except ImportError:
+        _sameFrag = _sameFragSlow
+
+_sameFrag = _sameFragSlow
 
 def _getFragWords(frags):
     ''' given a Parafrag list return a list of fragwords
