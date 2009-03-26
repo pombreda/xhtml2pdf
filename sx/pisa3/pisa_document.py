@@ -14,6 +14,8 @@ from pisa_util import *
 from pisa_reportlab import *
 from pisa_default import DEFAULT_CSS
 
+from reportlab.platypus.flowables import Spacer
+
 import os
 import types
 import cgi
@@ -65,7 +67,8 @@ def pisaStory(
 
     # Avoid empty documents
     if not c.story:
-        c.addPara(force=True)
+        c.story = [Spacer(1,1)]
+        # c.addPara(force=True)
 
     # Remove anchors if they do not exist (because of a bug in Reportlab)
     for frag, anchor in c.anchorFrag:

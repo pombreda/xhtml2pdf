@@ -129,9 +129,9 @@ class PmlPageTemplate(PageTemplate):
                         iw, ih = img.getSize()
                         pw, ph = canvas._pagesize
 
-                        width = max(iw, pw)
+                        width = pw # min(iw, pw) # max
                         wfactor = float(width) / iw
-                        height = max(ih, ph)
+                        height = ph # min(ih, ph) # max
                         hfactor = float(height) / ih
                         factor = min(wfactor, hfactor)
                         w = iw * factor
