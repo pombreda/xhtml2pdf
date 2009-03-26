@@ -61,7 +61,7 @@ def split(text, delim=None):
         delim = delim.decode('utf8')
     elif delim is None and u'\xa0' in text:
         return [uword.encode('utf8') for uword in _wsc_re_split(text)]
-    return [uword.encode('utf8') for uword in text.split(delim)] 
+    return [uword.encode('utf8') for uword in text.split(delim)]
 
 def strip(text):
     if type(text) is str: 
@@ -88,7 +88,6 @@ class FragLine(ABag):
     words       [ParaFrags] style text lumps to be concatenated together
     fontSize    maximum fontSize seen on the line; not used at present,
                 but could be used for line spacing.
-                
     """
 
 #our one and only parser
@@ -195,7 +194,7 @@ def _putFragLine(cur_x, tx, line):
             if abs(xcy-cur_y)>1e-8:
                 cur_y = xcy
                 tx.setTextOrigin(x0,cur_y)
-                xs.cur_y = cur_y                
+                xs.cur_y = cur_y
         tx._olb = cur_y - descent
         tx._oleading = leading
     ws = getattr(tx,'_wordSpace',0)
@@ -363,24 +362,20 @@ def _justifyDrawParaLineX( tx, offset, line, last=0):
     setXPos(tx,-offset)
 
 # XXX Modified for XHTML2PDF
-# !!! Accelerator do not support backgrounds !!!
-def _sameFragSlow(f,g):
+# !!! Important, don't import accelerators !!!
+#try:
+#    from _rl_accel import _sameFrag
+#except ImportError:
+#    try:
+#        from reportlab.lib._rl_accel import _sameFrag
+#    except ImportError:
+def _sameFrag(f,g):
     'returns 1 if two ParaFrags map out the same'
     if (hasattr(f,'cbDefn') or hasattr(g,'cbDefn')
             or hasattr(f,'lineBreak') or hasattr(g,'lineBreak')): return 0
     for a in ('fontName', 'fontSize', 'textColor', 'backColor', 'rise', 'underline', 'strike', 'link'):
         if getattr(f,a,None)!=getattr(g,a,None): return 0
     return 1
-
-try:
-    from _rl_accel import _sameFrag
-except ImportError:
-    try:
-        from reportlab.lib._rl_accel import _sameFrag
-    except ImportError:
-        _sameFrag = _sameFragSlow
-
-_sameFrag = _sameFragSlow
 
 def _getFragWords(frags):
     ''' given a Parafrag list return a list of fragwords
@@ -907,9 +902,6 @@ class Paragraph(Flowable):
                 print "???"
                 
         # work out widths array for breaking
-        if hasattr(self, "blPara"):
-            return self.width, self.height
-        
         self.width = availWidth
         style = self.style
         leftIndent = style.leftIndent
@@ -981,7 +973,7 @@ class Paragraph(Flowable):
         if blPara.kind==1 and autoLeading not in ('','off'):
             s = height = 0
             if autoLeading=='max':
-                for i,l in enumerate(blPara.lines):                    
+                for i,l in enumerate(blPara.lines):
                     h = max(l.ascent-l.descent,leading)
                     n = height+h
                     if n>availHeight+1e-8:
@@ -999,7 +991,7 @@ class Paragraph(Flowable):
                 raise ValueError('invalid autoLeading value %r' % autoLeading)
         else:
             l = leading
-            if autoLeading=='max':                
+            if autoLeading=='max':
                 l = max(leading,LEADING_FACTOR*style.fontSize)
             elif autoLeading=='min':
                 l = LEADING_FACTOR*style.fontSize
@@ -1058,7 +1050,7 @@ class Paragraph(Flowable):
                 - lines=  A list of lines
                         
                         Each line has two items.
-                        
+
                         1. unused width in points
                         2. word list
 
