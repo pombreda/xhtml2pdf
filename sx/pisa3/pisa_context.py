@@ -49,6 +49,7 @@ def clone(self, **kwargs):
         # This else could cause trouble in Paragraphs with images etc.
         if "cbDefn" in d:
             del d["cbDefn"]
+    n.bulletText = None
     return n
 
 ParaFrag.clone = clone
@@ -839,7 +840,7 @@ class pisaContext:
                             self.fragStrip = False            
                     self.text += frag.text
                     self._appendFrag(frag)
-        # print frag.fontName, repr(frag.text), frag.bulletText                   
+        # print frag.fontName, repr(frag.text), frag.bulletText      
     
     def pushFrag(self):
         self.fragStack.append(self.frag)

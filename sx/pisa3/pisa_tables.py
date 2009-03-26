@@ -195,6 +195,9 @@ class pisaTagTABLE(pisaTag):
                 t.totalWidth = _width(tdata.width)
                 t.spaceBefore = c.frag.spaceBefore
                 t.spaceAfter = c.frag.spaceAfter
+                
+                # XXX Maybe we need to copy some more properties?
+                t.keepWithNext = c.frag.keepWithNext
                 # t.hAlign = tdata.align
                 c.addStory(t)
             else:
