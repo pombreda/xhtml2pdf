@@ -15,6 +15,7 @@ Version 3.0.30, 2009-01-xxx
 - FIX: Demos used os.startfile which is not supported on non Windows OSes
 - FIX: Table available height threw exceptions
 - FIX: Switched from urllib2 to httplib for loading external sources 
+- FIX: Correct homepage and download page in setup.py
 
 Version 3.0.29, 2008-12-01
 

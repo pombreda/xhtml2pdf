@@ -24,8 +24,8 @@ setup(
     license        = "GNU General Public License (GPL)",
     author         = "Dirk Holtwick",
     author_email   = "dirk.holtwick@gmail.com",
-    url            = "http://www.htmltopdf.org/",
-    download_url   = "http://www.htmltopdf.org/download.html",
+    url            = "http://www.xhtml2pdf.com",
+    download_url   = "http://pypi.python.org/pypi/pisa/",
     keywords       = "PDF, HTML, XHTML, XML, CSS",
 
     requires       = ["html5lib", "pypdf", "pil"], #, "reportlab"],

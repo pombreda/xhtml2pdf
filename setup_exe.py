@@ -24,7 +24,7 @@ class Target:
         self.__dict__.update(kw)
         self.version = VERSION
         self.company_name = "Dirk Holtwick"
-        self.copyright = "(c) Dirk Holtwick, 2008"
+        self.copyright = "(c) Dirk Holtwick, 2002-2009"
         self.name = "xhtml2pdf"
         self.description = "xhtml2pdf"
 
@@ -62,8 +62,8 @@ setup(
     license        = "GNU General Public License (GPL)",
     author         = "Dirk Holtwick",
     author_email   = "dirk.holtwick@gmail.com",
-    url            = "http://www.htmltopdf.org/",
-    download_url   = "http://www.htmltopdf.org/download.html",
+    url            = "http://www.xhtml2pdf.com",
+    download_url   = "http://pypi.python.org/pypi/pisa/",
     keywords       = "HTML, CSS, PDF",
 
     requires       = ["html5lib"], #, "reportlab"],
