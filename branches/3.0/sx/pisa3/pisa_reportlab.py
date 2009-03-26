@@ -701,7 +701,8 @@ class PmlTableOfContents(TableOfContents):
             ('TOPPADDING', (0, 0), (- 1, - 1), 0),
             ('BOTTOMPADDING', (0, 0), (- 1, - 1), 0),
             ]
-        for (level, text, pageNum) in _tempEntries:
+        for entry in _tempEntries:
+            level, text, pageNum = entry[:3]
             leftColStyle = self.levelStyles[level]
             if i: # Not for first element
                 tableStyle.append((

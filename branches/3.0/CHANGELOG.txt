@@ -6,7 +6,7 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
-Version 3.0.30, 2009-01-xxx
+Version 3.0.30, 2009-03-xxx
 
 - NEW: Default CSS now hides content of <noscript>
 - UPD: Better whitespace handling in RL Paragraph
@@ -16,6 +16,9 @@ Version 3.0.30, 2009-01-xxx
 - FIX: Table available height threw exceptions
 - FIX: Switched from urllib2 to httplib for loading external sources 
 - FIX: Correct homepage and download page in setup.py
+- FIX: Paragraphs in lists repeated the bullet
+- FIX: Tables now support -pdf-keep-with-next
+- FIX: TOC bug fixed
 
 Version 3.0.29, 2008-12-01
 
