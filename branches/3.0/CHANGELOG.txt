@@ -19,6 +19,7 @@ Version 3.0.30, 2009-03-xxx
 - FIX: Paragraphs in lists repeated the bullet
 - FIX: Tables now support -pdf-keep-with-next
 - FIX: TOC bug fixed
+- FIX: Add missing table columns to avoid error in Reportlab table
 
 Version 3.0.29, 2008-12-01
 

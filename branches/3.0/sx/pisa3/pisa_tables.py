@@ -127,7 +127,7 @@ class pisaTagTABLE(pisaTag):
         #tdata.bordercolor = attrs.bordercolor
 
         begin = (0, 0)
-        end = (- 1, - 1)
+        end = (-1, - 1)
             
         if attrs.border and attrs.bordercolor:
             frag = c.frag
@@ -159,7 +159,7 @@ class pisaTagTABLE(pisaTag):
 
         # Set Border and padding styles
         
-        tdata.add_cell_styles(c, (0, 0), (- 1, - 1), "table")
+        tdata.add_cell_styles(c, (0, 0), (-1, - 1), "table")
 
         # bgcolor
         #if attrs.bgcolor is not None:
@@ -178,6 +178,13 @@ class pisaTagTABLE(pisaTag):
     def end(self, c):
         tdata = c.tableData
         data = tdata.get_data()        
+        
+        # Add missing columns so that each row has the same count of columns
+        # This prevents errors in Reportlab table
+        maxcols = max([len(row) for row in data])
+        for i, row in enumerate(data):
+            data[i] += [''] * (maxcols - len(row))
+
         try:
             if tdata.data:
                 # log.debug("Table sryles %r", tdata.styles)
@@ -215,7 +222,7 @@ class pisaTagTR(pisaTag):
         tdata = c.tableData
         row = tdata.row
         begin = (0, row)
-        end = (- 1, row)
+        end = (-1, row)
         
         tdata.add_cell_styles(c, begin, end, "tr")       
         c.frag.vAlign = self.attr.valign or c.frag.vAlign
