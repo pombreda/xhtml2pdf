@@ -368,7 +368,7 @@ class pisaFileObject:
         else:
 
             # Check if we have an external scheme
-            if basepath and not uri.startswith("http://"):
+            if basepath and not (uri.startswith("http://") or uri.startswith("https://")):
                 urlParts = urlparse.urlparse(basepath)
             else:
                 urlParts = urlparse.urlparse(uri)
@@ -387,7 +387,10 @@ class pisaFileObject:
                 
                 # Using HTTPLIB
                 server, path = urllib.splithost(uri[uri.find("//"):])
-                conn = httplib.HTTPConnection(server)
+                if uri.startswith("https://"):
+                    conn = httplib.HTTPSConnection(server)
+                else:
+                    conn = httplib.HTTPConnection(server)
                 conn.request("GET", path)
                 r1 = conn.getresponse()
                 # log.debug("HTTP %r %r %r %r", server, path, uri, r1)
