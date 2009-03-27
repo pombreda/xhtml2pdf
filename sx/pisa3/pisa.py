@@ -359,7 +359,7 @@ def execute():
             wpath = os.getcwd()
         else:
             # fsrc = open(src, "r")
-            if src.startswith("http:"):                
+            if src.startswith("http:") or src.startswith("https:"):                
                 wpath = src
                 fsrc = getFile(src).getFile()
                 # fsrc = urllib2.urlopen(src)

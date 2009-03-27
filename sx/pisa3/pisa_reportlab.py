@@ -592,6 +592,7 @@ class PmlParagraph(Paragraph, PmlMaxHeightMixIn):
 class PmlKeepInFrame(KeepInFrame, PmlMaxHeightMixIn):
   
     def wrap(self, availWidth, availHeight):
+        availWidth = max(availWidth, 1.0)
         self.maxWidth = availWidth
         self.maxHeight = self.setMaxHeight(availHeight)       
         return KeepInFrame.wrap(self, availWidth, availHeight)

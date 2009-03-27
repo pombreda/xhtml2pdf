@@ -137,7 +137,7 @@ def getParaFrag(style):
     return frag     
 
 def getDirName(path):
-    if path and not path.lower().startswith("http:"):
+    if path and not (path.lower().startswith("http:") or path.lower().startswith("https:")):
         return os.path.dirname(os.path.abspath(path))
     return path
 
@@ -387,7 +387,7 @@ class pisaCSSParser(css.CSSParser):
         result = []        
         if not cssFile:
             return None
-        if self.rootPath and self.rootPath.startswith("http:"):
+        if self.rootPath and (self.rootPath.startswith("http:") or self.rootPath.startswith("https:")):
             self.rootPath = urlparse.urljoin(self.rootPath, cssResourceName)
         else:
             self.rootPath = getDirName(cssFile.uri)
@@ -451,7 +451,7 @@ class pisaContext:
         
         # Store path to document         
         self.pathDocument = path or "__dummy__"                 
-        if not self.pathDocument.lower().startswith("http:"):
+        if not (self.pathDocument.lower().startswith("http:") or self.pathDocument.lower().startswith("https:")):
             self.pathDocument = os.path.abspath(self.pathDocument)
         self.pathDirectory = getDirName(self.pathDocument)        
         

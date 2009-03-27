@@ -316,16 +316,19 @@ class pisaTagIMG(pisaTag):
 
                     afrag = c.frag.clone()
                     afrag.text = ""
+                    afrag.fontName="Helvetica" # Fix for a nasty bug!!!
                     afrag.cbDefn = ABag(
                         kind="img",
                         image=img, #.getImage(), # XXX Inline?
                         valign=valign,
+                        fontName="Helvetica", 
                         fontSize=img.drawHeight,
                         width=img.drawWidth,
                         height=img.drawHeight)
                     # print "add frag", id(afrag), img.drawWidth, img.drawHeight
                     c.fragList.append(afrag)
-                    c.fontSize = img.drawHeight                    
+                    c.fontSize = img.drawHeight    
+                                
                     
             except Exception, e:
                 log.warn(c.warning("Error in handling image"), exc_info=1)

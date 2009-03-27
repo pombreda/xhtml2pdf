@@ -1,12 +1,12 @@
 Metadata-Version: 1.1
 Name: pisa
-Version: 3.0.27
+Version: 3.0.30
 Summary: PDF generator using HTML and CSS
-Home-page: http://www.htmltopdf.org/
+Home-page: http://www.xhtml2pdf.com
 Author: Dirk Holtwick
 Author-email: dirk.holtwick@gmail.com
 License: GNU General Public License (GPL)
-Download-URL: http://www.htmltopdf.org/download.html
+Download-URL: http://pypi.python.org/pypi/pisa/
 Description: pisa is a html2pdf converter using the ReportLab Toolkit,
         the HTML5lib and pyPdf. It supports HTML 5 and CSS 2.1 (and some of CSS 3).
         It is completely written in pure Python so it is platform independent.
@@ -15,7 +15,7 @@ Description: pisa is a html2pdf converter using the ReportLab Toolkit,
         technologies. Easy integration into Python frameworks like CherryPy,
         KID Templating, TurboGears, Django, Zope, Plone, Google AppEngine (GAE) etc.
         (see 'demo' folder for examples)
-Keywords: HTML,CSS,PDF
+Keywords: PDF,HTML,XHTML,XML,CSS
 Platform: UNKNOWN
 Classifier: Development Status :: 5 - Production/Stable
 Classifier: Development Status :: 6 - Mature
@@ -72,4 +72,5 @@ Classifier: Topic :: Text Processing :: Markup :: HTML
 Classifier: Topic :: Text Processing :: Markup :: XML
 Classifier: Topic :: Utilities
 Requires: html5lib
-Requires: reportlab
+Requires: pypdf
+Requires: pil

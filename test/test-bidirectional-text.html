@@ -35,16 +35,19 @@ img	{ border-bottom: none }
 html, * {
     font-family: code2000 !important;
 }
+img {
+    font-familiy: Helvetica !important;
+}
 </style>
 </head>
 
 <!-- -->
 
 <body dir="ltr">
-
 <h1 lang="en">Bidirectional&nbsp;text &#183; <span>Bidirectional&nbsp;text</span></h1>
 
 <p lang="en">This page contains some accompanying examples to Alan Flavell&#8217;s &#8220;<a href="flavell/text-direction.html">I18n &#8211; text direction</a>&#8221;. Examples that are supposed to display <span class="fail">incorrectly</span> (i.e. not as intended) in either Mozilla or Internet Explorer&nbsp;6 are <span class="fail">in red</span>. Read the source text to understand how it&#8217;s done!</p>
+<img src="http://www.w3.org/Icons/valid-html401.gif" style="font-familiy: Helvetica">
 
 <p lang="en">You can specify text direction by (paired) Unicode control characters, by (paired) control characters written as numeric references, by HTML markup, or by CSS properties. Control characters are restricted to plain text and are <a href="http://www.w3.org/TR/unicode-xml/#Suitable"><em>not</em> suitable for use with markup languages</a> (except <a href="http://www.w3.org/TR/unicode-xml/#Format"><code>lrm</code> and <code>rlm</code></a>). The preferred method for HTML is to use HTML markup. Use control characters written as numeric references only in places where no markup is possible, such as attribute values (<code>alt</code>, <code>title</code>, etc.). Occasionally it may be convenient to specify <a href="http://www.w3.org/TR/REC-CSS2/visuren.html#direction">text direction via CSS</a>; for example, to set the <a href="table8.css.text">direction of columns in tables</a> rather than to put a <code>dir</code> attribute into each and every <code>&lt;td></code>.</p>
 
@@ -182,9 +185,7 @@ mean &#8220;Congratulations!&#8221;</p>
 <p dir="ltr">The words &#8220;<span dir="rtl">&#1502;&#1494;&#1500; [mazel] &#1496;&#1493;&#1489; [tov]</span>&#8221;
 mean &#8220;Congratulations!&#8221;</p>
 
-<p dir="ltr"><img src="not-available"
-  alt="The words &#8220;&#8235;&#1502;&#1494;&#1500; [mazel] &#1496;&#1493;&#1489; [tov]&#8236;&#8221; mean &#8220;Congratulations!&#8221;"
-title=" The words &quot;&#8235;&#1502;&#1494;&#1500; [mazel] &#1496;&#1493;&#1489; [tov]&#8236;&quot; mean &quot;Congratulations!&quot; "></p>
+<p dir="ltr"></p>
 </blockquote>
 
 <h3 lang="en">Letters and digits</h3>
@@ -628,7 +629,7 @@ title="thousand">&#1607;&#1586;&#1575;&#1585;</dfn></p>
 
 <hr>
 
-<p lang="en"><a href="http://validator.w3.org/check?uri=referer"><img alt="Valid HTML 4.01" src="http://www.w3.org/Icons/valid-html401.gif"></a>
+<p lang="en"><a href="http://validator.w3.org/check?uri=referer">xx</a>
 <small><a href="./">Andreas Prilop</a><br>30 August 2007</small></p>
 
 </body>
