@@ -210,11 +210,24 @@ class pisaTagLI(pisaTag):
         #frag.fontName = "au_00" # c.getFontName("helvetica")
         #frag.bulletFontName = "au_00" # c.getFontName("helvetica")
         
-        if type(lst) == type(u""):         
-            frag.text = lst   
+        if frag.listStyleImage is not None:
+            frag.text = u"x"
+            
+            f = frag.listStyleImage            
+            if f and (not f.notFound()):                        
+                img = PmlImage(
+                    f.getData(),
+                    width=None,
+                    height=None)   
+                img.drawHeight *= dpi96
+                img.drawWidth *= dpi96
+                frag.image = img
         else:
-            # XXX This should be the recent font, but it throws errors in Reportlab!
-            frag.text = lst(c)
+            if type(lst) == type(u""):         
+                frag.text = lst   
+            else:
+                # XXX This should be the recent font, but it throws errors in Reportlab!
+                frag.text = lst(c)
 
         # XXX This should usually be done in the context!!!
         frag.fontName = frag.bulletFontName = tt2ps(frag.fontName, frag.bold, frag.italic)        

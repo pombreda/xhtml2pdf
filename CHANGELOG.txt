@@ -6,6 +6,10 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
+Version 3.0.30, 2009-03-xx
+
+- xxx
+
 Version 3.0.30, 2009-03-27
 
 - NEW: Default CSS now hides content of <noscript>

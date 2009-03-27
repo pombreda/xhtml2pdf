@@ -115,6 +115,8 @@ def getParaFrag(style):
     frag.paddingBottom = 0
 
     frag.listStyleType = None
+    frag.listStyleImage = None
+
     frag.whiteSpace = "normal"
     
     frag.pageNumber = False
@@ -124,6 +126,7 @@ def getParaFrag(style):
     frag.bulletIndent = 0
     frag.bulletText = None
     frag.bulletFontName = "Helvetica"
+    
     frag.zoom = 1.0
     
     frag.outline = False
