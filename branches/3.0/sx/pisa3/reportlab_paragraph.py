@@ -483,9 +483,22 @@ def _drawBullet(canvas, offset, cur_y, bulletText, style):
         tx2.textOut(bulletText)
     else:
         for f in bulletText:
-            tx2.setFont(f.fontName, f.fontSize)
-            tx2.setFillColor(f.textColor)
-            tx2.textOut(f.text)
+            if hasattr(f, "image"):
+                image = f.image
+                width = image.drawWidth
+                gap = style.bulletFontSize * 0.25
+                # print style.bulletIndent, offset, width, 
+                canvas.drawImage(
+                    image.getImage(), 
+                    style.leftIndent - width - gap, 
+                    cur_y+getattr(style,"bulletOffsetY",0),
+                    width,
+                    image.drawHeight,
+                    mask='auto')
+            else:
+                tx2.setFont(f.fontName, f.fontSize)
+                tx2.setFillColor(f.textColor)
+                tx2.textOut(f.text)
 
     canvas.drawText(tx2)
     #AR making definition lists a bit less ugly

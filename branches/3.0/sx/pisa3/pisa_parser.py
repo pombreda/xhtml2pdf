@@ -163,6 +163,7 @@ attrNames = '''
     page-break-after
     page-break-before
     list-style-type
+    list-style-image
     white-space
     text-indent
     -pdf-page-break
@@ -305,10 +306,12 @@ def CSS2Frag(c, kw, isBlock):
             kw["margin-right"] += getSize(c.cssAttr["margin-right"], c.frag.fontSize)
             c.frag.rightIndent = kw["margin-right"]
         # print c.frag.rightIndent
-        if c.cssAttr.has_key("list-style-type"):
-            c.frag.listStyleType = str(c.cssAttr["list-style-type"]).lower()
         if c.cssAttr.has_key("text-indent"):
             c.frag.firstLineIndent = getSize(c.cssAttr["text-indent"], c.frag.fontSize)
+        if c.cssAttr.has_key("list-style-type"):
+            c.frag.listStyleType = str(c.cssAttr["list-style-type"]).lower()
+        if c.cssAttr.has_key("list-style-image"):
+            c.frag.listStyleImage = c.getFile(c.cssAttr["list-style-image"])
     # PADDINGS
     if isBlock:
         if c.cssAttr.has_key("padding-top"):
