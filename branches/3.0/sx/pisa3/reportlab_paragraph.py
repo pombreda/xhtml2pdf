@@ -486,6 +486,7 @@ def _drawBullet(canvas, offset, cur_y, bulletText, style):
             if hasattr(f, "image"):
                 image = f.image
                 width = image.drawWidth
+                height = image.drawHeight
                 gap = style.bulletFontSize * 0.25
                 # print style.bulletIndent, offset, width, 
                 canvas.drawImage(
@@ -493,7 +494,7 @@ def _drawBullet(canvas, offset, cur_y, bulletText, style):
                     style.leftIndent - width - gap, 
                     cur_y+getattr(style,"bulletOffsetY",0),
                     width,
-                    image.drawHeight,
+                    height,
                     mask='auto')
             else:
                 tx2.setFont(f.fontName, f.fontSize)

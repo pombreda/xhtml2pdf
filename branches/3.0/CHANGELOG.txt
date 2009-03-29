@@ -8,7 +8,9 @@ CHANGELOG
 
 Version 3.0.30, 2009-03-xx
 
-- xxx
+- NEW: Support for -list-style-image
+- FIX: Custom font image problem still appeared
+- FIX: Single image in a block issue
 
 Version 3.0.30, 2009-03-27
 

@@ -5,8 +5,8 @@
 #############################################
 
 __reversion__ = "$Revision: 20 $"
-__author__    = "$Author: holtwick $"
-__date__      = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
+__author__ = "$Author: holtwick $"
+__date__ = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
 
 import pprint
 import copy
@@ -31,7 +31,7 @@ import sx.w3c.cssDOMElementInterface as cssDOMElementInterface
 import logging
 log = logging.getLogger("ho.pisa")
 
-rxhttpstrip = re.compile("https?://[^/]+(.*)", re.M|re.I)
+rxhttpstrip = re.compile("https?://[^/]+(.*)", re.M | re.I)
 
 class AttrContainer(dict):
       
@@ -76,7 +76,7 @@ def pisaGetAttributes(c, tag, attributes):
             try:
                 if nv is not None:
                     
-                    if type(v)==types.ListType:
+                    if type(v) == types.ListType:
                         nv = nv.strip().lower()
                         if nv not in v:
                             #~ raise PML_EXCEPTION, "attribute '%s' of wrong value, allowed is one of: %s" % (k, repr(v))
@@ -289,7 +289,7 @@ def CSS2Frag(c, kw, isBlock):
         # print c.cssAttr["width"]
         zoom = "".join(toList(c.cssAttr["zoom"])) # XXX Relative is not correct!
         if zoom.endswith("%"):
-            zoom = float(zoom[:-1]) / 100.0
+            zoom = float(zoom[: - 1]) / 100.0
         c.frag.zoom = float(zoom)
     # MARGINS & LIST INDENT, STYLE
     if isBlock:
@@ -375,14 +375,14 @@ def pisaPreLoop(node, c, collect=False):
                 "print" in media or
                 "pdf" in media)):  
     
-                if name=="style":
+                if name == "style":
                     for node in node.childNodes:
                         data += pisaPreLoop(node, c, collect=True)                    
                     c.addCSS(data)                        
                     return u""
                     #collect = True
                                 
-                if name=="link" and attr.href and attr.rel.lower()=="stylesheet":
+                if name == "link" and attr.href and attr.rel.lower() == "stylesheet":
                     # print "CSS LINK", attr
                     c.addCSS('\n@import "%s" %s;' % (attr.href, ",".join(media)))
                     # c.addCSS(unicode(file(attr.href, "rb").read(), attr.charset))
@@ -437,9 +437,9 @@ def pisaLoop(node, c, path=[], **kw):
         c.node = node
 
         # Block?    
-        PAGE_BREAK=1
-        PAGE_BREAK_RIGHT=2
-        PAGE_BREAK_LEFT=3
+        PAGE_BREAK = 1
+        PAGE_BREAK_RIGHT = 2
+        PAGE_BREAK_LEFT = 3
 
         pageBreakAfter = False
         frameBreakAfter = False
@@ -504,7 +504,7 @@ def pisaLoop(node, c, path=[], **kw):
         #    c.frag.keepInFrameMaxHeight = getSize("".join(c.cssAttr["-pdf-keep-in-frame-max-height"]))
         if c.cssAttr.has_key("-pdf-keep-in-frame-mode"):
             value = str(c.cssAttr["-pdf-keep-in-frame-mode"]).strip().lower()
-            if value not in ("shrink","error", "overflow", "shrink", "truncate"):
+            if value not in ("shrink", "error", "overflow", "shrink", "truncate"):
                 value = None
             c.frag.keepInFrameMode = value
                 
@@ -542,10 +542,10 @@ def pisaLoop(node, c, path=[], **kw):
             # Page break by CSS
             if pageBreakAfter:
                 c.addStory(PageBreak()) 
-                if pageBreakAfter==PAGE_BREAK_RIGHT:
-            				c.addStory(PmlRightPageBreak())
-                if pageBreakAfter==PAGE_BREAK_LEFT:
-            				c.addStory(PmlLeftPageBreak())
+                if pageBreakAfter == PAGE_BREAK_RIGHT:
+                    c.addStory(PmlRightPageBreak())
+                if pageBreakAfter == PAGE_BREAK_LEFT:
+                    c.addStory(PmlLeftPageBreak())
             if frameBreakAfter:                
                 c.addStory(FrameBreak()) 
 
@@ -600,7 +600,7 @@ def pisaParser(src, c, default_css="", xhtml=False, encoding=None, xml_output=No
                  log.error("%r is not a valid encoding", encoding)
     
     document = parser.parse(
-        src, 
+        src,
         encoding=encoding)
         
     if xml_output:        

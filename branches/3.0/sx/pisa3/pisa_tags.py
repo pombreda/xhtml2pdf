@@ -209,10 +209,10 @@ class pisaTagLI(pisaTag):
         #print "###", c.frag.fontName
         #frag.fontName = "au_00" # c.getFontName("helvetica")
         #frag.bulletFontName = "au_00" # c.getFontName("helvetica")
-        
+
+        self.offset = 0
         if frag.listStyleImage is not None:
-            frag.text = u"x"
-            
+            frag.text = u""
             f = frag.listStyleImage            
             if f and (not f.notFound()):                        
                 img = PmlImage(
@@ -222,6 +222,7 @@ class pisaTagLI(pisaTag):
                 img.drawHeight *= dpi96
                 img.drawWidth *= dpi96
                 frag.image = img
+                self.offset = max(0, img.drawHeight - c.frag.fontSize)
         else:
             if type(lst) == type(u""):         
                 frag.text = lst   
@@ -233,7 +234,9 @@ class pisaTagLI(pisaTag):
         frag.fontName = frag.bulletFontName = tt2ps(frag.fontName, frag.bold, frag.italic)        
         c.frag.bulletText = [frag]
 
-    #def end(self, c):
+    def end(self, c):
+        c.fragBlock.spaceBefore += self.offset
+        
         #c.fragBlock.bulletText = self.bulletText
         #print 999, self.bulletText
         # c.addPara()
@@ -340,8 +343,7 @@ class pisaTagIMG(pisaTag):
                         height=img.drawHeight)
                     # print "add frag", id(afrag), img.drawWidth, img.drawHeight
                     c.fragList.append(afrag)
-                    c.fontSize = img.drawHeight    
-                                
+                    c.fontSize = img.drawHeight                                    
                     
             except Exception, e:
                 log.warn(c.warning("Error in handling image"), exc_info=1)
