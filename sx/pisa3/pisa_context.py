@@ -116,7 +116,6 @@ def getParaFrag(style):
 
     frag.listStyleType = None
     frag.listStyleImage = None
-
     frag.whiteSpace = "normal"
     
     frag.pageNumber = False
@@ -542,7 +541,7 @@ class pisaContext:
         self.story, story = copy.copy(story), copy.copy(self.story)
         return story
 
-    def toParagraphStyle(self, first, full=False):
+    def toParagraphStyle(self, first):
         style = ParagraphStyle('default%d' % self.UID(), keepWithNext=first.keepWithNext)
         style.fontName = first.fontName
         style.fontSize = first.fontSize
@@ -604,8 +603,7 @@ class pisaContext:
         #    if (style.borderColor is None) and style.borderWidth:
         #        style.borderColor = first.textColor      
 
-        if full:
-            style.fontName = tt2ps(first.fontName, first.bold, first.italic)
+        style.fontName = tt2ps(first.fontName, first.bold, first.italic)
         return style       
     
     def addTOC(self):            
@@ -633,8 +631,9 @@ class pisaContext:
         self.addStory(self.toc)
 
     def dumpPara(self, frags, style):
-        return     
-        print "%s/%s %s *** PARA" % (style.fontSize, style.leading, style.backColor)
+        return 
+      
+        print "%s/%s %s *** PARA" % (style.fontSize, style.leading, style.fontName)
         for frag in frags:
             print "%s/%s %r %r" % (
                 frag.fontSize,
@@ -646,7 +645,7 @@ class pisaContext:
     def addPara(self, force=False):
         
         # print self.force, repr(self.text)
-        force = (force or self.force) and self.fragList
+        force = (force or self.force) #and self.fragList
         self.force = False
 
         # Cleanup the trail
@@ -702,7 +701,13 @@ class pisaContext:
                 
                 # We need this empty fragment to work around problems in 
                 # Reportlab paragraphs regarding backGround etc.
-                self.fragList.append(self.fragList[ - 1].clone(text=''))
+                if self.fragList:
+                    self.fragList.append(self.fragList[ - 1].clone(text=''))
+                else:
+                    blank = self.frag.clone()
+                    blank.fontName = "Helvetica"
+                    blank.text = ''
+                    self.fragList.append(blank)                    
                 
                 self.dumpPara(self.fragAnchor + self.fragList, style)
                 para = PmlParagraph(
