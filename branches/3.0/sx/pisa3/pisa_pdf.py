@@ -31,7 +31,7 @@ class pisaPDF:
         self.addFromURI(f)
 
     def addFromString(self, data):
-        self.files.append(StringIO.StringIO(data))
+        self.files.append(pisaTempFile(data))
 
     def addDocument(self, doc):
         if hasattr(doc.dest, "read"):
@@ -45,7 +45,7 @@ class pisaPDF:
                 input = pyPdf.PdfFileReader(file)
                 for pageNumber in range(0, input.getNumPages()):
                     output.addPage(input.getPage(pageNumber))
-        out = StringIO.StringIO()
+        out = pisaTempFile()
         output.write(out)
         return out.getvalue()
 

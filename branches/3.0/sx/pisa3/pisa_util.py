@@ -29,6 +29,13 @@ import pprint
 import sys
 import string
 import re
+import base64
+import urlparse
+import mimetypes
+import urllib2
+import urllib
+import httplib
+import tempfile 
 
 rgb_re = re.compile("^.*?rgb[(]([0-9]+).*?([0-9]+).*?([0-9]+)[)].*?[ ]*$")
 
@@ -333,13 +340,78 @@ def getAlign(value, default=TA_LEFT):
 #    # Unused
 #    return str(value).upper()
 
-import base64
-import re
-import urlparse
-import mimetypes
-import urllib2
-import urllib
-import httplib
+class pisaTempFile(object): 
+    """A temporary file implementation that uses memory unless 
+    either capacity is breached or fileno is requested, at which 
+    point a real temporary file will be created and the relevant 
+    details returned 
+    
+    If capacity is -1 the second strategy will never be used.
+    
+    Inspired by:
+    http://code.activestate.com/recipes/496744/
+    """ 
+
+    STRATEGIES = (StringIO.StringIO, tempfile.NamedTemporaryFile) 
+    CAPACITY = 10*1024
+    
+    def __init__(self, buffer="", capacity=CAPACITY): 
+        """Creates a TempFile object containing the specified buffer. 
+        If capacity is specified, we use a real temporary file once the 
+        file gets larger than that size.  Otherwise, the data is stored 
+        in memory. 
+        """ 
+        self.capacity = capacity 
+        self.strategy = int(len(buffer) > self.capacity)
+        self._delegate = self.STRATEGIES[self.strategy]() 
+        self.write(buffer) 
+    
+    def makeTempFile(self):
+        if self.strategy == 0:
+            self.strategy = 1
+            new_delegate = self.STRATEGIES[1]()
+            new_delegate.write(self.getvalue())
+            self._delegate = new_delegate
+            log.warn("Created temporary file %s", self.name)
+    
+    def getFileName(self):
+        self.makeTempFile()
+        return self.name
+    
+    def fileno(self):
+        """Forces this buffer to use a temporary file as the underlying.
+        object and returns the fileno associated with it.
+        """
+        self.makeTempFile()
+        return self._delegate.fileno()
+
+    def getvalue(self):
+        if self.strategy == 0:
+            return self._delegate.getvalue()
+        self._delegate.seek(0)
+        return self._delegate.read()
+
+    def write(self, value):
+        if self.capacity > 0 and self.strategy == 0:            
+            len_value = len(value) 
+            if len_value >= self.capacity: 
+                needs_new_strategy = True 
+            else: 
+                self.seek(0, 2)  # find end of file 
+                needs_new_strategy = \
+                    (self.tell() + len_value) >= self.capacity 
+            if needs_new_strategy: 
+                self.makeTempFile()
+        self._delegate.write(value)
+
+    def __getattr__(self, name): 
+        try: 
+            return getattr(self._delegate, name) 
+        except AttributeError: 
+            # hide the delegation 
+            e = "object '%s' has no attribute '%s'" \
+                     % (self.__class__.__name__, name) 
+            raise AttributeError(e) 
 
 _rx_datauri = re.compile("^data:(?P<mime>[a-z]+/[a-z]+);base64,(?P<data>.*)$", re.M|re.DOTALL)
 
@@ -428,7 +500,7 @@ class pisaFileObject:
         if self.file is not None:
             return self.file
         if self.data is not None:
-            return StringIO.StringIO(self.data)
+            return pisaTempFile(self.data)
         return None
 
     def getData(self):
