@@ -585,7 +585,7 @@ def pisaParser(src, c, default_css="", xhtml=False, encoding=None, xml_output=No
         if type(src) is types.UnicodeType:
             encoding = "utf8"
             src = src.encode(encoding)
-        src = pisaTempFile(src)    
+        src = pisaTempFile(src, capacity=c.capacity)    
 
     # Test for the restrictions of html5lib
     if encoding:

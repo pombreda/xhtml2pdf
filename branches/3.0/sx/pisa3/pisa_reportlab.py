@@ -187,7 +187,8 @@ class PmlPageTemplate(PageTemplate):
 
         finally:
             canvas.restoreState()
-            
+
+_ctr = 1
 class PmlImageReader(object):
     "Wraps up either PIL or Java to get data from bitmaps"
     _cache = {}
@@ -338,8 +339,11 @@ class PmlImageReader(object):
                 return None
 
     def __str__(self):
-        # self.ctr += 1
-        return "PmlImageObject_%s_%s_%s" % (id(self), hash(self.fileName), 0)
+        global _ctr 
+        _ctr += 1 
+        " This is needed because of a bug in Reportlab _digester func "
+        return "PmlImageObject_%s_%d" % (id(self), _ctr)
+        # return "PmlImageObject_%s_%s" % (hash(id(self)), hash(self.fileName))
 
 class PmlImage(Flowable, PmlMaxHeightMixIn):
 

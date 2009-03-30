@@ -405,9 +405,11 @@ class pisaContext:
     varoius data.    
     """
 
-    def __init__(self, path, debug=0):
+    def __init__(self, path, debug=0, capacity=-1):
         self.fontList = copy.copy(pisa_default.DEFAULT_FONT)
         self.path = []
+        self.capacity=capacity
+        
         self.node = None
         self.toc = PmlTableOfContents()
         self.story = []
@@ -944,9 +946,10 @@ class pisaContext:
     def loadFont(self, names, src, encoding="WinAnsiEncoding", bold=0, italic=0):
         
         # XXX Just works for local filenames!        
-        if names and src and src.local:
+        if names and src: # and src.local:
             
-            src = str(src.local)
+            file = src
+            src = file.uri
             
             log.debug("Load font %r", src)
             
@@ -976,7 +979,8 @@ class pisaContext:
                     else:
                                                 
                         # Register TTF font and special name 
-                        pdfmetrics.registerFont(TTFont(fullFontName, src))
+                        filename = file.getNamedFile()
+                        pdfmetrics.registerFont(TTFont(fullFontName, filename))
                         
                         # Add or replace missing styles
                         for bold in (0, 1):
@@ -989,8 +993,17 @@ class pisaContext:
                                          
                 elif suffix in ("afm", "pfb"):
                     
-                    afm = baseName + ".afm"
-                    pfb = baseName + ".pfb"
+                    if suffix == "afm":
+                        afm = file.getNamedFile()
+                        tfile = pisaFileObject(baseName + ".pfb")
+                        pfb = tfile.getNamedFile()
+                    else:
+                        pfb  = file.getNamedFile()
+                        tfile = pisaFileObject(baseName + ".afm")
+                        afm = tfile.getNamedFile()
+                        
+                    #afm = baseName + ".afm"
+                    #pfb = baseName + ".pfb"
 
                     # determine full font name according to weight and style
                     fullFontName = "%s_%d%d" % (fontName, bold, italic)   
