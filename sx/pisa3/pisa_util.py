@@ -36,6 +36,7 @@ import urllib2
 import urllib
 import httplib
 import tempfile 
+import shutil
 
 rgb_re = re.compile("^.*?rgb[(]([0-9]+).*?([0-9]+).*?([0-9]+)[)].*?[ ]*$")
 
@@ -364,6 +365,8 @@ class pisaTempFile(object):
         file gets larger than that size.  Otherwise, the data is stored 
         in memory. 
         """ 
+        #if hasattr(buffer, "read"):
+        #shutil.copyfileobj(    fsrc, fdst[, length])   
         self.capacity = capacity 
         self.strategy = int(len(buffer) > self.capacity)
         self._delegate = self.STRATEGIES[self.strategy]() 
@@ -517,11 +520,16 @@ class pisaFileObject:
         return None
 
     def getNamedFile(self):        
+        if self.notFound():
+            return None
         if self.local:
             return str(self.local)         
         if not self.tmp_file:
             self.tmp_file = tempfile.NamedTemporaryFile()
-            self.tmp_file.write(self.getData())
+            if self.file:
+                shutil.copyfileobj(self.file, self.tmp_file)
+            else:
+                self.tmp_file.write(self.getData())
             self.tmp_file.flush()
         return self.tmp_file.name        
             
