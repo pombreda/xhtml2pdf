@@ -6,11 +6,13 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
-Version 3.0.30, 2009-03-xx
+Version 3.0.31, 2009-03-xx
 
-- NEW: Support for -list-style-image
+- NEW: Support for Style "list-style-image", also supports "zoom"
 - FIX: Custom font image problem still appeared
 - FIX: Single image in a block issue
+- FIX: Randomly used wrong images is fixed using a workaround for the bug
+       in Reportlab _digester routine
 
 Version 3.0.30, 2009-03-27
 

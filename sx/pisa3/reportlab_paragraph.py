@@ -488,14 +488,14 @@ def _drawBullet(canvas, offset, cur_y, bulletText, style):
                 width = image.drawWidth
                 height = image.drawHeight
                 gap = style.bulletFontSize * 0.25
-                # print style.bulletIndent, offset, width, 
+                img = image.getImage()
+                # print style.bulletIndent, offset, width
                 canvas.drawImage(
-                    image.getImage(), 
+                    img, 
                     style.leftIndent - width - gap, 
                     cur_y+getattr(style,"bulletOffsetY",0),
                     width,
-                    height,
-                    mask='auto')
+                    height)
             else:
                 tx2.setFont(f.fontName, f.fontSize)
                 tx2.setFillColor(f.textColor)

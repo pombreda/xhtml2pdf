@@ -645,7 +645,7 @@ class pisaContext:
     def addPara(self, force=False):
         
         # print self.force, repr(self.text)
-        force = (force or self.force) #and self.fragList
+        force = (force or self.force) 
         self.force = False
 
         # Cleanup the trail

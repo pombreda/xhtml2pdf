@@ -8,9 +8,6 @@ __reversion__ = "$Revision: 20 $"
 __author__ = "$Author: holtwick $"
 __date__ = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
 
-from pisa_util import *
-from pisa_default import TAGS, STRING
-
 from reportlab.platypus.doctemplate import BaseDocTemplate, PageTemplate, FrameBreak, NextPageTemplate
 from reportlab.platypus.tables import Table, TableStyle
 from reportlab.platypus.flowables import Flowable, Image, CondPageBreak, KeepInFrame, ParagraphAndImage
@@ -28,9 +25,13 @@ except:
         import Image as PILImage
     except:
         PILImage = None    
+
+from pisa_util import *
+from pisa_default import TAGS, STRING
         
 import copy
 import cgi
+import StringIO # XXX Important for Image loading!
 
 import logging
 log = logging.getLogger("ho.pisa")
@@ -187,7 +188,7 @@ class PmlPageTemplate(PageTemplate):
 
         finally:
             canvas.restoreState()
-
+            
 class PmlImageReader(object):
     "Wraps up either PIL or Java to get data from bitmaps"
     _cache = {}
@@ -315,7 +316,7 @@ class PmlImageReader(object):
                 elif mode not in ('L', 'RGB', 'CMYK'):
                     im = im.convert('RGB')
                     self.mode = 'RGB'
-                self._data = im.tostring()
+                self._data = im.tostring()        
         return self._data
 
     def getImageData(self):
@@ -337,15 +338,20 @@ class PmlImageReader(object):
             else:
                 return None
 
+    def __str__(self):
+        # self.ctr += 1
+        return "PmlImageObject_%s_%s_%s" % (id(self), hash(self.fileName), 0)
+
 class PmlImage(Flowable, PmlMaxHeightMixIn):
 
     #_fixedWidth = 1
     #_fixedHeight = 1
 
-    def __init__(self, data, width=None, height=None, mask="auto", mimetype=None):
+    def __init__(self, data, width=None, height=None, mask="auto", mimetype=None, **kw):        
+        self.kw = kw
         self.hAlign = 'CENTER'
         self._mask = mask
-        self.data = data
+        self._imgdata = data
         # print "###", repr(data)
         self.mimetype = mimetype
         img = self.getImage()
@@ -353,10 +359,6 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
             self.imageWidth, self.imageHeight = img.getSize()
         self.drawWidth = width or self.imageWidth
         self.drawHeight = height or self.imageHeight        
-
-    def getImage(self):
-        img = PmlImageReader(StringIO.StringIO(self.data))
-        return img
 
     def wrap(self, availWidth, availHeight):
         " This can be called more than once! Do not overwrite important data like drawWidth "
@@ -372,7 +374,14 @@ class PmlImage(Flowable, PmlMaxHeightMixIn):
         # print "imgage result", factor, self.dWidth, self.dHeight
         return (self.dWidth, self.dHeight)
 
-    def draw(self):
+    def getImage(self):
+        #if self.kw:
+        #    print "img", self.kw, hash(self._imgdata)
+        img = PmlImageReader(StringIO.StringIO(self._imgdata))
+        # print id(self._imgdata), hash(img.getRGBData())
+        return img
+
+    def draw(self):        
         img = self.getImage()
         self.canv.drawImage(
             img,

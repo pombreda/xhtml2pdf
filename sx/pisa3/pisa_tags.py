@@ -213,14 +213,17 @@ class pisaTagLI(pisaTag):
         self.offset = 0
         if frag.listStyleImage is not None:
             frag.text = u""
-            f = frag.listStyleImage            
+            f = frag.listStyleImage
             if f and (not f.notFound()):                        
                 img = PmlImage(
                     f.getData(),
                     width=None,
-                    height=None)   
+                    height=None)
                 img.drawHeight *= dpi96
                 img.drawWidth *= dpi96
+                img.pisaZoom = frag.zoom
+                img.drawWidth *= img.pisaZoom
+                img.drawHeight *= img.pisaZoom
                 frag.image = img
                 self.offset = max(0, img.drawHeight - c.frag.fontSize)
         else:
