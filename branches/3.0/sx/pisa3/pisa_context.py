@@ -622,7 +622,7 @@ class pisaContext:
                 "margin-left": 0,
                 "margin-right": 0,
                 }, True)
-            pstyle = self.toParagraphStyle(self.frag, True)            
+            pstyle = self.toParagraphStyle(self.frag)            
             #styles.append(copy.deepcopy(pstyle))
             styles.append(pstyle)
            
