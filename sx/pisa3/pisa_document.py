@@ -24,7 +24,7 @@ import logging
 log = logging.getLogger("ho.pisa")
 
 def pisaErrorDocument(dest, c):
-    out = pisaTempFile()
+    out = pisaTempFile(capacity=c.capacity)
     out.write("<p style='background-color:red;'><strong>%d error(s) occured:</strong><p>" % c.err)
     for mode, line, msg, code in c.log:
         if mode=="error":
@@ -89,6 +89,7 @@ def pisaDocument(
     encoding = None,
     xml_output = None,
     raise_exception = True,
+    capacity = 100 * 1024, # -1,
     **kw):
     
     c = None    
@@ -105,18 +106,18 @@ def pisaDocument(
             xhtml)
 
         # Prepare simple context
-        c = pisaContext(path, debug=debug)
+        c = pisaContext(path, debug=debug, capacity=capacity)
         c.pathCallback = link_callback
 
         if dest is None:
-            dest = pisaTempFile()
+            dest = pisaTempFile(capacity=c.capacity)
         c.dest = dest
 
         # Build story
         c = pisaStory(src, path, link_callback, debug, default_css, xhtml, encoding, c=c, xml_output=xml_output)
 
         # Buffer PDF into memory
-        out = pisaTempFile()
+        out = pisaTempFile(capacity=c.capacity)
 
         doc = PmlBaseDoc(
             out,
@@ -182,7 +183,7 @@ def pisaDocument(
                                 log.warn(c.warning("Background PDF %s doesn't exist.", bg))
                             output.addPage(page)
                             ctr += 1
-                        out = pisaTempFile()
+                        out = pisaTempFile(capacity=c.capacity)
                         output.write(out)
                         # data = sout.getvalue()
                     except Exception:

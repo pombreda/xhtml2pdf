@@ -8,12 +8,12 @@ __reversion__ = "$Revision: 20 $"
 __author__    = "$Author: holtwick $"
 __date__      = "$Date: 2007-10-09 12:58:24 +0200 (Di, 09 Okt 2007) $"
 
-from sx.pisa3.pisa_pdf import *
-import sx.pisa3.pisa as pisa
+from sx.pisa3 import pisa
+from sx.pisa3 import pisa_pdf
 
 if __name__=="__main__":
 
-    pdf = pisaPDF()
+    pdf = pisa_pdf.pisaPDF()
 
     subPdf = pisa.pisaDocument(
         u"""
@@ -31,6 +31,8 @@ if __name__=="__main__":
     datauri = pisa.makeDataURIFromFile("test-loremipsum.pdf")
     pdf.addFromURI(datauri)
 
+    # Write the result to a file and open it
     filename = __file__ + ".pdf"
-    open(filename, "wb").write(pdf.getvalue())
+    result = pdf.getvalue()
+    open(filename, "wb").write(result)
     pisa.startViewer(filename)
