@@ -19,7 +19,7 @@ import tempfile
     
 from pisa_version import *
 from pisa_document import *
-from pisa_util import StringIO, getFile
+from pisa_util import getFile
 from pisa_default import DEFAULT_CSS
 
 import logging

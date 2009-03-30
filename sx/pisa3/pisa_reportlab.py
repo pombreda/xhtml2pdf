@@ -31,7 +31,6 @@ from pisa_default import TAGS, STRING
         
 import copy
 import cgi
-import StringIO # XXX Important for Image loading!
 
 import logging
 log = logging.getLogger("ho.pisa")
