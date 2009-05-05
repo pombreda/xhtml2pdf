@@ -136,6 +136,8 @@ def getParaFrag(style):
     #frag.keepInFrameMaxWidth = None
     #frag.keepInFrameMaxHeight = None
     
+    frag.insideStaticFrame = 0
+    
     return frag     
 
 def getDirName(path):
@@ -385,7 +387,7 @@ class pisaCSSParser(css.CSSParser):
         
         # print "@import", self.rootPath, cssResourceName   
         oldRootPath = self.rootPath             
-        cssFile = self.c.getFile(cssResourceName, relative=self.rootPath) # StringIO.StringIO("")
+        cssFile = self.c.getFile(cssResourceName, relative=self.rootPath) 
         result = []        
         if not cssFile:
             return None

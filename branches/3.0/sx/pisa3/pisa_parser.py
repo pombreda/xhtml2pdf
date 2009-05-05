@@ -516,6 +516,7 @@ def pisaLoop(node, c, path=[], **kw):
         elementId = attr.get("id", None)             
         staticFrame = c.frameStatic.get(elementId, None)
         if staticFrame:
+            c.frag.insideStaticFrame += 1
             oldStory = c.swapStory()
                   
         # Tag specific operations
@@ -555,6 +556,7 @@ def pisaLoop(node, c, path=[], **kw):
             for frame in staticFrame:
                 frame.pisaStaticStory = c.story            
             c.swapStory(oldStory)
+            c.frag.insideStaticFrame -= 1
             
         # c.debug(1, indent, "</%s>" % (node.tagName))
         

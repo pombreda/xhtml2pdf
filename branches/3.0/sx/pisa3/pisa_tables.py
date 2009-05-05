@@ -181,7 +181,7 @@ class pisaTagTABLE(pisaTag):
         
         # Add missing columns so that each row has the same count of columns
         # This prevents errors in Reportlab table
-        maxcols = max([len(row) for row in data])
+        maxcols = max([len(row) for row in data] or [0])
         for i, row in enumerate(data):
             data[i] += [''] * (maxcols - len(row))
 
@@ -334,7 +334,8 @@ class pisaTagTD(pisaTag):
             cell = ' '        
             
         # Keep in frame if needed since Reportlab does no split inside of cells
-        elif c.frag.keepInFrameMode is not None:
+        elif (not c.frag.insideStaticFrame) and (c.frag.keepInFrameMode is not None):
+            
             # tdata.keepinframe["content"] = cell
             cell = PmlKeepInFrame(
                 maxWidth=0,
