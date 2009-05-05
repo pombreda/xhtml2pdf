@@ -494,11 +494,11 @@ class pisaFileObject:
                     else:
                         self.file = r1                    
                     # self.file = urlResponse
-                                                  
-                #urlResponse = urllib2.urlopen(uri)
-                #self.mimetype = urlResponse.info().get("Content-Type", None).split(";")[0]
-                #self.uri = urlResponse.geturl()
-                #self.file = urlResponse
+                else:                              
+                    urlResponse = urllib2.urlopen(uri)
+                    self.mimetype = urlResponse.info().get("Content-Type", None).split(";")[0]
+                    self.uri = urlResponse.geturl()
+                    self.file = urlResponse
 
             else:
 

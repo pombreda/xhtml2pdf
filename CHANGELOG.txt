@@ -6,7 +6,12 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
-Version 3.0.31, 2009-03-xx
+Version 3.0.32, 2009-05-xx
+
+- FIX: The 'keep in frame' feature for tables did not work inside of static 
+       frames (Arun Shanker Prasad)
+
+Version 3.0.31, 2009-05-04
 
 - NEW: Support for Style "list-style-image", also supports "zoom"
 - NEW: Temporary files internally are written to disk if they exceed a certain size
@@ -16,6 +21,8 @@ Version 3.0.31, 2009-03-xx
 - FIX: Single image in a block issue
 - FIX: Randomly used wrong images is fixed using a workaround for the bug
        in Reportlab _digester routine
+- FIX: Empty tables error (Davide Moro)
+- FIX: Fallback to urllib2 if httpdlib fails
 
 Version 3.0.30, 2009-03-27
 
