@@ -363,7 +363,7 @@ def execute():
             fsrc = sys.stdin
             wpath = os.getcwd()
             if base_dir:
-              wpath = base_dir
+                wpath = base_dir
         else:
             # fsrc = open(src, "r")
             if src.startswith("http:") or src.startswith("https:"):                
