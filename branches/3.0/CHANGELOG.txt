@@ -8,8 +8,11 @@ CHANGELOG
 
 Version 3.0.32, 2009-05-xx
 
+- NEW: New command line option '--base' to specify base path if input comes
+       via STDIN
 - FIX: The 'keep in frame' feature for tables did not work inside of static 
        frames (Arun Shanker Prasad)
+- FIX: Small typos 
 
 Version 3.0.31, 2009-05-04
 
