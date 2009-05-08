@@ -6,7 +6,11 @@ CHANGELOG
   very much for their help and support!" - Dirk
 ********************************************************************************
 
-Version 3.0.32, 2009-05-xx
+Version 3.0.33, 2009-05-xxx
+
+- xxx
+
+Version 3.0.32, 2009-05-08
 
 - NEW: New command line option '--base' to specify base path if input comes
        via STDIN
