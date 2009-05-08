@@ -48,6 +48,8 @@ DEST
   not writeable a similar name will be calculated automatically.
 
 [options]
+  --base, -b:
+    Specify a base path if input come via STDIN
   --css, -c:
     Path to default CSS file
   --css-dump:
@@ -185,7 +187,7 @@ def execute():
 #    (options, args) = parser.parse_args()
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "dhqstwcx", [
+        opts, args = getopt.getopt(sys.argv[1:], "dhqstwcxb", [
             "quiet",
             "help",
             "start-viewer",
@@ -200,6 +202,7 @@ def execute():
             "tempdir=",
             "format=",
             "css=",
+            "base=",
             "css-dump",
             "xml-dump",
             "xhtml",
@@ -217,7 +220,6 @@ def execute():
     startviewer = 0
     quiet = 0    
     debug = 0
-    warn = 0
     #multivalent_path = ""
     #booklet = ""   
     tempdir = None
@@ -226,6 +228,7 @@ def execute():
     xhtml = None
     encoding = None
     xml_output = None
+    base_dir = None
     
     log_level = logging.ERROR
     log_format = LOG_FORMAT
@@ -246,8 +249,7 @@ def execute():
             quiet = 1
 
         if o in ("-w", "--warn"):
-            # Warnings
-            warn = 1
+            # Warnings            
             log_level = min(log_level, logging.WARN) # If also -d ignore -w
             
         if o in ("-d", "--debug"):
@@ -295,6 +297,9 @@ def execute():
         if o in ("-t", "--format"):
             # Format XXX ???
             format = a
+            
+        if o in ("-b","--base"):
+            base_dir = a
 
         if o in ("--encoding",) and a:
             # Encoding
@@ -353,10 +358,12 @@ def execute():
         lc = None
         wpath = None
         
-        if src=="-":
+        if src=="-" or base_dir!=None:
             # Output to console
             fsrc = sys.stdin
             wpath = os.getcwd()
+            if base_dir:
+              wpath = base_dir
         else:
             # fsrc = open(src, "r")
             if src.startswith("http:") or src.startswith("https:"):                
@@ -386,7 +393,7 @@ def execute():
                 
         fdestclose = 0
         
-        if dest=="-":
+        if dest=="-" or base_dir:
             if sys.platform == "win32":
                 import msvcrt
                 msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
