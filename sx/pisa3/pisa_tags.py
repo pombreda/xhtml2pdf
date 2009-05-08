@@ -348,7 +348,7 @@ class pisaTagIMG(pisaTag):
                     c.fragList.append(afrag)
                     c.fontSize = img.drawHeight                                    
                     
-            except Exception, e:
+            except Exception:
                 log.warn(c.warning("Error in handling image"), exc_info=1)
         else:
             log.warn(c.warning("Need a valid file name!"))

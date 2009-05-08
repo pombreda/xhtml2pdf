@@ -1031,7 +1031,7 @@ class pisaContext:
                         justFont = pdfmetrics.Font(fullFontName, fontNameOriginal, encoding)
                         pdfmetrics.registerFont(justFont)
                         
-                         # Add or replace missing styles
+                        # Add or replace missing styles
                         for bold in (0, 1):
                             for italic in (0, 1):                                                                
                                 if ("%s_%d%d" % (fontName, bold, italic)) not in self.fontList:
@@ -1046,5 +1046,5 @@ class pisaContext:
                 else:
                     log.warning(self.warning("wrong attributes for <pdf:font>"))
     
-            except Exception, e:
+            except Exception:
                 log.warn(self.warning("Loading font '%s'", fontName), exc_info=1)                

@@ -34,6 +34,7 @@ class TableData:
         self.span = []
         self.mode = ""
         self.padding = 0
+        self.col = 0
         # self.c = None
 
     def add_cell(self, data=None):

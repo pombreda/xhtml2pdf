@@ -16,11 +16,11 @@ from pisa_default import DEFAULT_CSS
 
 from reportlab.platypus.flowables import Spacer
 
-import os
-import types
-import cgi
+#import os
+#import types
+#import cgi
+#import logging
 
-import logging
 log = logging.getLogger("ho.pisa")
 
 def pisaErrorDocument(dest, c):
@@ -94,7 +94,7 @@ def pisaDocument(
     
     c = None    
     if show_error_as_pdf:
-        raise_excpetion = False
+        raise_exception = False
     
     try:
 
