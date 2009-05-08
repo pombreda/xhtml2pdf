@@ -567,7 +567,8 @@ class Paragraph(Flowable):
                     if _scheme_re.match(scheme) and scheme != 'document':
                         kind = scheme.lower() == 'pdf' and 'GoToR' or 'URI'
                         if kind == 'GoToR': link = parts[1]
-                        tx._canvas.linkURL(link, rect, relative=1, kind=kind)
+                        # tx._canvas.linkURL(link, rect, relative=1, kind=kind)
+                        canvas.linkURL(link, rect, relative=1, kind=kind)
                     else:
                         if link[0] == '#':
                             link = link[1:]

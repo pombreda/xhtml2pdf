@@ -457,7 +457,7 @@ def showLogging(debug=False):
         log_level = logging.WARN
         log_format = LOG_FORMAT_DEBUG
         if debug:
-            log_level = logging.DE
+            log_level = logging.DEBUG
         logging.basicConfig(
             level=log_level,
             format=log_format)

@@ -488,6 +488,7 @@ class pisaFileObject:
                     self.uri = uri
                     if r1.getheader("content-encoding") == "gzip":
                         # zbuf = cStringIO.StringIO(data)
+                        import gzip
                         self.file = gzip.GzipFile(mode="rb", fileobj=r1)
                         #data = zfile.read()
                         #zfile.close()
