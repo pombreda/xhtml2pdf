@@ -1,4 +1,4 @@
-CHANGELOG
+ CHANGELOG
 =========
 
 ********************************************************************************
@@ -8,7 +8,7 @@ CHANGELOG
 
 Version 3.0.33, 2009-05-xxx
 
-- xxx
+- FIX: Empty cells now collapse
 
 Version 3.0.32, 2009-05-08
 
