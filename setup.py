@@ -19,7 +19,7 @@ except ImportError:
 
 setup(
     name           = "pisa",
-    version        = "VERSION{3.0.32}VERSION"[8:-8],
+    version        = "VERSION{3.0.33}VERSION"[8:-8],
     description    = "PDF generator using HTML and CSS",
     license        = "GNU General Public License (GPL)",
     author         = "Dirk Holtwick",
