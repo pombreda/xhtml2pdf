@@ -341,6 +341,17 @@ def getAlign(value, default=TA_LEFT):
 #    # Unused
 #    return str(value).upper()
 
+GAE = "google.appengine" in sys.modules
+
+if GAE:
+    STRATEGIES = (
+        StringIO.StringIO,
+        StringIO.StringIO)
+else:
+    STRATEGIES = (
+        StringIO.StringIO,
+        tempfile.NamedTemporaryFile)
+
 class pisaTempFile(object): 
     """A temporary file implementation that uses memory unless 
     either capacity is breached or fileno is requested, at which 
@@ -353,9 +364,7 @@ class pisaTempFile(object):
     http://code.activestate.com/recipes/496744/
     """ 
 
-    STRATEGIES = (
-        StringIO.StringIO,
-        tempfile.NamedTemporaryFile)
+    STRATEGIES = STRATEGIES
      
     CAPACITY = 10 * 1024
     
@@ -365,11 +374,16 @@ class pisaTempFile(object):
         file gets larger than that size.  Otherwise, the data is stored 
         in memory. 
         """ 
+        
         #if hasattr(buffer, "read"):
         #shutil.copyfileobj(    fsrc, fdst[, length])   
         self.capacity = capacity 
         self.strategy = int(len(buffer) > self.capacity)
-        self._delegate = self.STRATEGIES[self.strategy]() 
+        try:
+            self._delegate = self.STRATEGIES[self.strategy]()
+        except: 
+            # Fallback for Google AppEnginge etc.
+            self._delegate = self.STRATEGIES[0]() 
         self.write(buffer) 
     
     def makeTempFile(self):
