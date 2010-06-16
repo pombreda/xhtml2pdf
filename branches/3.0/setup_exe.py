@@ -1,8 +1,18 @@
 # -*- coding: ISO-8859-1 -*-
-#############################################
-## (C)opyright by Dirk Holtwick, 2002-2008 ##
-## All rights reserved                     ##
-#############################################
+
+# Copyright 2010 Dirk Holtwick, holtwick.it
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 __version__ = "$Revision: 247 $"
 __author__  = "$Author: holtwick $"
@@ -10,7 +20,7 @@ __date__    = "$Date: 2008-08-15 13:37:57 +0200 (Fr, 15 Aug 2008) $"
 __svnid__   = "$Id: setup_exe.py 247 2008-08-15 11:37:57Z holtwick $"
 
 """
-Optimiert für den Einsatz mit py2exe Version 0.5.4
+Optimiert fÃ¼r den Einsatz mit py2exe Version 0.5.4
 """
 
 import zipfile
@@ -24,7 +34,7 @@ class Target:
         self.__dict__.update(kw)
         self.version = VERSION
         self.company_name = "Dirk Holtwick"
-        self.copyright = "(c) Dirk Holtwick, 2002-2009"
+        self.copyright = "(c) Dirk Holtwick, 2002-2010"
         self.name = "xhtml2pdf"
         self.description = "xhtml2pdf"
 

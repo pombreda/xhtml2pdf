@@ -1,9 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: ISO-8859-1 -*-
-#############################################
-## (C)opyright by Dirk Holtwick, 2002-2008 ##
-## All rights reserved                     ##
-#############################################
+
+# Copyright 2010 Dirk Holtwick, holtwick.it
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 __version__ = "$Revision: 247 $"
 __author__  = "$Author: holtwick $"
@@ -21,7 +31,7 @@ setup(
     name           = "pisa",
     version        = "VERSION{3.0.33}VERSION"[8:-8],
     description    = "PDF generator using HTML and CSS",
-    license        = "GNU General Public License (GPL)",
+    license        = "Apache License 2.0",
     author         = "Dirk Holtwick",
     author_email   = "dirk.holtwick@gmail.com",
     url            = "http://www.xhtml2pdf.com",
@@ -61,6 +71,9 @@ KID Templating, TurboGears, Django, Zope, Plone, Google AppEngine (GAE) etc.
         """.strip(),
 
     classifiers = [x.strip() for x in """
+        License :: Freeware
+        License :: OSI Approved
+        License :: OSI Approved :: Apache Software License
         Development Status :: 5 - Production/Stable
         Development Status :: 6 - Mature
         Environment :: Console
@@ -85,8 +98,6 @@ KID Templating, TurboGears, Django, Zope, Plone, Google AppEngine (GAE) etc.
         Intended Audience :: Science/Research
         Intended Audience :: System Administrators
         Intended Audience :: Telecommunications Industry
-        License :: Free for non-commercial use
-        License :: OSI Approved :: GNU General Public License (GPL)
         Natural Language :: English
         Natural Language :: German
         Operating System :: MacOS
