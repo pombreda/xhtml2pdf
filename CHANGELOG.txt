@@ -6,8 +6,9 @@
   very much for their help and support!" - Dirk
 ********************************************************************************
 
-Version 3.0.33, 2009-05-xxx
-
+Version 3.0.33, 2010-06-16
+- NEW: Changed license to Apache License 2.0, now completely Open Source 
+       without any charging. Feel free to continue or for this project.
 - FIX: Empty cells now collapse
 
 Version 3.0.32, 2009-05-08
